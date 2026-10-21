@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#fbfbfe">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="ShiftTracker">
-  <title>Shift & Salary Tracker</title>
+  <meta name="apple-mobile-web-app-title" content="Lương Ca">
+  <title>Quản lý Lương & Ca Làm</title>
 
-  <!-- PWA Manifest & Favicon -->
+  <!-- PWA Manifest & Favicon (Money Icon) -->
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <!-- Ambient Warm Aura (No purple AI tell) -->
+  <!-- Ambient Soft Aura -->
   <div class="ambient-aura" aria-hidden="true"></div>
 
   <!-- App Scaffold -->
@@ -31,20 +31,22 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <div class="brand-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
+        <div class="brand-badge" title="Quản lý Lương Ca">
+          <!-- Money / Currency Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M6 12h.01M18 12h.01"></path>
           </svg>
         </div>
         <div>
-          <h1 class="brand-title">Shift Tracker</h1>
+          <h1 class="brand-title">Lương Ca Làm</h1>
           <span class="brand-date font-mono" id="currentDateDisplay">Đang tải...</span>
         </div>
       </div>
 
       <nav class="header-nav">
-        <button id="btnAllWeeks" class="btn btn-pill-outline" title="Tổng kết tất cả các tuần">
+        <button id="btnAllWeeks" class="btn btn-pill-outline" title="Xem tổng kết tất cả các tuần">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
             <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
@@ -54,14 +56,14 @@
           <span class="desktop-only">Tổng kết</span>
         </button>
 
-        <button id="btnSettings" class="btn btn-pill-icon" title="Cài đặt & Dữ liệu">
+        <button id="btnSettings" class="btn btn-pill-icon" title="Cài đặt & Sao lưu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
 
-        <button id="btnOpenAddShift" class="btn btn-pill-dark" title="Thêm ca làm việc">
+        <button id="btnOpenAddShift" class="btn btn-pill-dark" title="Thêm ca làm việc mới">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -71,68 +73,12 @@
       </nav>
     </header>
 
-    <!-- Punch-in Clock Card -->
-    <section class="clock-panel" id="punchCard">
-      <!-- Idle State -->
-      <div class="clock-idle" id="punchIdleState">
-        <div class="clock-idle-left">
-          <div class="status-orb">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-              <polygon points="6 4 18 12 6 20 6 4"></polygon>
-            </svg>
-          </div>
-          <div>
-            <div class="clock-title">Bấm giờ ca làm việc</div>
-            <div class="clock-subtitle font-mono">Bắt đầu tính giờ và tạm tính thu nhập tức thì</div>
-          </div>
-        </div>
-
-        <div class="clock-idle-right">
-          <div class="preset-selector">
-            <button class="chip active" data-preset-type="Trưa">Ca Trưa</button>
-            <button class="chip" data-preset-type="Tối">Ca Tối</button>
-          </div>
-          <button id="btnStartPunch" class="btn btn-pill-dark">
-            <span>Bắt đầu ca</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Active State (In shift) -->
-      <div class="clock-active" id="punchActiveState" style="display: none;">
-        <div class="clock-active-bar">
-          <div class="active-badge font-mono">
-            <span class="live-dot"></span>
-            <span>Đang trong ca (<span id="punchActiveType">Tối</span>)</span>
-            <span class="start-time">vào lúc <b id="punchStartTimeDisplay">--:--</b></span>
-          </div>
-          <button id="btnStopPunch" class="btn btn-pill-danger">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-              <rect x="5" y="5" width="14" height="14" rx="2"></rect>
-            </svg>
-            <span>Kết thúc ca</span>
-          </button>
-        </div>
-
-        <div class="clock-metrics-grid">
-          <div class="metric-box">
-            <span class="m-label font-mono">Thời gian đã làm</span>
-            <span class="m-value font-mono" id="punchElapsedTime">00:00:00</span>
-          </div>
-          <div class="metric-box highlight">
-            <span class="m-label font-mono">Tạm tính lương</span>
-            <span class="m-value font-mono text-dark-accent" id="punchEstimatedWage">0 đ</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Week Navigation -->
     <section class="week-nav-bar">
       <div class="week-nav-meta">
         <div class="week-heading-group">
           <h2 id="currentWeekTitle" class="week-title">Tuần 8</h2>
-          <button id="btnEditWeekMeta" class="rate-tag font-mono" title="Chỉnh sửa đơn giá tuần">
+          <button id="btnEditWeekMeta" class="rate-tag font-mono" title="Chỉnh sửa đơn giá tuần này">
             <span id="currentWeekRateBadge">40.000 đ/h</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
               <path d="M12 20h9"></path>
@@ -196,7 +142,7 @@
     <section class="shifts-section">
       <div class="shifts-header">
         <div class="shifts-title-group">
-          <h3 class="shifts-title">Danh sách ca làm</h3>
+          <h3 class="shifts-title">Danh sách ca làm việc</h3>
           <span class="badge-count font-mono" id="shiftsCountBadge">0 ca</span>
         </div>
         <button id="btnQuickExportWeek" class="btn-link-action font-mono" title="Xuất file CSV cho tuần này">

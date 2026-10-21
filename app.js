@@ -1,9 +1,9 @@
 /**
  * Shift & Salary Tracker — Application Logic
- * Pure ES6+, Zero-Dependency, Offline-First
+ * Pure Shift & Salary Data Entry (Offline-First, Zero-Dependency)
  */
 
-// 1. Embedded Seed Data (migrated exactly from Salary.xlsx Weeks 1-8)
+// 1. Embedded Seed Data (migrated from Salary.xlsx Weeks 1-8)
 const DEFAULT_SEED_DATA = [
   {
     "id": "week-1",
@@ -100,9 +100,8 @@ const DEFAULT_SEED_DATA = [
 ];
 
 // Storage Keys
-const STORAGE_WEEKS_KEY = 'shift_tracker_weeks_v1';
-const STORAGE_SETTINGS_KEY = 'shift_tracker_settings_v1';
-const STORAGE_PUNCH_KEY = 'shift_tracker_punch_v1';
+const STORAGE_WEEKS_KEY = 'shift_tracker_weeks_v2';
+const STORAGE_SETTINGS_KEY = 'shift_tracker_settings_v2';
 
 // Application State
 const state = {
@@ -110,12 +109,10 @@ const state = {
   currentWeekId: null,
   settings: {
     defaultRate: 40000
-  },
-  punchSession: null, // { active: bool, startTime: timestamp, type: string, day: string }
-  punchTimerInterval: null
+  }
 };
 
-// Utilities
+// Formatting Utilities
 const fmtCurrency = (num) => {
   return new Intl.NumberFormat('vi-VN').format(Math.round(num || 0)) + ' đ';
 };
@@ -136,12 +133,6 @@ const parseTimeToMinutes = (timeStr) => {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return (h || 0) * 60 + (m || 0);
-};
-
-const minutesToTimeStr = (totalMins) => {
-  const h = Math.floor(totalMins / 60) % 24;
-  const m = totalMins % 60;
-  return `${h < 10 ? '0' : ''}${h}:${m < 10 ? '0' : ''}${m}`;
 };
 
 const calculateHoursDiff = (startStr, endStr) => {
@@ -181,13 +172,13 @@ const showToast = (message) => {
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => {
     toast.style.display = 'none';
-  }, 2500);
+  }, 2400);
 };
 
-// State Persistence
+// Persistence
 const loadState = () => {
   try {
-    const savedWeeks = localStorage.getItem(STORAGE_WEEKS_KEY);
+    const savedWeeks = localStorage.getItem(STORAGE_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
     if (savedWeeks) {
       state.weeks = JSON.parse(savedWeeks);
     } else {
@@ -195,17 +186,11 @@ const loadState = () => {
       saveWeeks();
     }
 
-    const savedSettings = localStorage.getItem(STORAGE_SETTINGS_KEY);
+    const savedSettings = localStorage.getItem(STORAGE_SETTINGS_KEY) || localStorage.getItem('shift_tracker_settings_v1');
     if (savedSettings) {
       state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
     }
 
-    const savedPunch = localStorage.getItem(STORAGE_PUNCH_KEY);
-    if (savedPunch) {
-      state.punchSession = JSON.parse(savedPunch);
-    }
-
-    // Default current week is the last week in list
     if (state.weeks.length > 0) {
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
@@ -224,23 +209,13 @@ const saveSettings = () => {
   localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(state.settings));
 };
 
-const savePunchSession = () => {
-  if (state.punchSession) {
-    localStorage.setItem(STORAGE_PUNCH_KEY, JSON.stringify(state.punchSession));
-  } else {
-    localStorage.removeItem(STORAGE_PUNCH_KEY);
-  }
-};
-
-// Current Week Helper
 const getCurrentWeek = () => {
   return state.weeks.find(w => w.id === state.currentWeekId) || state.weeks[0];
 };
 
-// Rendering Functions
+// Render Functions
 const renderApp = () => {
   renderDateDisplay();
-  renderPunchCard();
   renderWeekPills();
   renderWeekDetails();
   renderShiftsList();
@@ -262,13 +237,12 @@ const renderWeekPills = () => {
     const pill = document.createElement('div');
     pill.className = `week-pill ${week.id === state.currentWeekId ? 'active' : ''}`;
     
-    // Calculate week hours for preview
     const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
     const totalWage = totalHours * week.rate;
 
     pill.innerHTML = `
       <div class="pill-name">${week.name}</div>
-      <div class="pill-sub">${fmtCurrency(totalWage)}</div>
+      <div class="pill-sub font-mono">${fmtCurrency(totalWage)}</div>
     `;
 
     pill.addEventListener('click', () => {
@@ -281,7 +255,6 @@ const renderWeekPills = () => {
     container.appendChild(pill);
   });
 
-  // Auto scroll active pill into view
   const activePill = container.querySelector('.week-pill.active');
   if (activePill) {
     activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -304,7 +277,7 @@ const renderWeekDetails = () => {
   document.getElementById('kpiWeekHours').textContent = fmtHours(totalHours);
   document.getElementById('kpiWeekHoursDetail').textContent = hoursToHourMinutes(totalHours);
   document.getElementById('kpiShiftCount').textContent = `${shiftCount} ca`;
-  document.getElementById('kpiAvgHours').textContent = `Trung bình ${avgHours}h / ca`;
+  document.getElementById('kpiAvgHours').textContent = `${avgHours} h/ca`;
   document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ca`;
 };
 
@@ -317,17 +290,17 @@ const renderShiftsList = () => {
     listContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
         <div class="empty-state-title">Chưa có ca làm việc nào trong ${week.name}</div>
-        <p class="empty-state-desc">Bấm nút "Thêm ca" hoặc bật đồng hồ bấm giờ để bắt đầu ghi lại ca làm việc của bạn.</p>
-        <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnOpenAddShift').click()">
-          + Thêm ca đầu tiên
+        <p class="empty-state-desc">Bấm nút "Thêm ca" bên trên để bắt đầu ghi lại ca làm việc của bạn.</p>
+        <button class="btn btn-pill-dark" onclick="document.getElementById('btnOpenAddShift').click()">
+          + Thêm ca làm
         </button>
       </div>
     `;
@@ -343,17 +316,17 @@ const renderShiftsList = () => {
 
     card.innerHTML = `
       <div class="shift-left">
-        <div class="day-badge ${getDayClass(shift.day)}">
+        <div class="day-badge font-mono ${getDayClass(shift.day)}">
           <span>${shift.day}</span>
         </div>
         <div class="shift-info">
           <div class="shift-title-row">
             <span class="shift-type-pill ${typeClass}">${shift.type}</span>
-            <span class="shift-time-range">${shift.start} → ${shift.end}</span>
+            <span class="shift-time-range font-mono">${shift.start} → ${shift.end}</span>
           </div>
-          <div class="shift-subtext">
+          <div class="shift-subtext font-mono">
             <span>${shift.hours}h (${hoursToHourMinutes(shift.hours)})</span>
-            ${shift.note ? `<span class="shift-note">• ${escapeHtml(shift.note)}</span>` : ''}
+            ${shift.note ? `<span class="shift-note font-sans">• ${escapeHtml(shift.note)}</span>` : ''}
           </div>
         </div>
       </div>
@@ -361,16 +334,16 @@ const renderShiftsList = () => {
       <div class="shift-right">
         <div class="shift-earnings-wrap">
           <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
-          <div class="shift-hours-label">lương ca</div>
+          <div class="shift-hours-label font-mono">lương ca</div>
         </div>
         <div class="shift-card-actions">
-          <button class="btn-action-icon" title="Chỉnh sửa ca" data-edit-shift="${shift.id}">
+          <button class="btn-action-icon" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
-          <button class="btn-action-icon danger" title="Xóa ca" data-delete-shift="${shift.id}">
+          <button class="btn-action-icon danger" title="Xóa ca" data-delete-shift="${shift.id}" aria-label="Xóa">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -380,7 +353,6 @@ const renderShiftsList = () => {
       </div>
     `;
 
-    // Action handlers
     card.querySelector(`[data-edit-shift="${shift.id}"]`).addEventListener('click', () => {
       openEditShiftModal(shift);
     });
@@ -399,103 +371,6 @@ const escapeHtml = (str) => {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
-};
-
-// Live Punch Timer Logic
-const renderPunchCard = () => {
-  const idleStateEl = document.getElementById('punchIdleState');
-  const activeStateEl = document.getElementById('punchActiveState');
-
-  if (state.punchSession && state.punchSession.active) {
-    idleStateEl.style.display = 'none';
-    activeStateEl.style.display = 'flex';
-
-    document.getElementById('punchActiveType').textContent = state.punchSession.type || 'Trưa';
-    const startDate = new Date(state.punchSession.startTime);
-    document.getElementById('punchStartTimeDisplay').textContent = 
-      `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
-
-    startPunchTicker();
-  } else {
-    idleStateEl.style.display = 'flex';
-    activeStateEl.style.display = 'none';
-    stopPunchTicker();
-  }
-};
-
-const startPunchTicker = () => {
-  stopPunchTicker();
-  updatePunchMetrics();
-  state.punchTimerInterval = setInterval(updatePunchMetrics, 1000);
-};
-
-const stopPunchTicker = () => {
-  if (state.punchTimerInterval) {
-    clearInterval(state.punchTimerInterval);
-    state.punchTimerInterval = null;
-  }
-};
-
-const updatePunchMetrics = () => {
-  if (!state.punchSession || !state.punchSession.active) return;
-
-  const now = Date.now();
-  const elapsedMs = Math.max(0, now - state.punchSession.startTime);
-  const totalSeconds = Math.floor(elapsedMs / 1000);
-
-  const hours = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  const secs = totalSeconds % 60;
-
-  const timeStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  document.getElementById('punchElapsedTime').textContent = timeStr;
-
-  const week = getCurrentWeek();
-  const rate = week ? week.rate : state.settings.defaultRate;
-  const hoursFraction = totalSeconds / 3600;
-  const estimatedWage = hoursFraction * rate;
-
-  document.getElementById('punchEstimatedWage').textContent = fmtCurrency(estimatedWage);
-};
-
-// Start Punch In
-const startPunch = (type = 'Tối') => {
-  state.punchSession = {
-    active: true,
-    startTime: Date.now(),
-    type: type,
-    day: getVietnameseDayOfWeek()
-  };
-  savePunchSession();
-  renderPunchCard();
-  showToast(`Đã bắt đầu tính giờ ca ${type}`);
-};
-
-// Stop Punch In
-const stopPunch = () => {
-  if (!state.punchSession) return;
-
-  const startTime = new Date(state.punchSession.startTime);
-  const endTime = new Date();
-  const type = state.punchSession.type;
-  const day = state.punchSession.day || getVietnameseDayOfWeek(startTime);
-
-  const startStr = `${startTime.getHours().toString().padStart(2, '0')}:${startTime.getMinutes().toString().padStart(2, '0')}`;
-  const endStr = `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`;
-
-  // Reset punch session
-  state.punchSession = null;
-  savePunchSession();
-  renderPunchCard();
-
-  // Open modal with pre-filled punch data for final confirmation & save
-  openAddShiftModal({
-    day: day,
-    type: type,
-    start: startStr,
-    end: endStr,
-    note: 'Bấm giờ trực tiếp'
-  });
 };
 
 // Shift Actions (Add / Edit / Delete)
@@ -567,14 +442,12 @@ const saveShiftFromModal = (e) => {
   if (!week) return;
 
   if (editId) {
-    // Update existing shift
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
       week.shifts[index] = { ...week.shifts[index], day, type, start, end, hours, note };
-      showToast('Đã cập nhật ca làm việc');
+      showToast('Đã cập nhật ca làm');
     }
   } else {
-    // Add new shift
     const newShift = {
       id: `s-${Date.now()}`,
       day,
@@ -607,7 +480,7 @@ const deleteShift = (shiftId) => {
   showToast('Đã xóa ca làm việc');
 };
 
-// Week Actions (New, Edit, Prev/Next, Delete)
+// Week Actions
 const createNewWeek = () => {
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
@@ -663,7 +536,7 @@ const deleteCurrentWeek = () => {
     return;
   }
 
-  if (confirm(`Bạn có chắc chắn muốn xóa toàn bộ "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
+  if (confirm(`Bạn có chắc chắn muốn xóa "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
     state.weeks = state.weeks.filter(w => w.id !== week.id);
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     saveWeeks();
@@ -686,7 +559,7 @@ const navigateWeek = (direction) => {
   }
 };
 
-// All-time Summary Modal
+// All-time Summary
 const openAllWeeksModal = () => {
   let totalHours = 0;
   let totalEarnings = 0;
@@ -710,9 +583,13 @@ const openAllWeeksModal = () => {
       <td>${fmtCurrency(week.rate)}/h</td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
-      <td class="text-emerald">${fmtCurrency(weekEarnings)}</td>
+      <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
       <td>
-        <button class="btn btn-secondary btn-sm" data-jump-week="${week.id}">Xem</button>
+        <button class="btn btn-pill-outline btn-action-icon" data-jump-week="${week.id}" title="Xem tuần này">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </td>
     `;
 
@@ -756,7 +633,7 @@ const exportCurrentWeekCSV = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  let csvContent = '\uFEFF'; // UTF-8 BOM for Microsoft Excel compatibility
+  let csvContent = '\uFEFF';
   csvContent += `BẢNG CHẤM CÔNG VÀ LƯƠNG — ${week.name}\r\n`;
   csvContent += `Đơn giá: ${week.rate} VNĐ/h\r\n\r\n`;
   csvContent += `Thứ,Ca,Giờ bắt đầu,Giờ kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
@@ -799,14 +676,14 @@ const exportAllWeeksCSV = () => {
 
 const backupJSON = () => {
   const data = {
-    version: '1.0',
+    version: '2.0',
     exportDate: new Date().toISOString(),
     settings: state.settings,
     weeks: state.weeks
   };
   const jsonStr = JSON.stringify(data, null, 2);
   const dateStr = new Date().toISOString().slice(0, 10);
-  downloadFile(jsonStr, `shift_tracker_backup_${dateStr}.json`, 'application/json');
+  downloadFile(jsonStr, `shift_salary_backup_${dateStr}.json`, 'application/json');
   showToast('Đã tải file sao lưu JSON');
 };
 
@@ -828,7 +705,7 @@ const restoreJSON = (e) => {
         renderApp();
         showToast('Khôi phục dữ liệu thành công!');
       } else {
-        alert('File JSON không hợp lệ hoặc thiếu dữ liệu các tuần.');
+        alert('File JSON không hợp lệ hoặc thiếu dữ liệu.');
       }
     } catch (err) {
       alert('Không thể đọc file: ' + err.message);
@@ -898,22 +775,6 @@ const bindEvents = () => {
   document.getElementById('btnSettings').addEventListener('click', openSettingsModal);
   document.getElementById('btnOpenAddShift').addEventListener('click', () => openAddShiftModal());
 
-  // Punch actions
-  document.getElementById('btnStartPunch').addEventListener('click', () => {
-    const activeChip = document.querySelector('.chip.active, .btn-chip.active');
-    const preset = activeChip ? activeChip.getAttribute('data-preset-type') : 'Tối';
-    startPunch(preset);
-  });
-  document.getElementById('btnStopPunch').addEventListener('click', stopPunch);
-
-  // Punch preset chips
-  document.querySelectorAll('.chip, .btn-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip, .btn-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-    });
-  });
-
   // Week navigation
   document.getElementById('btnPrevWeek').addEventListener('click', () => navigateWeek(-1));
   document.getElementById('btnNextWeek').addEventListener('click', () => navigateWeek(1));
@@ -929,7 +790,7 @@ const bindEvents = () => {
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
 
   // Preset buttons in Shift Modal
-  document.querySelectorAll('.btn-preset').forEach(btn => {
+  document.querySelectorAll('.preset-tile').forEach(btn => {
     btn.addEventListener('click', () => {
       const preset = btn.getAttribute('data-preset');
       if (preset === 'noon') {
@@ -958,9 +819,7 @@ const bindEvents = () => {
 
   // PWA Service Worker Registration
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js').then(() => {
-      console.log('ShiftTracker Service Worker active.');
-    }).catch(err => {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
       console.warn('Service Worker registration skipped:', err);
     });
   }
