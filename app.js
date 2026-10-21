@@ -314,16 +314,31 @@ const renderShiftsList = () => {
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
-        <div class="empty-state-title">Chưa có ca làm việc nào trong ${week.name}</div>
-        <p class="empty-state-desc">Bấm nút "Thêm ca" bên trên để bắt đầu ghi lại ca làm việc của bạn.</p>
-        <button class="btn-morphic btn-morphic-primary" onclick="document.getElementById('btnOpenAddShift').click()" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
+        <div class="empty-state-title">Chưa có ca làm việc nào trong ${escapeHtml(week.name)}</div>
+        <p class="empty-state-desc">Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.</p>
+        <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
+          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="Xóa tuần này" aria-label="Xóa tuần này">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
       </div>
     `;
+
+    const btnAdd = document.getElementById('btnEmptyAddShift');
+    if (btnAdd) btnAdd.addEventListener('click', () => openAddShiftModal());
+
+    const btnDel = document.getElementById('btnEmptyDeleteWeek');
+    if (btnDel) btnDel.addEventListener('click', deleteCurrentWeek);
+
     return;
   }
 
@@ -402,6 +417,9 @@ const openAddShiftModal = (prefill = null) => {
   document.getElementById('shiftModalTitle').textContent = 'Thêm ca làm việc';
   document.getElementById('editShiftId').value = '';
 
+  const btnDel = document.getElementById('btnDeleteShiftModal');
+  if (btnDel) btnDel.style.display = 'none';
+
   const now = new Date();
   const defaultDay = prefill ? prefill.day : getVietnameseDayOfWeek(now);
   const defaultType = prefill ? prefill.type : 'Tối';
@@ -423,6 +441,9 @@ const openEditShiftModal = (shift) => {
   const modal = document.getElementById('shiftModal');
   document.getElementById('shiftModalTitle').textContent = 'Chỉnh sửa ca làm việc';
   document.getElementById('editShiftId').value = shift.id;
+
+  const btnDel = document.getElementById('btnDeleteShiftModal');
+  if (btnDel) btnDel.style.display = 'inline-flex';
 
   document.getElementById('shiftDay').value = shift.day;
   document.getElementById('shiftType').value = shift.type;
@@ -599,17 +620,25 @@ const openAllWeeksModal = () => {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${week.name}</td>
+      <td>${escapeHtml(week.name)}</td>
       <td>${fmtCurrency(week.rate)}/h</td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
       <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
       <td>
-        <button class="btn-morphic btn-morphic-sm" data-jump-week="${week.id}" title="Xem tuần này" aria-label="Xem tuần này">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
+        <div class="table-actions">
+          <button class="btn-morphic btn-morphic-sm" data-jump-week="${week.id}" title="Xem tuần này" aria-label="Xem tuần này">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" data-delete-week="${week.id}" title="Xóa ${escapeHtml(week.name)}" aria-label="Xóa ${escapeHtml(week.name)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
       </td>
     `;
 
@@ -617,6 +646,23 @@ const openAllWeeksModal = () => {
       state.currentWeekId = week.id;
       closeModal('allWeeksModal');
       renderApp();
+    });
+
+    tr.querySelector(`[data-delete-week="${week.id}"]`).addEventListener('click', () => {
+      if (state.weeks.length <= 1) {
+        alert('Không thể xóa tuần duy nhất còn lại.');
+        return;
+      }
+      if (confirm(`Bạn có chắc chắn muốn xóa "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
+        state.weeks = state.weeks.filter(w => w.id !== week.id);
+        if (state.currentWeekId === week.id) {
+          state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+        }
+        saveWeeks();
+        renderApp();
+        openAllWeeksModal();
+        showToast(`Đã xóa ${week.name}`);
+      }
     });
 
     tbody.appendChild(tr);
@@ -1114,9 +1160,12 @@ const bindEvents = () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
-  // Week meta and new week
+  // Week meta, new week, and quick delete week
   const btnNewWeek = document.getElementById('btnNewWeek');
   if (btnNewWeek) btnNewWeek.addEventListener('click', createNewWeek);
+
+  const btnDeleteCurrentWeekBar = document.getElementById('btnDeleteCurrentWeekBar');
+  if (btnDeleteCurrentWeekBar) btnDeleteCurrentWeekBar.addEventListener('click', deleteCurrentWeek);
 
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
@@ -1129,6 +1178,19 @@ const bindEvents = () => {
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', updateModalComputedPreview);
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
+
+  const btnDeleteShiftModal = document.getElementById('btnDeleteShiftModal');
+  if (btnDeleteShiftModal) {
+    btnDeleteShiftModal.addEventListener('click', () => {
+      const editId = document.getElementById('editShiftId').value;
+      if (editId) {
+        if (confirm('Bạn có chắc chắn muốn xóa ca làm việc này không?')) {
+          deleteShift(editId);
+          closeModal('shiftModal');
+        }
+      }
+    });
+  }
 
   // Preset buttons in Shift Modal
   document.querySelectorAll('.preset-tile').forEach(btn => {

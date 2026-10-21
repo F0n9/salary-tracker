@@ -1059,6 +1059,12 @@ body {
   background-color: #fafbfc;
 }
 
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* Toast */
 .toast-capsule {
   position: fixed;
