@@ -1,40 +1,40 @@
+# Design Specification: Shift & Salary Tracker
+
+> Phong cách: **Morphic Light Minimal** — Không có dấu hiệu của AI, phông sáng, icon basic màu đơn giản, bố cục thoáng đãng và không có thông tin nhiễu.
+
 ---
-version: alpha
-name: Apple-design-analysis
-description: A precision-crafted, photography and typography-first interface following Apple Human Interface Guidelines (HIG). Canvas transitions gracefully across deep black (#000000) and graphite tiles (#161617, #1d1d1f), framed by SF Pro Display / SF Pro Text with negative letter-spacing and signature Action Blue (#2997ff) with Apple Mint/Green (#30d158) for metrics. UI chrome recedes completely — no decorative gradients, no glowing shadows on chrome, only clean pill buttons (980px radius) and crisp hairline borders.
 
-colors:
-  primary: "#0071e3"
-  primary-on-dark: "#2997ff"
-  accent-green: "#30d158"
-  accent-amber: "#ff9f0a"
-  accent-red: "#ff453a"
-  body-on-dark: "#f5f5f7"
-  body-muted: "#86868b"
-  hairline: "rgba(255, 255, 255, 0.12)"
-  canvas: "#000000"
-  surface-card: "#161617"
-  surface-card-hover: "#1d1d1f"
-  surface-input: "#0c0c0d"
-  surface-chip: "rgba(255, 255, 255, 0.08)"
+## 1. Triết lý thiết kế (Design Philosophy)
+- **Nền sáng tinh tế (Airy Ambient Canvas):** Nền sáng tự nhiên (`#fbfbfe`), điểm xuyết ánh sáng pastel mờ nhạt cực nhẹ ở phía trên (`rgba(219, 234, 254, 0.5)` ngả xanh phấn và `rgba(254, 226, 226, 0.45)` ngả hồng đào), tạo chiều sâu êm dịu, không chói mắt.
+- **Biểu tượng hình tròn Graphite (Morphic Icon Aesthetics):**
+  - Lấy cảm hứng từ phong cách tối giản của Morphicons: khối tròn than chì `#18181b` kết hợp biểu tượng vector màu trắng `#ffffff` độ tương phản tuyệt đối.
+  - Các icon đường nét cơ bản (basic lines), kích thước chuẩn 16–18px, nét vẽ 2px đồng nhất.
+- **Bố cục không nhiễu (Zero Visual Noise):**
+  - Không nhồi nhét khung hộp (tránh hoàn toàn bẫy thẻ lồng thẻ của AI).
+  - Thanh sổ cái tài chính tuần tích hợp gọn trong 1 dải tinh tế, phân tách bằng vạch hairline mỏng `rgba(15, 23, 42, 0.08)`.
+  - Khoảng thở rộng rãi (generous whitespace), các nút bấm dạng con nhộng (pill buttons).
 
-typography:
-  display:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif"
-    letterSpacing: "-0.022em"
-  body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif"
-    letterSpacing: "-0.015em"
-  mono:
-    fontFamily: "'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace"
-    letterSpacing: "-0.02em"
-
-components:
-  button:
-    borderRadius: "980px" # Apple signature pill
-    fontWeight: "500"
-  card:
-    borderRadius: "18px"
-    border: "1px solid rgba(255, 255, 255, 0.1)"
-    backgroundColor: "#161617"
 ---
+
+## 2. Hệ thống màu sắc (Color Tokens)
+```css
+--bg-app: #f8fafc;              /* Nền chính sáng mát */
+--bg-card: #ffffff;             /* Thẻ bề mặt trắng tinh khiết */
+--bg-subtle: #f1f5f9;           /* Nền phụ, ô nhập liệu */
+--bg-dark: #18181b;             /* Than chì đậm cho nút chính & icon tròn */
+
+--border-light: rgba(15, 23, 42, 0.08);
+
+--text-main: #0f172a;           /* Chữ chính: Đen phiến thạch (Slate 900) */
+--text-muted: #64748b;          /* Chữ phụ: Xám trung tính (Slate 500) */
+--text-dim: #94a3b8;            /* Chữ chú thích nhỏ */
+
+--accent-emerald: #059669;      /* Trạng thái hoạt động, tiền tệ */
+--accent-rose: #e11d48;         /* Kết thúc ca, Xóa */
+```
+
+---
+
+## 3. Typography
+- **Tiêu đề & Nhãn:** `Plus Jakarta Sans`, sans-serif (nét chữ hiện đại, thanh thoát, đĩnh đạc).
+- **Số liệu & Giờ giấc:** `JetBrains Mono` với thuộc tính `font-variant-numeric: tabular-nums` (các con số luôn thẳng hàng thẳng cột).

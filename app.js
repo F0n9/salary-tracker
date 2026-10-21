@@ -900,16 +900,16 @@ const bindEvents = () => {
 
   // Punch actions
   document.getElementById('btnStartPunch').addEventListener('click', () => {
-    const activeChip = document.querySelector('.btn-chip.active');
+    const activeChip = document.querySelector('.chip.active, .btn-chip.active');
     const preset = activeChip ? activeChip.getAttribute('data-preset-type') : 'Tối';
     startPunch(preset);
   });
   document.getElementById('btnStopPunch').addEventListener('click', stopPunch);
 
   // Punch preset chips
-  document.querySelectorAll('.btn-chip').forEach(chip => {
+  document.querySelectorAll('.chip, .btn-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      document.querySelectorAll('.btn-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.chip, .btn-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
     });
   });
