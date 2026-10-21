@@ -46,26 +46,10 @@
       </div>
 
       <nav class="header-nav">
-        <button id="btnAllWeeks" class="btn-morphic" title="Tổng kết tất cả các tuần" aria-label="Tổng kết tất cả các tuần">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-          </svg>
-        </button>
-
         <button id="btnSettings" class="btn-morphic" title="Cài đặt & Dữ liệu" aria-label="Cài đặt & Dữ liệu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-        </button>
-
-        <button id="btnOpenAddShift" class="btn-morphic btn-morphic-primary" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
       </nav>
@@ -86,16 +70,6 @@
         </div>
 
         <div class="week-actions-group">
-          <button id="btnPrevWeek" class="btn-morphic" title="Tuần trước" aria-label="Tuần trước">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
-          <button id="btnNextWeek" class="btn-morphic" title="Tuần sau" aria-label="Tuần sau">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
           <button id="btnNewWeek" class="btn-morphic" title="Tạo tuần mới" aria-label="Tạo tuần mới">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <rect x="3" y="4" width="18" height="18" rx="2"></rect>
@@ -146,22 +120,13 @@
           <h3 class="shifts-title">Danh sách ca làm việc</h3>
           <span class="badge-count font-mono" id="shiftsCountBadge">0 ca</span>
         </div>
-        <div class="shifts-actions-group">
-          <button id="btnOpenShareSlip" class="btn-morphic" title="Gửi bảng chấm công cho chủ (Zalo)" aria-label="Gửi bảng chấm công cho chủ (Zalo)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-              <polyline points="16 6 12 2 8 6"></polyline>
-              <line x1="12" y1="2" x2="12" y2="15"></line>
-            </svg>
-          </button>
-          <button id="btnQuickExportWeek" class="btn-morphic" title="Xuất file CSV tuần này" aria-label="Xuất file CSV tuần này">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-          </button>
-        </div>
+        <button id="btnQuickExportWeek" class="btn-morphic" title="Xuất file CSV tuần này" aria-label="Xuất file CSV tuần này">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
       </div>
 
       <!-- Shift Items -->
@@ -544,12 +509,6 @@
             <span>Hiển thị cả tiền lương</span>
           </label>
         </div>
-
-        <!-- Text Preview Box -->
-        <div class="slip-text-card">
-          <div class="st-label font-mono">Nội dung tin nhắn Zalo:</div>
-          <pre class="slip-text-preview font-mono" id="slipTextPreview"></pre>
-        </div>
       </div>
 
       <div class="modal-footer">
@@ -557,13 +516,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-
-        <button type="button" class="btn-morphic" id="btnCopySlipText" title="Sao chép tin nhắn Zalo" aria-label="Sao chép tin nhắn Zalo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
         </button>
 

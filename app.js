@@ -925,30 +925,12 @@ const renderSlipCanvas = () => {
   ctx.fillText('Salary Tracker • Quản lý & tính lương chính xác', totalWidth / 2, curY + 22);
 };
 
-const generateSlipText = () => {
-  const week = getCurrentWeek();
-  if (!week) return '';
-  const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
-  const includeMoney = document.getElementById('slipIncludeMoney')?.checked;
-
-  let text = `Dạ em gửi chị bảng ca làm ${week.name} ạ:\n`;
-  week.shifts.forEach((s) => {
-    text += `• ${s.day} ${s.type}: ${s.start} - ${s.end} (${hoursToColonFormat(s.hours)})\n`;
-  });
-  text += `👉 Tổng thời gian: ${hoursToColonFormat(totalHours)} (${hoursToHourMinutes(totalHours)})\n`;
-  if (includeMoney) {
-    text += `💰 Thành tiền: ${fmtCurrency(totalHours * week.rate)}\n`;
-  }
-  return text;
-};
-
 const openShareSlipModal = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
   document.getElementById('shareSlipModalTitle').textContent = `Phiếu chấm công — ${week.name}`;
   renderSlipCanvas();
-  document.getElementById('slipTextPreview').textContent = generateSlipText();
   document.getElementById('shareSlipModal').style.display = 'flex';
 };
 
@@ -984,17 +966,6 @@ const copySlipImageToClipboard = async () => {
       downloadSlipImage();
     }
   }, 'image/png');
-};
-
-const copySlipTextToClipboard = () => {
-  const text = generateSlipText();
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('Đã sao chép tin nhắn Zalo!');
-    }).catch(() => {
-      showToast('Sao chép tin nhắn thất bại');
-    });
-  }
 };
 
 // Export to CSV / Excel
@@ -1139,19 +1110,20 @@ const bindEvents = () => {
     });
   });
 
-  // Header Buttons
-  document.getElementById('btnAllWeeks').addEventListener('click', openAllWeeksModal);
-  document.getElementById('btnSettings').addEventListener('click', openSettingsModal);
-  document.getElementById('btnOpenAddShift').addEventListener('click', () => openAddShiftModal());
+  // Header Settings
+  const btnSettings = document.getElementById('btnSettings');
+  if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
-  // Week navigation
-  document.getElementById('btnPrevWeek').addEventListener('click', () => navigateWeek(-1));
-  document.getElementById('btnNextWeek').addEventListener('click', () => navigateWeek(1));
-  document.getElementById('btnNewWeek').addEventListener('click', createNewWeek);
-  document.getElementById('btnEditWeekMeta').addEventListener('click', openEditWeekModal);
+  // Week meta and new week
+  const btnNewWeek = document.getElementById('btnNewWeek');
+  if (btnNewWeek) btnNewWeek.addEventListener('click', createNewWeek);
+
+  const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
+  if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
   // Quick export button on section
-  document.getElementById('btnQuickExportWeek').addEventListener('click', exportCurrentWeekCSV);
+  const btnQuickExport = document.getElementById('btnQuickExportWeek');
+  if (btnQuickExport) btnQuickExport.addEventListener('click', exportCurrentWeekCSV);
 
   // Shift Modal Form
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
@@ -1233,16 +1205,10 @@ const bindEvents = () => {
     btnDownloadSlipImage.addEventListener('click', downloadSlipImage);
   }
 
-  const btnCopySlipText = document.getElementById('btnCopySlipText');
-  if (btnCopySlipText) {
-    btnCopySlipText.addEventListener('click', copySlipTextToClipboard);
-  }
-
   const slipIncludeMoney = document.getElementById('slipIncludeMoney');
   if (slipIncludeMoney) {
     slipIncludeMoney.addEventListener('change', () => {
       renderSlipCanvas();
-      document.getElementById('slipTextPreview').textContent = generateSlipText();
     });
   }
 
