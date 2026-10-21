@@ -922,7 +922,7 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#94a3b8';
   ctx.font = '500 11px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Lương Ca Làm • Quản lý ca & tính lương chính xác', totalWidth / 2, curY + 22);
+  ctx.fillText('Salary Tracker • Quản lý & tính lương chính xác', totalWidth / 2, curY + 22);
 };
 
 const generateSlipText = () => {

@@ -1,4 +1,4 @@
-# 💸 Lương Ca Làm (Shift & Salary Tracker)
+# 💸 Salary Tracker (Quản lý Lương)
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/Vanilla_CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
@@ -6,7 +6,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-> **Ứng dụng quản lý ca làm việc, chấm công và tự động tính thu nhập linh hoạt** — Thiết kế tối giản, hệ nút bấm **Icon Morphism** xúc giác cao cấp, hỗ trợ xuất phiếu chấm công Zalo 1 chạm và tự động đồng bộ đám mây qua GitHub Gist.
+> **Ứng dụng theo dõi và quản lý tính lương linh hoạt** — Thiết kế tối giản, hệ nút bấm **Icon Morphism** xúc giác cao cấp, hỗ trợ xuất phiếu chấm công Zalo 1 chạm và tự động đồng bộ đám mây qua GitHub Gist.
 
 ---
 
@@ -62,10 +62,10 @@ Chỉ cần mở liên kết trang web trên trình duyệt điện thoại:
 Ứng dụng được viết hoàn toàn bằng **Vanilla Web (HTML5, CSS3, JS)** không qua build step:
 
 1. **Tạo repository trên GitHub:**
-   - Đặt tên repo: `shift-salary-tracker` (hoặc tên tùy chọn).
+   - Đặt tên repo: `salary-tracker`.
 2. **Đẩy mã nguồn lên:**
    ```bash
-   git remote add origin https://github.com/<tên-user-github>/<tên-repo>.git
+   git remote set-url origin https://github.com/<tên-user-github>/salary-tracker.git
    git branch -M master
    git push -u origin master
    ```
@@ -75,7 +75,7 @@ Chỉ cần mở liên kết trang web trên trình duyệt điện thoại:
    - Nhấn **Save**.
 4. **Truy cập:** Sau 1-2 phút, ứng dụng của bạn sẽ hoạt động tại:
    ```
-   https://<tên-user-github>.github.io/<tên-repo>/
+   https://<tên-user-github>.github.io/salary-tracker/
    ```
 
 ---
