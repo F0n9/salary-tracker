@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ShiftTracker">
+  <title>Shift & Salary Tracker — Quản lý ca làm & Lương</title>
+
+  <!-- PWA Manifest & Favicon -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon.svg">
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- App Shell -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">ShiftTracker</h1>
+          <p class="brand-subtitle" id="currentDateDisplay">Đang tải ngày...</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnAllWeeks" class="btn btn-secondary btn-icon" title="Tổng kết tất cả các tuần">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 20V10M12 20V4M6 20v-6"></path>
+          </svg>
+          <span class="desktop-only">Tổng kết</span>
+        </button>
+
+        <button id="btnSettings" class="btn btn-secondary btn-icon" title="Cài đặt & Dữ liệu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <button id="btnOpenAddShift" class="btn btn-primary" title="Thêm ca làm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Thêm ca</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Punch In / Live Clock Card -->
+    <section class="live-punch-card" id="punchCard">
+      <!-- State 1: Idle -->
+      <div class="punch-state-idle" id="punchIdleState">
+        <div class="punch-idle-info">
+          <div class="punch-indicator-dot idle"></div>
+          <div>
+            <div class="punch-status-title">Đang ngoài giờ làm</div>
+            <div class="punch-status-desc">Bấm để bắt đầu tính giờ & tiền theo thời gian thực</div>
+          </div>
+        </div>
+        <div class="punch-idle-actions">
+          <div class="punch-quick-presets">
+            <button class="btn-chip" data-preset-type="Trưa">Ca Trưa</button>
+            <button class="btn-chip" data-preset-type="Tối">Ca Tối</button>
+          </div>
+          <button id="btnStartPunch" class="btn btn-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Bắt đầu ca</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- State 2: Active (Working) -->
+      <div class="punch-state-active" id="punchActiveState" style="display: none;">
+        <div class="punch-active-header">
+          <div class="punch-active-meta">
+            <span class="live-badge pulse">
+              <span class="dot"></span> Đang trong ca (<span id="punchActiveType">Tối</span>)
+            </span>
+            <span class="punch-start-time">Bắt đầu lúc: <b id="punchStartTimeDisplay">--:--</b></span>
+          </div>
+          <button id="btnStopPunch" class="btn btn-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+            <span>Kết thúc ca</span>
+          </button>
+        </div>
+
+        <div class="punch-metrics-grid">
+          <div class="punch-metric">
+            <div class="metric-label">Thời gian đã làm</div>
+            <div class="metric-value font-mono" id="punchElapsedTime">00:00:00</div>
+          </div>
+          <div class="punch-metric">
+            <div class="metric-label">Tạm tính lương</div>
+            <div class="metric-value metric-accent font-mono" id="punchEstimatedWage">0 đ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Week Switcher Strip -->
+    <section class="week-nav-section">
+      <div class="week-nav-header">
+        <div class="week-title-wrap">
+          <h2 id="currentWeekTitle" class="week-title">Tuần 8</h2>
+          <button id="btnEditWeekMeta" class="btn-link" title="Đổi đơn giá lương tuần này">
+            <span id="currentWeekRateBadge" class="rate-badge">40.000 đ/h</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="week-nav-controls">
+          <button id="btnPrevWeek" class="btn btn-icon-sm" title="Tuần trước">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button id="btnNextWeek" class="btn btn-icon-sm" title="Tuần sau">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button id="btnNewWeek" class="btn btn-sm btn-secondary" title="Tạo tuần làm việc mới">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Tuần mới</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal scrollable pills -->
+      <div class="week-pills-container" id="weekPillsList">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- KPI Summary Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card highlight-card">
+        <div class="kpi-icon-wrap emerald">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Tổng thu nhập tuần</span>
+          <span class="kpi-value font-mono" id="kpiWeekSalary">0 đ</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Tổng thời gian</span>
+          <span class="kpi-value font-mono" id="kpiWeekHours">0.00 h</span>
+          <span class="kpi-subtext" id="kpiWeekHoursDetail">0h 00m</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <polyline points="17 11 19 13 23 9"></polyline>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Số ca làm việc</span>
+          <span class="kpi-value font-mono" id="kpiShiftCount">0 ca</span>
+          <span class="kpi-subtext" id="kpiAvgHours">Trung bình 0h/ca</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shifts Section -->
+    <section class="shifts-section">
+      <div class="shifts-section-header">
+        <div class="section-title-wrap">
+          <h3 class="section-title">Danh sách ca làm việc</h3>
+          <span class="badge" id="shiftsCountBadge">0 ca</span>
+        </div>
+        <div class="section-actions">
+          <button id="btnQuickExportWeek" class="btn-text" title="Tải file Excel/CSV cho tuần này">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Xuất tuần này</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shifts List Container -->
+      <div class="shifts-list" id="shiftsList">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal: Add / Edit Shift -->
+  <div class="modal-backdrop" id="shiftModal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="shiftModalTitle">Thêm ca làm việc</h3>
+        <button class="modal-close" data-close-modal="shiftModal">&times;</button>
+      </div>
+      <form id="shiftForm" class="modal-body">
+        <input type="hidden" id="editShiftId">
+
+        <!-- Quick Presets -->
+        <div class="form-group">
+          <label class="form-label">Chọn nhanh ca mẫu:</label>
+          <div class="preset-buttons-row">
+            <button type="button" class="btn-preset" data-preset="noon">
+              <b>Ca Trưa</b> (10:00 - 13:30)
+            </button>
+            <button type="button" class="btn-preset" data-preset="night">
+              <b>Ca Tối</b> (17:00 - 20:30)
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label" for="shiftDay">Thứ trong tuần</label>
+            <select id="shiftDay" class="form-control" required>
+              <option value="T2">Thứ 2 (T2)</option>
+              <option value="T3">Thứ 3 (T3)</option>
+              <option value="T4">Thứ 4 (T4)</option>
+              <option value="T5">Thứ 5 (T5)</option>
+              <option value="T6">Thứ 6 (T6)</option>
+              <option value="T7">Thứ 7 (T7)</option>
+              <option value="CN">Chủ Nhật (CN)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label" for="shiftType">Phân loại ca</label>
+            <select id="shiftType" class="form-control" required>
+              <option value="Trưa">Trưa</option>
+              <option value="Tối">Tối</option>
+              <option value="Sáng">Sáng</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label" for="shiftStart">Giờ bắt đầu</label>
+            <input type="time" id="shiftStart" class="form-control font-mono" required value="17:00">
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label" for="shiftEnd">Giờ kết thúc</label>
+            <input type="time" id="shiftEnd" class="form-control font-mono" required value="20:00">
+          </div>
+        </div>
+
+        <!-- Calculated Live Preview -->
+        <div class="computed-preview-box">
+          <div class="preview-item">
+            <span>Thời lượng:</span>
+            <b id="previewDuration" class="font-mono">3.00 giờ (3h 00m)</b>
+          </div>
+          <div class="preview-item">
+            <span>Lương ca này:</span>
+            <b id="previewSalary" class="font-mono text-emerald">120.000 đ</b>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="shiftNote">Ghi chú (tùy chọn)</label>
+          <input type="text" id="shiftNote" class="form-control" placeholder="Ví dụ: tăng ca 15p, đổi ca...">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="shiftModal">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveShift">Lưu ca làm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: All Weeks Summary & Analytics -->
+  <div class="modal-backdrop" id="allWeeksModal" style="display: none;">
+    <div class="modal-dialog modal-large">
+      <div class="modal-header">
+        <h3 class="modal-title">Tổng kết thu nhập toàn bộ các tuần</h3>
+        <button class="modal-close" data-close-modal="allWeeksModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="alltime-stats-grid">
+          <div class="summary-stat-box">
+            <span class="label">Tổng thu nhập tích lũy</span>
+            <span class="value font-mono text-emerald" id="allTimeTotalEarnings">0 đ</span>
+          </div>
+          <div class="summary-stat-box">
+            <span class="label">Tổng số giờ đã làm</span>
+            <span class="value font-mono" id="allTimeTotalHours">0.00 h</span>
+          </div>
+          <div class="summary-stat-box">
+            <span class="label">Tổng số ca làm</span>
+            <span class="value font-mono" id="allTimeTotalShifts">0 ca</span>
+          </div>
+          <div class="summary-stat-box">
+            <span class="label">Thu nhập trung bình / tuần</span>
+            <span class="value font-mono text-cyan" id="allTimeAvgWeekEarnings">0 đ</span>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="allWeeksTable">
+            <thead>
+              <tr>
+                <th>Tuần</th>
+                <th>Đơn giá</th>
+                <th>Số ca</th>
+                <th>Tổng giờ</th>
+                <th>Tổng thu nhập</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="allWeeksTableBody">
+              <!-- Injected via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="allWeeksModal">Đóng</button>
+        <button id="btnExportAllExcel" class="btn btn-emerald">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Xuất toàn bộ ra Excel / CSV</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings & Data Management -->
+  <div class="modal-backdrop" id="settingsModal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Cài đặt & Quản lý dữ liệu</h3>
+        <button class="modal-close" data-close-modal="settingsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Default Rate Setting -->
+        <div class="setting-block">
+          <label class="form-label" for="settingDefaultRate">Đơn giá lương mặc định (VNĐ / giờ)</label>
+          <div class="input-with-unit">
+            <input type="number" id="settingDefaultRate" class="form-control font-mono" value="40000" step="1000" min="10000">
+            <span class="unit">đ/h</span>
+          </div>
+          <p class="setting-help">Áp dụng tự động cho các tuần mới được tạo.</p>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Backup & Restore -->
+        <div class="setting-block">
+          <h4 class="setting-subtitle">Sao lưu & Khôi phục dữ liệu</h4>
+          <p class="setting-help">Dữ liệu được lưu trữ trực tiếp trên trình duyệt của máy/điện thoại bạn. Xuất file dự phòng để tránh mất mát khi đổi trình duyệt.</p>
+          <div class="backup-actions-row">
+            <button id="btnBackupJson" class="btn btn-secondary flex-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Tải file Backup (JSON)</span>
+            </button>
+            <label class="btn btn-secondary flex-1 file-upload-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Khôi phục JSON</span>
+              <input type="file" id="fileRestoreJson" accept=".json" style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Reset to Original Excel Seed Data -->
+        <div class="setting-block">
+          <h4 class="setting-subtitle text-muted">Dữ liệu gốc</h4>
+          <p class="setting-help">Khôi phục lại chính xác 8 tuần ban đầu từ file Salary.xlsx.</p>
+          <button id="btnResetToOriginal" class="btn btn-outline-danger btn-sm">
+            Khôi phục lại dữ liệu gốc từ Salary.xlsx
+          </button>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSaveSettings">Lưu cài đặt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Week Details (Name & Rate) -->
+  <div class="modal-backdrop" id="editWeekModal" style="display: none;">
+    <div class="modal-dialog modal-small">
+      <div class="modal-header">
+        <h3 class="modal-title">Chỉnh sửa thông tin tuần</h3>
+        <button class="modal-close" data-close-modal="editWeekModal">&times;</button>
+      </div>
+      <form id="editWeekForm" class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="editWeekNameInput">Tên tuần</label>
+          <input type="text" id="editWeekNameInput" class="form-control" required placeholder="Ví dụ: Tuần 9">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editWeekRateInput">Đơn giá lương (VNĐ / giờ)</label>
+          <div class="input-with-unit">
+            <input type="number" id="editWeekRateInput" class="form-control font-mono" required step="1000" min="10000">
+            <span class="unit">đ/h</span>
+          </div>
+          <p class="setting-help">Thay đổi đơn giá sẽ tự động cập nhật lại tổng lương của tuần này.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="editWeekModal">Hủy</button>
+          <button type="button" class="btn btn-danger btn-sm" id="btnDeleteCurrentWeek">Xóa tuần này</button>
+          <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" style="display: none;"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
