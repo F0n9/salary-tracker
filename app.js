@@ -145,6 +145,13 @@ const calculateHoursDiff = (startStr, endStr) => {
   return Number((diffMinutes / 60).toFixed(2));
 };
 
+const hoursToColonFormat = (hours) => {
+  const totalMins = Math.round(Number(hours || 0) * 60);
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  return `${h}:${m < 10 ? '0' : ''}${m}`;
+};
+
 const getVietnameseDayOfWeek = (date = new Date()) => {
   const dayIndex = date.getDay();
   const map = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -201,8 +208,18 @@ const loadState = () => {
   }
 };
 
+let gistSyncTimer = null;
+const triggerAutoGistSync = () => {
+  if (!state.settings || !state.settings.githubToken || !state.settings.gistId) return;
+  clearTimeout(gistSyncTimer);
+  gistSyncTimer = setTimeout(() => {
+    syncWithGitHubGist(true);
+  }, 2500);
+};
+
 const saveWeeks = () => {
   localStorage.setItem(STORAGE_WEEKS_KEY, JSON.stringify(state.weeks));
+  triggerAutoGistSync();
 };
 
 const saveSettings = () => {
@@ -618,6 +635,12 @@ const openAllWeeksModal = () => {
 // Settings Modal
 const openSettingsModal = () => {
   document.getElementById('settingDefaultRate').value = state.settings.defaultRate;
+  if (document.getElementById('settingGithubToken')) {
+    document.getElementById('settingGithubToken').value = state.settings.githubToken || '';
+  }
+  if (document.getElementById('settingGistId')) {
+    document.getElementById('settingGistId').value = state.settings.gistId || '';
+  }
   document.getElementById('settingsModal').style.display = 'flex';
 };
 
@@ -625,9 +648,352 @@ const saveSettingsFromModal = () => {
   const rate = Number(document.getElementById('settingDefaultRate').value);
   if (rate && rate >= 1000) {
     state.settings.defaultRate = rate;
+  }
+  const token = document.getElementById('settingGithubToken')?.value.trim();
+  const gistId = document.getElementById('settingGistId')?.value.trim();
+  if (token !== undefined) state.settings.githubToken = token;
+  if (gistId !== undefined) state.settings.gistId = gistId;
+
+  saveSettings();
+  closeModal('settingsModal');
+  showToast('Đã lưu cài đặt');
+};
+
+// GitHub Gist Cloud Sync
+const syncWithGitHubGist = async (isSilent = false) => {
+  const token = document.getElementById('settingGithubToken')?.value.trim() || state.settings.githubToken;
+  let gistId = document.getElementById('settingGistId')?.value.trim() || state.settings.gistId;
+  const statusEl = document.getElementById('gistSyncStatusText');
+
+  if (!token) {
+    if (!isSilent) alert('Vui lòng nhập GitHub Personal Access Token (PAT) để đồng bộ.');
+    return;
+  }
+
+  if (statusEl) statusEl.textContent = 'Đang đồng bộ với GitHub Gist...';
+
+  const payload = {
+    description: 'Shift & Salary Tracker Data Backup',
+    public: false,
+    files: {
+      'shift_salary_tracker.json': {
+        content: JSON.stringify({
+          version: '2.0',
+          updatedAt: new Date().toISOString(),
+          settings: state.settings,
+          weeks: state.weeks
+        }, null, 2)
+      }
+    }
+  };
+
+  try {
+    let url = 'https://api.github.com/gists';
+    let method = 'POST';
+
+    if (gistId) {
+      url = `https://api.github.com/gists/${gistId}`;
+      method = 'PATCH';
+    }
+
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    state.settings.githubToken = token;
+    state.settings.gistId = data.id;
     saveSettings();
-    closeModal('settingsModal');
-    showToast('Đã lưu cài đặt');
+
+    if (document.getElementById('settingGistId')) {
+      document.getElementById('settingGistId').value = data.id;
+    }
+
+    if (statusEl) {
+      statusEl.textContent = `Đồng bộ thành công lúc ${new Date().toLocaleTimeString('vi-VN')} (Gist: ${data.id.slice(0, 8)}...)`;
+    }
+    if (!isSilent) showToast('Đồng bộ GitHub Gist thành công!');
+  } catch (err) {
+    console.error('GitHub Gist sync error:', err);
+    if (statusEl) statusEl.textContent = `Lỗi đồng bộ: ${err.message}`;
+    if (!isSilent) alert(`Không thể đồng bộ GitHub Gist: ${err.message}`);
+  }
+};
+
+// ==========================================================================
+// Slip Generator (Phiếu chấm công Zalo)
+// ==========================================================================
+const renderSlipCanvas = () => {
+  const week = getCurrentWeek();
+  const canvas = document.getElementById('slipCanvas');
+  if (!canvas || !week) return;
+
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.max(window.devicePixelRatio || 1, 2);
+
+  const includeMoney = document.getElementById('slipIncludeMoney')?.checked;
+  const shifts = week.shifts || [];
+
+  const rowHeight = 36;
+  const headerHeight = 65;
+  const thHeight = 36;
+  const totalRowHeight = 38;
+  const moneyRowHeight = includeMoney ? 36 : 0;
+  const footerHeight = 35;
+  const padX = 20;
+
+  const tableWidth = 400;
+  const totalWidth = tableWidth + padX * 2;
+  const totalHeight = headerHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + moneyRowHeight + footerHeight;
+
+  // Set physical and display size for crisp Retina
+  canvas.width = totalWidth * dpr;
+  canvas.height = totalHeight * dpr;
+  canvas.style.width = `${totalWidth}px`;
+  canvas.style.height = `${totalHeight}px`;
+
+  ctx.scale(dpr, dpr);
+
+  // Background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+  // Card Outer Border
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, totalWidth - 1, totalHeight - 1);
+
+  // Title: "BẢNG CHẤM CÔNG"
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 16px "Outfit", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('BẢNG CHẤM CÔNG', totalWidth / 2, 32);
+
+  // Subtitle: week.name & date
+  ctx.fillStyle = '#64748b';
+  ctx.font = '500 12px "JetBrains Mono", monospace';
+  ctx.fillText(`${week.name} • ${new Date().toLocaleDateString('vi-VN')}`, totalWidth / 2, 50);
+
+  // Table coordinates
+  const startX = padX;
+  const startY = headerHeight;
+  const colWidths = [115, 90, 90, 105]; // Sum = 400
+  const colX = [
+    startX,
+    startX + colWidths[0],
+    startX + colWidths[0] + colWidths[1],
+    startX + colWidths[0] + colWidths[1] + colWidths[2]
+  ];
+
+  // Table Header Row
+  ctx.fillStyle = '#ea580c'; // Warm terracotta like Excel
+  ctx.fillRect(startX, startY, tableWidth, thHeight);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 13px "Outfit", sans-serif';
+  ctx.textAlign = 'center';
+  const thTitles = ['Thứ & Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
+  for (let i = 0; i < 4; i++) {
+    ctx.fillText(thTitles[i], colX[i] + colWidths[i] / 2, startY + 23);
+  }
+
+  // Draw Shifts Rows
+  let curY = startY + thHeight;
+  let totalHours = 0;
+
+  shifts.forEach((s) => {
+    const shiftHours = Number(s.hours || 0);
+    totalHours += shiftHours;
+
+    // Col 0: Thứ & Ca (Soft warm yellow like user's Excel)
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(colX[0], curY, colWidths[0], rowHeight);
+
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 12px "Outfit", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${s.day} ${s.type}`, colX[0] + colWidths[0] / 2, curY + 23);
+
+    // Col 1 & 2: Giờ vào, Giờ ra
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(colX[1], curY, colWidths[1], rowHeight);
+    ctx.fillRect(colX[2], curY, colWidths[2], rowHeight);
+
+    ctx.fillStyle = '#334155';
+    ctx.font = '500 13px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.start, colX[1] + colWidths[1] / 2, curY + 23);
+    ctx.fillText(s.end, colX[2] + colWidths[2] / 2, curY + 23);
+
+    // Col 3: Số giờ (Colon format H:MM e.g. 3:00, 2:45)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(colX[3], curY, colWidths[3], rowHeight);
+
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 13px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(hoursToColonFormat(s.hours), colX[3] + colWidths[3] / 2, curY + 23);
+
+    curY += rowHeight;
+  });
+
+  // Total Row: "Tổng" cell (soft blue like user's Excel)
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(startX, curY, colWidths[0] + colWidths[1] + colWidths[2], totalRowHeight);
+
+  ctx.fillStyle = '#1e3a8a';
+  ctx.font = 'bold 13px "Outfit", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Tổng', startX + (colWidths[0] + colWidths[1] + colWidths[2]) / 2, curY + 24);
+
+  // Total Hours
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(colX[3], curY, colWidths[3], totalRowHeight);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 14px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(hoursToColonFormat(totalHours), colX[3] + colWidths[3] / 2, curY + 24);
+
+  curY += totalRowHeight;
+
+  // Optional Money Row
+  if (includeMoney) {
+    const totalSalary = totalHours * week.rate;
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(startX, curY, colWidths[0] + colWidths[1] + colWidths[2], moneyRowHeight);
+
+    ctx.fillStyle = '#334155';
+    ctx.font = '600 12px "Outfit", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Thành tiền (${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h)`, startX + (colWidths[0] + colWidths[1] + colWidths[2]) / 2, curY + 23);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(colX[3], curY, colWidths[3], moneyRowHeight);
+
+    ctx.fillStyle = '#047857';
+    ctx.font = 'bold 13px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(new Intl.NumberFormat('vi-VN').format(Math.round(totalSalary)) + ' đ', colX[3] + colWidths[3] / 2, curY + 23);
+
+    curY += moneyRowHeight;
+  }
+
+  // Draw Grid Lines
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(startX + 0.5, startY + 0.5, tableWidth, curY - startY);
+
+  // Horizontal lines
+  let lineY = startY + thHeight;
+  for (let i = 0; i <= shifts.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(startX, lineY + 0.5);
+    ctx.lineTo(startX + tableWidth, lineY + 0.5);
+    ctx.stroke();
+    lineY += (i === shifts.length - 1 ? totalRowHeight : rowHeight);
+  }
+
+  // Vertical lines
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(colX[i] + 0.5, startY);
+    ctx.lineTo(colX[i] + 0.5, startY + thHeight + (shifts.length * rowHeight));
+    ctx.stroke();
+  }
+  // Vertical line in total row
+  ctx.beginPath();
+  ctx.moveTo(colX[3] + 0.5, startY + thHeight + (shifts.length * rowHeight));
+  ctx.lineTo(colX[3] + 0.5, curY);
+  ctx.stroke();
+
+  // Subtle Footer Note
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '500 11px "Outfit", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Lương Ca Làm • Quản lý ca & tính lương chính xác', totalWidth / 2, curY + 22);
+};
+
+const generateSlipText = () => {
+  const week = getCurrentWeek();
+  if (!week) return '';
+  const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
+  const includeMoney = document.getElementById('slipIncludeMoney')?.checked;
+
+  let text = `Dạ em gửi chị bảng ca làm ${week.name} ạ:\n`;
+  week.shifts.forEach((s) => {
+    text += `• ${s.day} ${s.type}: ${s.start} - ${s.end} (${hoursToColonFormat(s.hours)})\n`;
+  });
+  text += `👉 Tổng thời gian: ${hoursToColonFormat(totalHours)} (${hoursToHourMinutes(totalHours)})\n`;
+  if (includeMoney) {
+    text += `💰 Thành tiền: ${fmtCurrency(totalHours * week.rate)}\n`;
+  }
+  return text;
+};
+
+const openShareSlipModal = () => {
+  const week = getCurrentWeek();
+  if (!week) return;
+
+  document.getElementById('shareSlipModalTitle').textContent = `Phiếu chấm công — ${week.name}`;
+  renderSlipCanvas();
+  document.getElementById('slipTextPreview').textContent = generateSlipText();
+  document.getElementById('shareSlipModal').style.display = 'flex';
+};
+
+const downloadSlipImage = () => {
+  const canvas = document.getElementById('slipCanvas');
+  const week = getCurrentWeek();
+  if (!canvas || !week) return;
+
+  const a = document.createElement('a');
+  a.download = `bang_cham_cong_${slugify(week.name)}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('Đã tải ảnh bảng chấm công!');
+};
+
+const copySlipImageToClipboard = async () => {
+  const canvas = document.getElementById('slipCanvas');
+  if (!canvas) return;
+
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        showToast('Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.');
+      } else {
+        downloadSlipImage();
+      }
+    } catch (err) {
+      console.warn('Clipboard write image failed, downloading instead:', err);
+      downloadSlipImage();
+    }
+  }, 'image/png');
+};
+
+const copySlipTextToClipboard = () => {
+  const text = generateSlipText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Đã sao chép tin nhắn Zalo!');
+    }).catch(() => {
+      showToast('Sao chép tin nhắn thất bại');
+    });
   }
 };
 
@@ -819,6 +1185,66 @@ const bindEvents = () => {
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
   document.getElementById('btnResetToOriginal').addEventListener('click', resetToOriginalExcel);
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
+
+  // GitHub Gist Sync
+  const btnSyncGist = document.getElementById('btnSyncGistNow');
+  if (btnSyncGist) {
+    btnSyncGist.addEventListener('click', () => syncWithGitHubGist(false));
+  }
+
+  // Share Slip Modal & Dock Events
+  const btnOpenShareSlip = document.getElementById('btnOpenShareSlip');
+  if (btnOpenShareSlip) {
+    btnOpenShareSlip.addEventListener('click', openShareSlipModal);
+  }
+
+  const dockShareSlip = document.getElementById('dockShareSlip');
+  if (dockShareSlip) {
+    dockShareSlip.addEventListener('click', openShareSlipModal);
+  }
+
+  const dockPrevWeek = document.getElementById('dockPrevWeek');
+  if (dockPrevWeek) {
+    dockPrevWeek.addEventListener('click', () => navigateWeek(-1));
+  }
+
+  const dockNextWeek = document.getElementById('dockNextWeek');
+  if (dockNextWeek) {
+    dockNextWeek.addEventListener('click', () => navigateWeek(1));
+  }
+
+  const dockAddShift = document.getElementById('dockAddShift');
+  if (dockAddShift) {
+    dockAddShift.addEventListener('click', () => openAddShiftModal());
+  }
+
+  const dockAllWeeks = document.getElementById('dockAllWeeks');
+  if (dockAllWeeks) {
+    dockAllWeeks.addEventListener('click', openAllWeeksModal);
+  }
+
+  const btnCopySlipImage = document.getElementById('btnCopySlipImage');
+  if (btnCopySlipImage) {
+    btnCopySlipImage.addEventListener('click', copySlipImageToClipboard);
+  }
+
+  const btnDownloadSlipImage = document.getElementById('btnDownloadSlipImage');
+  if (btnDownloadSlipImage) {
+    btnDownloadSlipImage.addEventListener('click', downloadSlipImage);
+  }
+
+  const btnCopySlipText = document.getElementById('btnCopySlipText');
+  if (btnCopySlipText) {
+    btnCopySlipText.addEventListener('click', copySlipTextToClipboard);
+  }
+
+  const slipIncludeMoney = document.getElementById('slipIncludeMoney');
+  if (slipIncludeMoney) {
+    slipIncludeMoney.addEventListener('change', () => {
+      renderSlipCanvas();
+      document.getElementById('slipTextPreview').textContent = generateSlipText();
+    });
+  }
 
   // PWA Service Worker Registration
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {

@@ -72,7 +72,7 @@ html {
 body {
   min-height: 100vh;
   padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3rem);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6.5rem);
   line-height: 1.5;
   position: relative;
   overflow-x: hidden;
@@ -1062,7 +1062,7 @@ body {
 /* Toast */
 .toast-capsule {
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--bg-dark);
@@ -1119,3 +1119,122 @@ body {
     padding: 0.85rem 1rem;
   }
 }
+
+/* ==========================================================================
+   Floating Morphic Dockbar
+   ========================================================================== */
+.floating-dock {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-pill);
+  box-shadow:
+    0 16px 36px -4px rgba(15, 23, 42, 0.12),
+    0 4px 12px -2px rgba(15, 23, 42, 0.04),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-dock .btn-morphic-lg {
+  margin: 0 0.2rem;
+}
+
+/* Shifts Actions Group */
+.shifts-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* ==========================================================================
+   Slip Generator (Phiếu chấm công Zalo)
+   ========================================================================== */
+.slip-canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  overflow-x: auto;
+}
+
+.slip-canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-xs);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.slip-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.15rem 0.25rem;
+}
+
+.slip-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.slip-toggle-label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--bg-dark);
+}
+
+.slip-text-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+}
+
+.st-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.slip-text-preview {
+  font-size: 0.785rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   GitHub Gist Cloud Sync
+   ========================================================================== */
+.gist-sync-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gist-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
