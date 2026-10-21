@@ -14,18 +14,18 @@
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
 
-  <!-- Typography -->
+  <!-- Distinctive Non-AI Typography: Outfit + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <!-- Ambient Background Mesh -->
-  <div class="ambient-glow" aria-hidden="true"></div>
+  <!-- Ambient Warm Aura (No purple AI tell) -->
+  <div class="ambient-aura" aria-hidden="true"></div>
 
-  <!-- App Wrapper -->
+  <!-- App Scaffold -->
   <div class="app-layout">
     
     <!-- Header -->
@@ -61,7 +61,7 @@
           </svg>
         </button>
 
-        <button id="btnOpenAddShift" class="btn btn-pill-primary" title="Thêm ca làm việc">
+        <button id="btnOpenAddShift" class="btn btn-pill-dark" title="Thêm ca làm việc">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -71,7 +71,7 @@
       </nav>
     </header>
 
-    <!-- Punch-in Clock Card (Clean, Morphic Touch) -->
+    <!-- Punch-in Clock Card -->
     <section class="clock-panel" id="punchCard">
       <!-- Idle State -->
       <div class="clock-idle" id="punchIdleState">
@@ -82,8 +82,8 @@
             </svg>
           </div>
           <div>
-            <div class="clock-title">Bấm giờ ca làm</div>
-            <div class="clock-subtitle font-mono">Tự động tính giờ và ước tính lương tức thì</div>
+            <div class="clock-title">Bấm giờ ca làm việc</div>
+            <div class="clock-subtitle font-mono">Bắt đầu tính giờ và tạm tính thu nhập tức thì</div>
           </div>
         </div>
 
