@@ -100,16 +100,65 @@ const DEFAULT_SEED_DATA = [
 ];
 
 // Storage Keys
-const STORAGE_WEEKS_KEY = 'shift_tracker_weeks_v2';
-const STORAGE_SETTINGS_KEY = 'shift_tracker_settings_v2';
+const USERS_DB_KEY = 'salary_users_db_v1';
+const CURRENT_USER_KEY = 'salary_current_session_v1';
+const GUEST_WEEKS_KEY = 'shift_tracker_weeks_v2';
+const GUEST_SETTINGS_KEY = 'shift_tracker_settings_v2';
 
 // Application State
 const state = {
+  currentUser: null, // { username, name }
   weeks: [],
   currentWeekId: null,
   settings: {
     defaultRate: 40000
   }
+};
+
+// Password Hashing via Web Crypto API (SHA-256)
+const hashPassword = async (password) => {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password + '_salt_st_2026');
+    const hashBuf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    let h = 0;
+    for (let i = 0; i < password.length; i++) {
+      h = ((h << 5) - h) + password.charCodeAt(i);
+      h |= 0;
+    }
+    return 'fallback_' + Math.abs(h).toString(16);
+  }
+};
+
+// Users DB Storage
+const loadUsersDB = () => {
+  try {
+    const raw = localStorage.getItem(USERS_DB_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+};
+
+const saveUsersDB = (db) => {
+  localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
+};
+
+// User Scoped Storage Keys
+const getWeeksStorageKey = () => {
+  if (state.currentUser && state.currentUser.username) {
+    return `salary_user_weeks_${state.currentUser.username}`;
+  }
+  return GUEST_WEEKS_KEY;
+};
+
+const getSettingsStorageKey = () => {
+  if (state.currentUser && state.currentUser.username) {
+    return `salary_user_settings_${state.currentUser.username}`;
+  }
+  return GUEST_SETTINGS_KEY;
 };
 
 // Formatting Utilities
@@ -185,7 +234,24 @@ const showToast = (message) => {
 // Persistence
 const loadState = () => {
   try {
-    const savedWeeks = localStorage.getItem(STORAGE_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
+    const weeksKey = getWeeksStorageKey();
+    const settingsKey = getSettingsStorageKey();
+
+    let savedWeeks = localStorage.getItem(weeksKey);
+
+    // If user is logged in for the first time, migrate guest/seed data
+    if (!savedWeeks && state.currentUser) {
+      const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
+      if (guestWeeks) {
+        savedWeeks = guestWeeks;
+        localStorage.setItem(weeksKey, guestWeeks);
+      }
+    }
+
+    if (!savedWeeks) {
+      savedWeeks = localStorage.getItem(GUEST_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
+    }
+
     if (savedWeeks) {
       state.weeks = JSON.parse(savedWeeks);
     } else {
@@ -193,7 +259,7 @@ const loadState = () => {
       saveWeeks();
     }
 
-    const savedSettings = localStorage.getItem(STORAGE_SETTINGS_KEY) || localStorage.getItem('shift_tracker_settings_v1');
+    const savedSettings = localStorage.getItem(settingsKey) || localStorage.getItem(GUEST_SETTINGS_KEY) || localStorage.getItem('shift_tracker_settings_v1');
     if (savedSettings) {
       state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
     }
@@ -218,16 +284,59 @@ const triggerAutoGistSync = () => {
 };
 
 const saveWeeks = () => {
-  localStorage.setItem(STORAGE_WEEKS_KEY, JSON.stringify(state.weeks));
+  const weeksKey = getWeeksStorageKey();
+  localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
   triggerAutoGistSync();
 };
 
 const saveSettings = () => {
-  localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(state.settings));
+  const settingsKey = getSettingsStorageKey();
+  localStorage.setItem(settingsKey, JSON.stringify(state.settings));
 };
 
 const getCurrentWeek = () => {
   return state.weeks.find(w => w.id === state.currentWeekId) || state.weeks[0];
+};
+
+// Authentication Flow
+const initAuth = () => {
+  try {
+    const sessionRaw = localStorage.getItem(CURRENT_USER_KEY);
+    if (sessionRaw) {
+      state.currentUser = JSON.parse(sessionRaw);
+    } else {
+      state.currentUser = null;
+    }
+  } catch (e) {
+    state.currentUser = null;
+  }
+
+  updateHeaderAuthUI();
+};
+
+const updateHeaderAuthUI = () => {
+  const btn = document.getElementById('btnUserAuth');
+  if (!btn) return;
+
+  if (state.currentUser && state.currentUser.name) {
+    const initial = (state.currentUser.name[0] || 'U').toUpperCase();
+    btn.className = 'btn-morphic btn-user-pill is-logged-in';
+    btn.innerHTML = `
+      <span class="user-avatar-badge font-mono">${initial}</span>
+      <span class="user-pill-text font-mono">${escapeHtml(state.currentUser.name)}</span>
+    `;
+    btn.title = `Tài khoản: ${state.currentUser.name} (@${state.currentUser.username})`;
+  } else {
+    btn.className = 'btn-morphic btn-user-pill';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span class="user-pill-text font-mono" id="userPillName">Đăng nhập</span>
+    `;
+    btn.title = 'Đăng nhập / Đăng ký tài khoản';
+  }
 };
 
 // Render Functions
@@ -342,26 +451,38 @@ const renderShiftsList = () => {
     return;
   }
 
+  const dayNames = {
+    'T2': 'Thứ 2',
+    'T3': 'Thứ 3',
+    'T4': 'Thứ 4',
+    'T5': 'Thứ 5',
+    'T6': 'Thứ 6',
+    'T7': 'Thứ 7',
+    'CN': 'Chủ Nhật'
+  };
+
   week.shifts.forEach((shift) => {
     const card = document.createElement('div');
     card.className = 'shift-card';
     
     const shiftEarnings = Number(shift.hours || 0) * week.rate;
-    const typeClass = shift.type === 'Trưa' ? 'type-trua' : (shift.type === 'Tối' ? 'type-toi' : '');
+    const typeClass = shift.type === 'Trưa' ? 'type-trua' : (shift.type === 'Tối' ? 'type-toi' : (shift.type === 'Sáng' ? 'type-sang' : ''));
+    const dayLabel = dayNames[shift.day] || shift.day;
 
     card.innerHTML = `
       <div class="shift-left">
         <div class="day-badge font-mono ${getDayClass(shift.day)}">
-          <span>${shift.day}</span>
+          <span class="day-code">${shift.day}</span>
+          <span class="day-sub">${dayLabel}</span>
         </div>
         <div class="shift-info">
           <div class="shift-title-row">
-            <span class="shift-type-pill ${typeClass}">${shift.type}</span>
-            <span class="shift-time-range font-mono">${shift.start} → ${shift.end}</span>
+            <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
+            <span class="shift-type-pill ${typeClass}">Ca ${shift.type}</span>
           </div>
           <div class="shift-subtext font-mono">
-            <span>${shift.hours}h (${hoursToHourMinutes(shift.hours)})</span>
-            ${shift.note ? `<span class="shift-note font-sans">• ${escapeHtml(shift.note)}</span>` : ''}
+            <span class="shift-duration-badge">${shift.hours}h • ${hoursToHourMinutes(shift.hours)}</span>
+            ${shift.note ? `<span class="shift-note font-sans" title="${escapeHtml(shift.note)}">💬 ${escapeHtml(shift.note)}</span>` : ''}
           </div>
         </div>
       </div>
@@ -780,6 +901,9 @@ const syncWithGitHubGist = async (isSilent = false) => {
 // ==========================================================================
 // Slip Generator (Phiếu chấm công Zalo)
 // ==========================================================================
+// ==========================================================================
+// Slip Generator (Phiếu chấm công Zalo — Executive Timesheet Voucher)
+// ==========================================================================
 const renderSlipCanvas = () => {
   const week = getCurrentWeek();
   const canvas = document.getElementById('slipCanvas');
@@ -791,17 +915,20 @@ const renderSlipCanvas = () => {
   const includeMoney = document.getElementById('slipIncludeMoney')?.checked;
   const shifts = week.shifts || [];
 
-  const rowHeight = 36;
-  const headerHeight = 65;
-  const thHeight = 36;
-  const totalRowHeight = 38;
-  const moneyRowHeight = includeMoney ? 36 : 0;
-  const footerHeight = 35;
-  const padX = 20;
+  const padX = 26;
+  const padTop = 26;
+  const totalWidth = 620;
+  const contentWidth = totalWidth - padX * 2; // 568px
 
-  const tableWidth = 400;
-  const totalWidth = tableWidth + padX * 2;
-  const totalHeight = headerHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + moneyRowHeight + footerHeight;
+  const headerHeight = 90;
+  const kpiRowHeight = 70;
+  const thHeight = 38;
+  const rowHeight = 36;
+  const totalRowHeight = 44;
+  const signatureHeight = 95;
+  const footerHeight = 35;
+
+  const totalHeight = padTop + headerHeight + kpiRowHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + signatureHeight + footerHeight;
 
   // Set physical and display size for crisp Retina
   canvas.width = totalWidth * dpr;
@@ -815,160 +942,468 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-  // Card Outer Border
-  ctx.strokeStyle = '#e2e8f0';
+  // Outer Border & Card Structure
+  ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, totalWidth - 1, totalHeight - 1);
 
-  // Title: "BẢNG CHẤM CÔNG"
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 16px "Outfit", system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('BẢNG CHẤM CÔNG', totalWidth / 2, 32);
+  // Top Accent Bar (Sapphire Navy)
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(0, 0, totalWidth, 6);
 
-  // Subtitle: week.name & date
+  // Brand Watermark Top
+  ctx.fillStyle = '#64748b';
+  ctx.font = '600 11px "JetBrains Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('SALARY TRACKER • HỆ THỐNG QUẢN LÝ CHẤM CÔNG & TÍNH LƯƠNG', padX, padTop + 14);
+
+  // Main Document Heading
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 22px "Outfit", system-ui, sans-serif';
+  ctx.fillText('BẢNG CHẤM CÔNG & QUYẾT TOÁN CA', padX, padTop + 42);
+
+  // Metadata Chips Bar
+  const metaY = padTop + 68;
+  const weekBadgeText = week.name.toUpperCase();
+  ctx.font = 'bold 12px "Outfit", sans-serif';
+  const badgeWidth = ctx.measureText(weekBadgeText).width + 20;
+
+  // Week Badge Pill
+  ctx.fillStyle = '#eff6ff';
+  ctx.fillRect(padX, metaY - 14, badgeWidth, 22);
+  ctx.strokeStyle = '#bfdbfe';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(padX + 0.5, metaY - 14 + 0.5, badgeWidth, 22);
+
+  ctx.fillStyle = '#1d4ed8';
+  ctx.textAlign = 'center';
+  ctx.fillText(weekBadgeText, padX + badgeWidth / 2, metaY + 1);
+
+  // Employee Name
+  const employeeName = state.currentUser ? state.currentUser.name : 'Người làm việc';
+  ctx.fillStyle = '#334155';
+  ctx.font = '600 13px "Outfit", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Nhân sự: ${employeeName}`, padX + badgeWidth + 14, metaY + 1);
+
+  // Export Date
   ctx.fillStyle = '#64748b';
   ctx.font = '500 12px "JetBrains Mono", monospace';
-  ctx.fillText(`${week.name} • ${new Date().toLocaleDateString('vi-VN')}`, totalWidth / 2, 50);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`, padX + contentWidth, metaY + 1);
 
-  // Table coordinates
-  const startX = padX;
-  const startY = headerHeight;
-  const colWidths = [115, 90, 90, 105]; // Sum = 400
-  const colX = [
-    startX,
-    startX + colWidths[0],
-    startX + colWidths[0] + colWidths[1],
-    startX + colWidths[0] + colWidths[1] + colWidths[2]
+  // Calculate totals
+  let totalHours = 0;
+  shifts.forEach(s => { totalHours += Number(s.hours || 0); });
+  const totalSalary = totalHours * week.rate;
+
+  // Executive KPI Summary Cards
+  const kpiY = padTop + headerHeight;
+  const kpiCardsCount = includeMoney ? 4 : 3;
+  const kpiCardGap = 10;
+  const kpiCardWidth = (contentWidth - (kpiCardGap * (kpiCardsCount - 1))) / kpiCardsCount;
+
+  const kpis = [
+    { label: 'TỔNG SỐ CA', val: `${shifts.length} ca`, sub: 'ca làm tuần này' },
+    { label: 'TỔNG THỜI GIAN', val: `${totalHours.toFixed(2)}h`, sub: hoursToHourMinutes(totalHours) },
+    { label: 'ĐƠN GIÁ GIỜ', val: fmtCurrency(week.rate), sub: 'theo thỏa thuận' }
   ];
 
-  // Table Header Row
-  ctx.fillStyle = '#ea580c'; // Warm terracotta like Excel
-  ctx.fillRect(startX, startY, tableWidth, thHeight);
+  if (includeMoney) {
+    kpis.push({
+      label: 'TỔNG THANH TOÁN',
+      val: fmtCurrency(totalSalary),
+      sub: 'lương thực nhận',
+      highlight: true
+    });
+  }
+
+  kpis.forEach((kpi, idx) => {
+    const kx = padX + idx * (kpiCardWidth + kpiCardGap);
+    
+    // Box
+    ctx.fillStyle = kpi.highlight ? '#f0fdf4' : '#f8fafc';
+    ctx.fillRect(kx, kpiY, kpiCardWidth, 54);
+    ctx.strokeStyle = kpi.highlight ? '#86efac' : '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(kx + 0.5, kpiY + 0.5, kpiCardWidth, 54);
+
+    // Label
+    ctx.fillStyle = kpi.highlight ? '#15803d' : '#64748b';
+    ctx.font = 'bold 10px "Outfit", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(kpi.label, kx + 10, kpiY + 16);
+
+    // Value
+    ctx.fillStyle = kpi.highlight ? '#166534' : '#0f172a';
+    ctx.font = 'bold 15px "JetBrains Mono", monospace';
+    ctx.fillText(kpi.val, kx + 10, kpiY + 35);
+
+    // Subtext
+    ctx.fillStyle = kpi.highlight ? '#16a34a' : '#94a3b8';
+    ctx.font = '500 10px "JetBrains Mono", monospace';
+    ctx.fillText(kpi.sub, kx + 10, kpiY + 48);
+  });
+
+  // Table coordinates
+  const tableY = kpiY + kpiRowHeight;
+  let colWidths;
+  let thTitles;
+  
+  if (includeMoney) {
+    colWidths = [45, 125, 125, 120, 153]; // Sum = 568
+    thTitles = ['STT', 'Thứ & Ca', 'Khung giờ', 'Thời lượng', 'Thành tiền'];
+  } else {
+    colWidths = [48, 150, 185, 185]; // Sum = 568
+    thTitles = ['STT', 'Thứ & Ca', 'Khung giờ', 'Thời lượng'];
+  }
+
+  const colX = [padX];
+  for (let i = 0; i < colWidths.length - 1; i++) {
+    colX.push(colX[i] + colWidths[i]);
+  }
+
+  // Table Header Row (Dark Slate Executive Bar)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(padX, tableY, contentWidth, thHeight);
 
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 13px "Outfit", sans-serif';
-  ctx.textAlign = 'center';
-  const thTitles = ['Thứ & Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
-  for (let i = 0; i < 4; i++) {
-    ctx.fillText(thTitles[i], colX[i] + colWidths[i] / 2, startY + 23);
+  ctx.font = 'bold 12px "Outfit", sans-serif';
+  for (let i = 0; i < thTitles.length; i++) {
+    const isRight = (includeMoney && i === 4);
+    ctx.textAlign = isRight ? 'right' : (i === 0 ? 'center' : 'left');
+    const tx = isRight ? (colX[i] + colWidths[i] - 12) : (i === 0 ? (colX[i] + colWidths[i] / 2) : (colX[i] + 12));
+    ctx.fillText(thTitles[i], tx, tableY + 23);
   }
 
   // Draw Shifts Rows
-  let curY = startY + thHeight;
-  let totalHours = 0;
+  let curY = tableY + thHeight;
 
-  shifts.forEach((s) => {
+  shifts.forEach((s, idx) => {
     const shiftHours = Number(s.hours || 0);
-    totalHours += shiftHours;
+    const shiftWage = shiftHours * week.rate;
+    const isEven = idx % 2 === 0;
 
-    // Col 0: Thứ & Ca (Soft warm yellow like user's Excel)
-    ctx.fillStyle = '#fef08a';
-    ctx.fillRect(colX[0], curY, colWidths[0], rowHeight);
+    // Row zebra background
+    ctx.fillStyle = isEven ? '#ffffff' : '#f8fafc';
+    ctx.fillRect(padX, curY, contentWidth, rowHeight);
 
-    ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 12px "Outfit", sans-serif';
+    // Bottom border
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padX, curY + rowHeight + 0.5);
+    ctx.lineTo(padX + contentWidth, curY + rowHeight + 0.5);
+    ctx.stroke();
+
+    // Col 0: STT
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`${s.day} ${s.type}`, colX[0] + colWidths[0] / 2, curY + 23);
+    ctx.fillText(String(idx + 1).padStart(2, '0'), colX[0] + colWidths[0] / 2, curY + 23);
 
-    // Col 1 & 2: Giờ vào, Giờ ra
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(colX[1], curY, colWidths[1], rowHeight);
-    ctx.fillRect(colX[2], curY, colWidths[2], rowHeight);
+    // Col 1: Thứ & Ca
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 13px "Outfit", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${s.day} • Ca ${s.type}`, colX[1] + 12, curY + 23);
 
+    // Col 2: Khung giờ
     ctx.fillStyle = '#334155';
     ctx.font = '500 13px "JetBrains Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(s.start, colX[1] + colWidths[1] / 2, curY + 23);
-    ctx.fillText(s.end, colX[2] + colWidths[2] / 2, curY + 23);
+    ctx.textAlign = 'left';
+    ctx.fillText(`${s.start} – ${s.end}`, colX[2] + 12, curY + 23);
 
-    // Col 3: Số giờ (Colon format H:MM e.g. 3:00, 2:45)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(colX[3], curY, colWidths[3], rowHeight);
-
+    // Col 3: Thời lượng
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(hoursToColonFormat(s.hours), colX[3] + colWidths[3] / 2, curY + 23);
+    ctx.textAlign = 'left';
+    ctx.fillText(`${hoursToHourMinutes(s.hours)} (${Number(s.hours || 0).toFixed(2)}h)`, colX[3] + 12, curY + 23);
+
+    // Col 4: Thành tiền (if included)
+    if (includeMoney) {
+      ctx.fillStyle = '#1e3a8a';
+      ctx.font = 'bold 13px "JetBrains Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(fmtCurrency(shiftWage), colX[4] + colWidths[4] - 12, curY + 23);
+    }
 
     curY += rowHeight;
   });
 
-  // Total Row: "Tổng" cell (soft blue like user's Excel)
-  ctx.fillStyle = '#93c5fd';
-  ctx.fillRect(startX, curY, colWidths[0] + colWidths[1] + colWidths[2], totalRowHeight);
+  // Table Grand Total Row
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(padX, curY, contentWidth, totalRowHeight);
 
-  ctx.fillStyle = '#1e3a8a';
+  // Label: "TỔNG CỘNG"
+  ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 13px "Outfit", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Tổng', startX + (colWidths[0] + colWidths[1] + colWidths[2]) / 2, curY + 24);
+  ctx.textAlign = 'left';
+  ctx.fillText('TỔNG CỘNG', colX[1] + 12, curY + 27);
 
   // Total Hours
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(colX[3], curY, colWidths[3], totalRowHeight);
+  ctx.font = 'bold 13px "JetBrains Mono", monospace';
+  ctx.fillText(`${hoursToHourMinutes(totalHours)} (${totalHours.toFixed(2)}h)`, colX[3] + 12, curY + 27);
 
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 14px "JetBrains Mono", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(hoursToColonFormat(totalHours), colX[3] + colWidths[3] / 2, curY + 24);
+  // Total Money (if included)
+  if (includeMoney) {
+    ctx.fillStyle = '#34d399';
+    ctx.font = 'bold 15px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 12, curY + 27);
+  }
 
   curY += totalRowHeight;
 
-  // Optional Money Row
-  if (includeMoney) {
-    const totalSalary = totalHours * week.rate;
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(startX, curY, colWidths[0] + colWidths[1] + colWidths[2], moneyRowHeight);
+  // Signatures Section
+  const sigY = curY + 28;
+  const sigColWidth = contentWidth / 2;
 
-    ctx.fillStyle = '#334155';
-    ctx.font = '600 12px "Outfit", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`Thành tiền (${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h)`, startX + (colWidths[0] + colWidths[1] + colWidths[2]) / 2, curY + 23);
+  // Left: Employee Signature
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 12px "Outfit", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('NGƯỜI LẬP BIỂU', padX + sigColWidth / 2, sigY);
+  ctx.fillStyle = '#64748b';
+  ctx.font = 'italic 11px "Outfit", sans-serif';
+  ctx.fillText('(Ký & ghi rõ họ tên)', padX + sigColWidth / 2, sigY + 16);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(colX[3], curY, colWidths[3], moneyRowHeight);
+  // Right: Manager Signature
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 12px "Outfit", sans-serif';
+  ctx.fillText('QUẢN LÝ / NGƯỜI DUYỆT', padX + sigColWidth + sigColWidth / 2, sigY);
+  ctx.fillStyle = '#64748b';
+  ctx.font = 'italic 11px "Outfit", sans-serif';
+  ctx.fillText('(Ký duyệt xác nhận)', padX + sigColWidth + sigColWidth / 2, sigY + 16);
 
-    ctx.fillStyle = '#047857';
-    ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(new Intl.NumberFormat('vi-VN').format(Math.round(totalSalary)) + ' đ', colX[3] + colWidths[3] / 2, curY + 23);
-
-    curY += moneyRowHeight;
-  }
-
-  // Draw Grid Lines
-  ctx.strokeStyle = '#94a3b8';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(startX + 0.5, startY + 0.5, tableWidth, curY - startY);
-
-  // Horizontal lines
-  let lineY = startY + thHeight;
-  for (let i = 0; i <= shifts.length; i++) {
-    ctx.beginPath();
-    ctx.moveTo(startX, lineY + 0.5);
-    ctx.lineTo(startX + tableWidth, lineY + 0.5);
-    ctx.stroke();
-    lineY += (i === shifts.length - 1 ? totalRowHeight : rowHeight);
-  }
-
-  // Vertical lines
-  for (let i = 1; i < 4; i++) {
-    ctx.beginPath();
-    ctx.moveTo(colX[i] + 0.5, startY);
-    ctx.lineTo(colX[i] + 0.5, startY + thHeight + (shifts.length * rowHeight));
-    ctx.stroke();
-  }
-  // Vertical line in total row
-  ctx.beginPath();
-  ctx.moveTo(colX[3] + 0.5, startY + thHeight + (shifts.length * rowHeight));
-  ctx.lineTo(colX[3] + 0.5, curY);
-  ctx.stroke();
-
-  // Subtle Footer Note
+  // Footer Branding Note
   ctx.fillStyle = '#94a3b8';
   ctx.font = '500 11px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Salary Tracker • Quản lý & tính lương chính xác', totalWidth / 2, curY + 22);
+  ctx.fillText('Salary Tracker • Hệ thống chấm công & quản lý lương minh bạch • https://f0n9.github.io/salary-tracker/', totalWidth / 2, totalHeight - 16);
+};
+
+// ==========================================================================
+// Authentication Event Handlers & Modal Management
+// ==========================================================================
+const openAuthModal = (defaultTab = 'login') => {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+
+  switchAuthTab(defaultTab);
+  clearAuthErrors();
+  modal.style.display = 'flex';
+};
+
+const switchAuthTab = (tab) => {
+  const btnLogin = document.getElementById('tabBtnLogin');
+  const btnRegister = document.getElementById('tabBtnRegister');
+  const formLogin = document.getElementById('formLogin');
+  const formRegister = document.getElementById('formRegister');
+  const title = document.getElementById('authModalTitle');
+
+  if (tab === 'login') {
+    btnLogin.classList.add('active');
+    btnRegister.classList.remove('active');
+    formLogin.style.display = 'flex';
+    formRegister.style.display = 'none';
+    if (title) title.textContent = 'Đăng nhập tài khoản';
+  } else {
+    btnRegister.classList.add('active');
+    btnLogin.classList.remove('active');
+    formRegister.style.display = 'flex';
+    formLogin.style.display = 'none';
+    if (title) title.textContent = 'Đăng ký tài khoản mới';
+  }
+  clearAuthErrors();
+};
+
+const clearAuthErrors = () => {
+  const loginErr = document.getElementById('loginError');
+  const regErr = document.getElementById('regError');
+  if (loginErr) { loginErr.style.display = 'none'; loginErr.textContent = ''; }
+  if (regErr) { regErr.style.display = 'none'; regErr.textContent = ''; }
+};
+
+const openUserProfileModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    return;
+  }
+
+  const modal = document.getElementById('userProfileModal');
+  if (!modal) return;
+
+  const initial = (state.currentUser.name[0] || 'U').toUpperCase();
+  document.getElementById('profileAvatarBadge').textContent = initial;
+  document.getElementById('profileDisplayName').textContent = state.currentUser.name;
+  document.getElementById('profileUsername').textContent = `@${state.currentUser.username}`;
+  document.getElementById('profileEditName').value = state.currentUser.name;
+
+  // Stats
+  const totalWeeks = state.weeks.length;
+  let totalShifts = 0;
+  let totalHours = 0;
+  state.weeks.forEach(w => {
+    totalShifts += w.shifts.length;
+    w.shifts.forEach(s => { totalHours += Number(s.hours || 0); });
+  });
+
+  document.getElementById('profileTotalWeeks').textContent = totalWeeks;
+  document.getElementById('profileTotalShifts').textContent = totalShifts;
+  document.getElementById('profileTotalHours').textContent = `${Math.round(totalHours)}h`;
+
+  modal.style.display = 'flex';
+};
+
+const handleLoginSubmit = async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+
+  if (!username || !password) {
+    errorEl.textContent = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const users = loadUsersDB();
+  const user = users[username];
+
+  if (!user) {
+    errorEl.textContent = 'Tài khoản không tồn tại. Vui lòng đăng ký tài khoản mới.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const hash = await hashPassword(password);
+  if (user.passwordHash !== hash) {
+    errorEl.textContent = 'Mật khẩu không chính xác. Vui lòng thử lại.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Set Session
+  state.currentUser = { username: user.username, name: user.name };
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
+
+  initAuth();
+  loadState();
+  renderApp();
+
+  document.getElementById('authModal').style.display = 'none';
+  document.getElementById('formLogin').reset();
+  showToast(`Đăng nhập thành công! Chào ${user.name}.`);
+};
+
+const handleRegisterSubmit = async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('regDisplayName').value.trim();
+  const username = document.getElementById('regUsername').value.trim().toLowerCase();
+  const password = document.getElementById('regPassword').value;
+  const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+  const errorEl = document.getElementById('regError');
+
+  if (!name || !username || !password || !passwordConfirm) {
+    errorEl.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (username.length < 3) {
+    errorEl.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (!/^[a-z0-9_]+$/.test(username)) {
+    errorEl.textContent = 'Tên đăng nhập chỉ bao gồm chữ cái thường, số và dấu gạch dưới (không khoảng trắng, không dấu).';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (password.length < 4) {
+    errorEl.textContent = 'Mật khẩu phải có ít nhất 4 ký tự.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    errorEl.textContent = 'Xác nhận mật khẩu không khớp.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const users = loadUsersDB();
+  if (users[username]) {
+    errorEl.textContent = 'Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const hash = await hashPassword(password);
+  users[username] = {
+    username,
+    name,
+    passwordHash: hash,
+    createdAt: new Date().toISOString()
+  };
+  saveUsersDB(users);
+
+  // Preserve guest data into this new user's personal store
+  const userWeeksKey = `salary_user_weeks_${username}`;
+  const guestData = localStorage.getItem(GUEST_WEEKS_KEY);
+  if (guestData) {
+    localStorage.setItem(userWeeksKey, guestData);
+  }
+
+  // Set Session
+  state.currentUser = { username, name };
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
+
+  initAuth();
+  loadState();
+  renderApp();
+
+  document.getElementById('authModal').style.display = 'none';
+  document.getElementById('formRegister').reset();
+  showToast(`Chào mừng ${name}! Đăng ký tài khoản thành công.`);
+};
+
+const handleLogout = () => {
+  if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    state.currentUser = null;
+    initAuth();
+    loadState();
+    renderApp();
+    document.getElementById('userProfileModal').style.display = 'none';
+    showToast('Đã đăng xuất tài khoản.');
+  }
+};
+
+const handleSaveProfileName = () => {
+  const newName = document.getElementById('profileEditName').value.trim();
+  if (!newName) {
+    alert('Vui lòng nhập tên hiển thị hợp lệ.');
+    return;
+  }
+
+  if (!state.currentUser) return;
+
+  state.currentUser.name = newName;
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
+
+  const users = loadUsersDB();
+  if (users[state.currentUser.username]) {
+    users[state.currentUser.username].name = newName;
+    saveUsersDB(users);
+  }
+
+  initAuth();
+  document.getElementById('profileDisplayName').textContent = newName;
+  showToast('Cập nhật tên hiển thị thành công!');
 };
 
 const openShareSlipModal = () => {
@@ -1213,6 +1648,36 @@ const bindEvents = () => {
   document.getElementById('editWeekForm').addEventListener('submit', saveWeekMeta);
   document.getElementById('btnDeleteCurrentWeek').addEventListener('click', deleteCurrentWeek);
 
+  // Authentication & Profile Events
+  const btnUserAuth = document.getElementById('btnUserAuth');
+  if (btnUserAuth) {
+    btnUserAuth.addEventListener('click', () => {
+      if (state.currentUser) {
+        openUserProfileModal();
+      } else {
+        openAuthModal('login');
+      }
+    });
+  }
+
+  const tabBtnLogin = document.getElementById('tabBtnLogin');
+  if (tabBtnLogin) tabBtnLogin.addEventListener('click', () => switchAuthTab('login'));
+
+  const tabBtnRegister = document.getElementById('tabBtnRegister');
+  if (tabBtnRegister) tabBtnRegister.addEventListener('click', () => switchAuthTab('register'));
+
+  const formLogin = document.getElementById('formLogin');
+  if (formLogin) formLogin.addEventListener('submit', handleLoginSubmit);
+
+  const formRegister = document.getElementById('formRegister');
+  if (formRegister) formRegister.addEventListener('submit', handleRegisterSubmit);
+
+  const btnLogoutUser = document.getElementById('btnLogoutUser');
+  if (btnLogoutUser) btnLogoutUser.addEventListener('click', handleLogout);
+
+  const btnSaveProfileName = document.getElementById('btnSaveProfileName');
+  if (btnSaveProfileName) btnSaveProfileName.addEventListener('click', handleSaveProfileName);
+
   // Settings Actions
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
@@ -1304,6 +1769,7 @@ const bindEvents = () => {
 
 // App Initialization
 document.addEventListener('DOMContentLoaded', () => {
+  initAuth();
   loadState();
   bindEvents();
   renderApp();
