@@ -3,8 +3,8 @@
  * Pure Shift & Salary Data Entry (Offline-First, Zero-Dependency)
  */
 
-// 1. Embedded Seed Data (migrated from Salary.xlsx Weeks 1-8)
-const DEFAULT_SEED_DATA = [
+// 1. Embedded Seed Data for aoe1920 (migrated from Salary.xlsx Weeks 1-8)
+const AOE_SEED_DATA = [
   {
     "id": "week-1",
     "name": "Tuần 1",
@@ -98,6 +98,17 @@ const DEFAULT_SEED_DATA = [
     ]
   }
 ];
+const DEFAULT_SEED_DATA = AOE_SEED_DATA;
+
+// Guest Default Template (Blank week for unauthenticated visitors)
+const GUEST_DEFAULT_DATA = [
+  {
+    "id": "week-1",
+    "name": "Tuần 1",
+    "rate": 40000,
+    "shifts": []
+  }
+];
 
 // Storage Keys
 const USERS_DB_KEY = 'salary_users_db_v1';
@@ -144,6 +155,71 @@ const loadUsersDB = () => {
 
 const saveUsersDB = (db) => {
   localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
+};
+
+// Ensure aoe1920 Account and Migrate Real Salary Data
+const ensureAoeAccountAndMigration = () => {
+  try {
+    const aoeUsername = 'aoe1920';
+    // Precomputed SHA-256 hash of "LVCpy@2024" + "_salt_st_2026"
+    const aoePasswordHash = '964026c125efc877842cc80446ae31ed1e23d9d319b218cfd3fb42ac7040c97a';
+    const aoeWeeksKey = `salary_user_weeks_${aoeUsername}`;
+    const aoeSettingsKey = `salary_user_settings_${aoeUsername}`;
+
+    // 1. Ensure user account in database
+    const users = loadUsersDB();
+    if (!users[aoeUsername] || users[aoeUsername].passwordHash !== aoePasswordHash) {
+      users[aoeUsername] = {
+        username: aoeUsername,
+        name: 'aoe1920',
+        passwordHash: aoePasswordHash,
+        createdAt: users[aoeUsername]?.createdAt || new Date().toISOString()
+      };
+      saveUsersDB(users);
+    }
+
+    // 2. Transfer the 8 weeks of real data to aoe1920 workspace
+    const existingAoeWeeks = localStorage.getItem(aoeWeeksKey);
+    const guestWeeksRaw = localStorage.getItem(GUEST_WEEKS_KEY);
+
+    if (!existingAoeWeeks) {
+      let dataToMigrate = AOE_SEED_DATA;
+      if (guestWeeksRaw) {
+        try {
+          const parsed = JSON.parse(guestWeeksRaw);
+          if (Array.isArray(parsed) && parsed.length >= 8) {
+            dataToMigrate = parsed;
+          }
+        } catch (e) {}
+      }
+      localStorage.setItem(aoeWeeksKey, JSON.stringify(dataToMigrate));
+    }
+
+    // 3. Ensure aoe1920 settings
+    if (!localStorage.getItem(aoeSettingsKey)) {
+      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
+      if (guestSettings) {
+        localStorage.setItem(aoeSettingsKey, guestSettings);
+      } else {
+        localStorage.setItem(aoeSettingsKey, JSON.stringify({ defaultRate: 40000 }));
+      }
+    }
+
+    // 4. Clean Guest storage if it still holds the personal 8 weeks
+    if (guestWeeksRaw) {
+      try {
+        const parsed = JSON.parse(guestWeeksRaw);
+        const hasAoeData = Array.isArray(parsed) && parsed.some(w =>
+          w.shifts && w.shifts.some(s => s.id === 's-1-1' || s.id === 's-5-1')
+        );
+        if (hasAoeData) {
+          localStorage.setItem(GUEST_WEEKS_KEY, JSON.stringify(GUEST_DEFAULT_DATA));
+        }
+      } catch (e) {}
+    }
+  } catch (err) {
+    console.warn('Migration error:', err);
+  }
 };
 
 // User Scoped Storage Keys
@@ -243,18 +319,22 @@ const loadState = () => {
       state.weeks = JSON.parse(savedWeeks);
     } else {
       if (state.currentUser) {
-        // Mỗi tài khoản đăng ký mới bắt đầu với 1 tuần làm việc trống riêng biệt
-        state.weeks = [
-          {
-            id: 'week-1',
-            name: 'Tuần 1',
-            rate: 40000,
-            shifts: []
-          }
-        ];
+        if (state.currentUser.username === 'aoe1920') {
+          state.weeks = JSON.parse(JSON.stringify(AOE_SEED_DATA));
+        } else {
+          // Mỗi tài khoản đăng ký mới bắt đầu với 1 tuần làm việc trống riêng biệt
+          state.weeks = [
+            {
+              id: 'week-1',
+              name: 'Tuần 1',
+              rate: 40000,
+              shifts: []
+            }
+          ];
+        }
       } else {
-        // Chế độ Khách (Guest) mặc định hiển thị dữ liệu mẫu để trải nghiệm
-        state.weeks = JSON.parse(JSON.stringify(DEFAULT_SEED_DATA));
+        // Chế độ Khách (Guest) mặc định hiển thị tuần trống (bảo mật dữ liệu cá nhân)
+        state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
       }
       saveWeeks();
     }
@@ -1438,7 +1518,7 @@ const restoreJSON = (e) => {
 
 const resetToOriginalExcel = () => {
   if (confirm('Khôi phục sẽ đưa dữ liệu về đúng 8 tuần ban đầu từ Salary.xlsx. Bạn có chắc không?')) {
-    state.weeks = JSON.parse(JSON.stringify(DEFAULT_SEED_DATA));
+    state.weeks = JSON.parse(JSON.stringify(AOE_SEED_DATA));
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     saveWeeks();
     closeModal('settingsModal');
@@ -1670,6 +1750,7 @@ const bindEvents = () => {
 
 // App Initialization
 document.addEventListener('DOMContentLoaded', () => {
+  ensureAoeAccountAndMigration();
   initAuth();
   loadState();
   bindEvents();
