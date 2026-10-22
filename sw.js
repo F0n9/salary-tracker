@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shift-tracker-v1';
+const CACHE_NAME = 'salary-tracker-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -10,10 +10,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -27,30 +28,21 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Network-First strategy: Always fetch newest code if online, fall back to cache when offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch background update for cache
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      });
-    }).catch(() => caches.match('./index.html'))
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cached) => cached || caches.match('./index.html'));
+      })
   );
 });
