@@ -322,20 +322,16 @@ const updateHeaderAuthUI = () => {
 
   if (state.currentUser && state.currentUser.name) {
     const initial = (state.currentUser.name[0] || 'U').toUpperCase();
-    btn.className = 'btn-morphic btn-user-pill is-logged-in';
-    btn.innerHTML = `
-      <span class="user-avatar-badge font-mono">${initial}</span>
-      <span class="user-pill-text font-mono">${escapeHtml(state.currentUser.name)}</span>
-    `;
+    btn.className = 'btn-morphic is-logged-in';
+    btn.innerHTML = `<span class="user-morphic-initial font-mono">${initial}</span>`;
     btn.title = `Tài khoản: ${state.currentUser.name} (@${state.currentUser.username})`;
   } else {
-    btn.className = 'btn-morphic btn-user-pill';
+    btn.className = 'btn-morphic';
     btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
-      <span class="user-pill-text font-mono" id="userPillName">Đăng nhập</span>
     `;
     btn.title = 'Đăng nhập / Đăng ký tài khoản';
   }
@@ -474,8 +470,7 @@ const renderShiftsList = () => {
     card.innerHTML = `
       <div class="shift-left">
         <div class="day-badge font-mono ${getDayClass(shift.day)}">
-          <span class="day-code">${shift.day}</span>
-          <span class="day-sub">${dayLabel}</span>
+          <span>${shift.day}</span>
         </div>
         <div class="shift-info">
           <div class="shift-title-row">
@@ -906,6 +901,9 @@ const syncWithGitHubGist = async (isSilent = false) => {
 // ==========================================================================
 // Slip Generator (Phiếu chấm công Zalo — Executive Timesheet Voucher)
 // ==========================================================================
+// ==========================================================================
+// Slip Generator (Phiếu chấm công Zalo — Gọn gàng, tối giản thông tin)
+// ==========================================================================
 const renderSlipCanvas = () => {
   const week = getCurrentWeek();
   const canvas = document.getElementById('slipCanvas');
@@ -917,20 +915,18 @@ const renderSlipCanvas = () => {
   const includeMoney = document.getElementById('slipIncludeMoney')?.checked;
   const shifts = week.shifts || [];
 
-  const padX = 26;
-  const padTop = 26;
-  const totalWidth = 620;
-  const contentWidth = totalWidth - padX * 2; // 568px
+  const padX = 18;
+  const padTop = 18;
+  const totalWidth = includeMoney ? 510 : 420;
+  const contentWidth = totalWidth - padX * 2;
 
-  const headerHeight = 90;
-  const kpiRowHeight = 70;
-  const thHeight = 38;
-  const rowHeight = 36;
-  const totalRowHeight = 44;
-  const signatureHeight = 95;
-  const footerHeight = 35;
+  const headerHeight = 44;
+  const thHeight = 34;
+  const rowHeight = 32;
+  const totalRowHeight = 36;
+  const footerHeight = 24;
 
-  const totalHeight = padTop + headerHeight + kpiRowHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + signatureHeight + footerHeight;
+  const totalHeight = padTop + headerHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + footerHeight;
 
   // Set physical and display size for crisp Retina
   canvas.width = totalWidth * dpr;
@@ -944,120 +940,33 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-  // Outer Border & Card Structure
+  // Outer Border
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, totalWidth - 1, totalHeight - 1);
 
-  // Top Accent Bar (Sapphire Navy)
-  ctx.fillStyle = '#1e3a8a';
-  ctx.fillRect(0, 0, totalWidth, 6);
-
-  // Brand Watermark Top
-  ctx.fillStyle = '#64748b';
-  ctx.font = '600 11px "JetBrains Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('SALARY TRACKER • HỆ THỐNG QUẢN LÝ CHẤM CÔNG & TÍNH LƯƠNG', padX, padTop + 14);
-
-  // Main Document Heading
+  // Header Title: BẢNG CHẤM CÔNG — TUẦN X
   ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 22px "Outfit", system-ui, sans-serif';
-  ctx.fillText('BẢNG CHẤM CÔNG & QUYẾT TOÁN CA', padX, padTop + 42);
-
-  // Metadata Chips Bar
-  const metaY = padTop + 68;
-  const weekBadgeText = week.name.toUpperCase();
-  ctx.font = 'bold 12px "Outfit", sans-serif';
-  const badgeWidth = ctx.measureText(weekBadgeText).width + 20;
-
-  // Week Badge Pill
-  ctx.fillStyle = '#eff6ff';
-  ctx.fillRect(padX, metaY - 14, badgeWidth, 22);
-  ctx.strokeStyle = '#bfdbfe';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(padX + 0.5, metaY - 14 + 0.5, badgeWidth, 22);
-
-  ctx.fillStyle = '#1d4ed8';
+  ctx.font = 'bold 15px "Outfit", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(weekBadgeText, padX + badgeWidth / 2, metaY + 1);
+  ctx.fillText(`BẢNG CHẤM CÔNG — ${week.name.toUpperCase()}`, totalWidth / 2, padTop + 16);
 
-  // Employee Name
-  const employeeName = state.currentUser ? state.currentUser.name : 'Người làm việc';
-  ctx.fillStyle = '#334155';
-  ctx.font = '600 13px "Outfit", sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(`Nhân sự: ${employeeName}`, padX + badgeWidth + 14, metaY + 1);
-
-  // Export Date
+  // Subtitle: Date
   ctx.fillStyle = '#64748b';
-  ctx.font = '500 12px "JetBrains Mono", monospace';
-  ctx.textAlign = 'right';
-  ctx.fillText(`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`, padX + contentWidth, metaY + 1);
+  ctx.font = '500 11px "JetBrains Mono", monospace';
+  ctx.fillText(new Date().toLocaleDateString('vi-VN'), totalWidth / 2, padTop + 34);
 
-  // Calculate totals
-  let totalHours = 0;
-  shifts.forEach(s => { totalHours += Number(s.hours || 0); });
-  const totalSalary = totalHours * week.rate;
-
-  // Executive KPI Summary Cards
-  const kpiY = padTop + headerHeight;
-  const kpiCardsCount = includeMoney ? 4 : 3;
-  const kpiCardGap = 10;
-  const kpiCardWidth = (contentWidth - (kpiCardGap * (kpiCardsCount - 1))) / kpiCardsCount;
-
-  const kpis = [
-    { label: 'TỔNG SỐ CA', val: `${shifts.length} ca`, sub: 'ca làm tuần này' },
-    { label: 'TỔNG THỜI GIAN', val: `${totalHours.toFixed(2)}h`, sub: hoursToHourMinutes(totalHours) },
-    { label: 'ĐƠN GIÁ GIỜ', val: fmtCurrency(week.rate), sub: 'theo thỏa thuận' }
-  ];
-
-  if (includeMoney) {
-    kpis.push({
-      label: 'TỔNG THANH TOÁN',
-      val: fmtCurrency(totalSalary),
-      sub: 'lương thực nhận',
-      highlight: true
-    });
-  }
-
-  kpis.forEach((kpi, idx) => {
-    const kx = padX + idx * (kpiCardWidth + kpiCardGap);
-    
-    // Box
-    ctx.fillStyle = kpi.highlight ? '#f0fdf4' : '#f8fafc';
-    ctx.fillRect(kx, kpiY, kpiCardWidth, 54);
-    ctx.strokeStyle = kpi.highlight ? '#86efac' : '#e2e8f0';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(kx + 0.5, kpiY + 0.5, kpiCardWidth, 54);
-
-    // Label
-    ctx.fillStyle = kpi.highlight ? '#15803d' : '#64748b';
-    ctx.font = 'bold 10px "Outfit", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(kpi.label, kx + 10, kpiY + 16);
-
-    // Value
-    ctx.fillStyle = kpi.highlight ? '#166534' : '#0f172a';
-    ctx.font = 'bold 15px "JetBrains Mono", monospace';
-    ctx.fillText(kpi.val, kx + 10, kpiY + 35);
-
-    // Subtext
-    ctx.fillStyle = kpi.highlight ? '#16a34a' : '#94a3b8';
-    ctx.font = '500 10px "JetBrains Mono", monospace';
-    ctx.fillText(kpi.sub, kx + 10, kpiY + 48);
-  });
-
-  // Table coordinates
-  const tableY = kpiY + kpiRowHeight;
+  // Table coordinates & columns
+  const tableY = padTop + headerHeight;
   let colWidths;
   let thTitles;
-  
+
   if (includeMoney) {
-    colWidths = [45, 125, 125, 120, 153]; // Sum = 568
-    thTitles = ['STT', 'Thứ & Ca', 'Khung giờ', 'Thời lượng', 'Thành tiền'];
+    colWidths = [104, 85, 85, 90, 110]; // Sum = 474
+    thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ', 'Thành tiền'];
   } else {
-    colWidths = [48, 150, 185, 185]; // Sum = 568
-    thTitles = ['STT', 'Thứ & Ca', 'Khung giờ', 'Thời lượng'];
+    colWidths = [104, 90, 90, 100]; // Sum = 384
+    thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
   }
 
   const colX = [padX];
@@ -1065,7 +974,7 @@ const renderSlipCanvas = () => {
     colX.push(colX[i] + colWidths[i]);
   }
 
-  // Table Header Row (Dark Slate Executive Bar)
+  // Table Header (Slate Bar)
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(padX, tableY, contentWidth, thHeight);
 
@@ -1073,16 +982,19 @@ const renderSlipCanvas = () => {
   ctx.font = 'bold 12px "Outfit", sans-serif';
   for (let i = 0; i < thTitles.length; i++) {
     const isRight = (includeMoney && i === 4);
-    ctx.textAlign = isRight ? 'right' : (i === 0 ? 'center' : 'left');
-    const tx = isRight ? (colX[i] + colWidths[i] - 12) : (i === 0 ? (colX[i] + colWidths[i] / 2) : (colX[i] + 12));
-    ctx.fillText(thTitles[i], tx, tableY + 23);
+    const isLeft = (i === 0);
+    ctx.textAlign = isRight ? 'right' : (isLeft ? 'left' : 'center');
+    const tx = isRight ? (colX[i] + colWidths[i] - 10) : (isLeft ? (colX[i] + 10) : (colX[i] + colWidths[i] / 2));
+    ctx.fillText(thTitles[i], tx, tableY + 21);
   }
 
   // Draw Shifts Rows
   let curY = tableY + thHeight;
+  let totalHours = 0;
 
   shifts.forEach((s, idx) => {
     const shiftHours = Number(s.hours || 0);
+    totalHours += shiftHours;
     const shiftWage = shiftHours * week.rate;
     const isEven = idx % 2 === 0;
 
@@ -1090,7 +1002,7 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = isEven ? '#ffffff' : '#f8fafc';
     ctx.fillRect(padX, curY, contentWidth, rowHeight);
 
-    // Bottom border
+    // Border bottom
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -1098,91 +1010,65 @@ const renderSlipCanvas = () => {
     ctx.lineTo(padX + contentWidth, curY + rowHeight + 0.5);
     ctx.stroke();
 
-    // Col 0: STT
-    ctx.fillStyle = '#64748b';
-    ctx.font = '600 12px "JetBrains Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(String(idx + 1).padStart(2, '0'), colX[0] + colWidths[0] / 2, curY + 23);
-
-    // Col 1: Thứ & Ca
+    // Col 0: Ca (Thứ & Buổi)
     ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 13px "Outfit", sans-serif';
+    ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`${s.day} • Ca ${s.type}`, colX[1] + 12, curY + 23);
+    ctx.fillText(`${s.day} ${s.type}`, colX[0] + 10, curY + 20);
 
-    // Col 2: Khung giờ
+    // Col 1: Giờ vào
     ctx.fillStyle = '#334155';
-    ctx.font = '500 13px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`${s.start} – ${s.end}`, colX[2] + 12, curY + 23);
+    ctx.font = '500 12px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.start, colX[1] + colWidths[1] / 2, curY + 20);
 
-    // Col 3: Thời lượng
+    // Col 2: Giờ ra
+    ctx.fillText(s.end, colX[2] + colWidths[2] / 2, curY + 20);
+
+    // Col 3: Số giờ
     ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`${hoursToHourMinutes(s.hours)} (${Number(s.hours || 0).toFixed(2)}h)`, colX[3] + 12, curY + 23);
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(hoursToColonFormat(s.hours), colX[3] + colWidths[3] / 2, curY + 20);
 
     // Col 4: Thành tiền (if included)
     if (includeMoney) {
       ctx.fillStyle = '#1e3a8a';
-      ctx.font = 'bold 13px "JetBrains Mono", monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(fmtCurrency(shiftWage), colX[4] + colWidths[4] - 12, curY + 23);
+      ctx.fillText(fmtCurrency(shiftWage), colX[4] + colWidths[4] - 10, curY + 20);
     }
 
     curY += rowHeight;
   });
 
-  // Table Grand Total Row
+  // Table Total Row
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(padX, curY, contentWidth, totalRowHeight);
 
-  // Label: "TỔNG CỘNG"
+  // Label: "Tổng"
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 13px "Outfit", sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('TỔNG CỘNG', colX[1] + 12, curY + 27);
+  ctx.fillText('Tổng', colX[0] + 10, curY + 23);
 
   // Total Hours
   ctx.font = 'bold 13px "JetBrains Mono", monospace';
-  ctx.fillText(`${hoursToHourMinutes(totalHours)} (${totalHours.toFixed(2)}h)`, colX[3] + 12, curY + 27);
+  ctx.textAlign = 'center';
+  ctx.fillText(hoursToColonFormat(totalHours), colX[3] + colWidths[3] / 2, curY + 23);
 
-  // Total Money (if included)
+  // Total Salary (if included)
   if (includeMoney) {
+    const totalSalary = totalHours * week.rate;
     ctx.fillStyle = '#34d399';
-    ctx.font = 'bold 15px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
-    ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 12, curY + 27);
+    ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 10, curY + 23);
   }
 
-  curY += totalRowHeight;
-
-  // Signatures Section
-  const sigY = curY + 28;
-  const sigColWidth = contentWidth / 2;
-
-  // Left: Employee Signature
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 12px "Outfit", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('NGƯỜI LẬP BIỂU', padX + sigColWidth / 2, sigY);
-  ctx.fillStyle = '#64748b';
-  ctx.font = 'italic 11px "Outfit", sans-serif';
-  ctx.fillText('(Ký & ghi rõ họ tên)', padX + sigColWidth / 2, sigY + 16);
-
-  // Right: Manager Signature
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 12px "Outfit", sans-serif';
-  ctx.fillText('QUẢN LÝ / NGƯỜI DUYỆT', padX + sigColWidth + sigColWidth / 2, sigY);
-  ctx.fillStyle = '#64748b';
-  ctx.font = 'italic 11px "Outfit", sans-serif';
-  ctx.fillText('(Ký duyệt xác nhận)', padX + sigColWidth + sigColWidth / 2, sigY + 16);
-
-  // Footer Branding Note
+  // Footer Watermark
   ctx.fillStyle = '#94a3b8';
-  ctx.font = '500 11px "Outfit", sans-serif';
+  ctx.font = '500 10px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Salary Tracker • Hệ thống chấm công & quản lý lương minh bạch • https://f0n9.github.io/salary-tracker/', totalWidth / 2, totalHeight - 16);
+  ctx.fillText('Salary Tracker', totalWidth / 2, totalHeight - 8);
 };
 
 // ==========================================================================
