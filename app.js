@@ -239,29 +239,31 @@ const loadState = () => {
 
     let savedWeeks = localStorage.getItem(weeksKey);
 
-    // If user is logged in for the first time, migrate guest/seed data
-    if (!savedWeeks && state.currentUser) {
-      const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
-      if (guestWeeks) {
-        savedWeeks = guestWeeks;
-        localStorage.setItem(weeksKey, guestWeeks);
-      }
-    }
-
-    if (!savedWeeks) {
-      savedWeeks = localStorage.getItem(GUEST_WEEKS_KEY) || localStorage.getItem('shift_tracker_weeks_v1');
-    }
-
     if (savedWeeks) {
       state.weeks = JSON.parse(savedWeeks);
     } else {
-      state.weeks = JSON.parse(JSON.stringify(DEFAULT_SEED_DATA));
+      if (state.currentUser) {
+        // Mỗi tài khoản đăng ký mới bắt đầu với 1 tuần làm việc trống riêng biệt
+        state.weeks = [
+          {
+            id: 'week-1',
+            name: 'Tuần 1',
+            rate: 40000,
+            shifts: []
+          }
+        ];
+      } else {
+        // Chế độ Khách (Guest) mặc định hiển thị dữ liệu mẫu để trải nghiệm
+        state.weeks = JSON.parse(JSON.stringify(DEFAULT_SEED_DATA));
+      }
       saveWeeks();
     }
 
-    const savedSettings = localStorage.getItem(settingsKey) || localStorage.getItem(GUEST_SETTINGS_KEY) || localStorage.getItem('shift_tracker_settings_v1');
+    const savedSettings = localStorage.getItem(settingsKey);
     if (savedSettings) {
       state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+    } else {
+      state.settings = { defaultRate: 40000 };
     }
 
     if (state.weeks.length > 0) {
@@ -269,8 +271,8 @@ const loadState = () => {
     }
   } catch (err) {
     console.error('Error loading state:', err);
-    state.weeks = JSON.parse(JSON.stringify(DEFAULT_SEED_DATA));
-    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+    state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+    state.currentWeekId = state.weeks[0].id;
   }
 };
 
@@ -1351,11 +1353,24 @@ const handleRegisterSubmit = async (e) => {
   };
   saveUsersDB(users);
 
-  // Preserve guest data into this new user's personal store
+  // Isolate user data: create fresh workspace unless explicitly requested to inherit
+  const copyGuest = document.getElementById('regCopyGuestData')?.checked;
   const userWeeksKey = `salary_user_weeks_${username}`;
-  const guestData = localStorage.getItem(GUEST_WEEKS_KEY);
-  if (guestData) {
-    localStorage.setItem(userWeeksKey, guestData);
+  if (copyGuest) {
+    const guestData = localStorage.getItem(GUEST_WEEKS_KEY);
+    if (guestData) {
+      localStorage.setItem(userWeeksKey, guestData);
+    }
+  } else {
+    const freshData = [
+      {
+        id: 'week-1',
+        name: 'Tuần 1',
+        rate: 40000,
+        shifts: []
+      }
+    ];
+    localStorage.setItem(userWeeksKey, JSON.stringify(freshData));
   }
 
   // Set Session
