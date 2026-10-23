@@ -1,9 +1,9 @@
-const CACHE_NAME = 'salary-tracker-v13';
+const CACHE_NAME = 'salary-tracker-v14';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=20261024',
+  './app.js?v=20261024',
   './manifest.json',
   './icon.svg'
 ];
@@ -21,7 +21,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
       );
     }).then(() => self.clients.claim())
   );
