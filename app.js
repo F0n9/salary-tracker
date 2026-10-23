@@ -237,9 +237,13 @@ const updateHeaderAuthUI = () => {
   if (!btn) return;
 
   if (state.currentUser && state.currentUser.username) {
-    const initial = (state.currentUser.username[0] || 'U').toUpperCase();
     btn.className = 'btn-morphic is-logged-in';
-    btn.innerHTML = `<span class="user-morphic-initial font-mono">${initial}</span>`;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    `;
     btn.title = `Tài khoản: @${state.currentUser.username}`;
   } else {
     btn.className = 'btn-morphic';
@@ -1122,8 +1126,15 @@ const openUserProfileModal = () => {
   if (!modal) return;
 
   const username = state.currentUser.username || 'user';
-  const initial = (username[0] || 'U').toUpperCase();
-  document.getElementById('profileAvatarBadge').textContent = initial;
+  const badge = document.getElementById('profileAvatarBadge');
+  if (badge) {
+    badge.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    `;
+  }
   document.getElementById('profileUsername').textContent = `@${username}`;
 
  
@@ -1263,14 +1274,20 @@ const handleRegisterSubmit = async (e) => {
     });
 
     if (error) {
-      errorEl.textContent = `Đăng ký thất bại: ${error.message}`;
+      let msg = error.message;
+      if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
+        msg = 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.';
+      } else {
+        msg = `Đăng ký thất bại: ${msg}`;
+      }
+      errorEl.textContent = msg;
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
-    if (!data.user) {
-      errorEl.textContent = 'Đăng ký không thành công. Vui lòng thử lại.';
+    if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
+      errorEl.textContent = 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.';
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;

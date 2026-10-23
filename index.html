@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024">
+  <link rel="stylesheet" href="./styles.css?v=20261024b">
 </head>
 <body>
   
@@ -599,7 +599,7 @@
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <input type="text" id="loginUsername" class="form-input font-mono input-has-icon" required autocomplete="username" placeholder="Tên đăng nhập">
+              <input type="text" id="loginUsername" class="form-input font-mono input-has-icon" required autocomplete="username" placeholder="Tên tài khoản">
             </div>
           </div>
           <div class="form-item">
@@ -633,7 +633,7 @@
                 <circle cx="12" cy="12" r="4"></circle>
                 <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
               </svg>
-              <input type="text" id="regUsername" class="form-input font-mono input-has-icon" required autocomplete="username" placeholder="Tên tài khoản (viết liền)">
+              <input type="text" id="regUsername" class="form-input font-mono input-has-icon" required autocomplete="username" placeholder="Tên tài khoản">
             </div>
           </div>
           <div class="form-item">
@@ -690,7 +690,12 @@
 
       <div class="modal-body user-profile-body">
         <div class="profile-header-card">
-          <div class="profile-avatar font-mono" id="profileAvatarBadge">P</div>
+          <div class="profile-avatar font-mono" id="profileAvatarBadge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
           <div class="profile-meta">
             <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
           </div>
@@ -738,6 +743,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024"></script>
+  <script src="./app.js?v=20261024b"></script>
 </body>
 </html>
