@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024b">
+  <link rel="stylesheet" href="./styles.css?v=20261024c">
 </head>
 <body>
   
@@ -275,12 +275,6 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-morphic" data-close-modal="shiftModal" title="Hủy" aria-label="Hủy">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
           <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteShiftModal" title="Xóa ca làm việc này" aria-label="Xóa ca làm việc này" style="display: none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -350,12 +344,6 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-morphic" data-close-modal="allWeeksModal" title="Đóng" aria-label="Đóng">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
         <button id="btnExportAllExcel" class="btn-morphic btn-morphic-primary" title="Xuất tất cả ra Excel" aria-label="Xuất tất cả ra Excel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -440,12 +428,6 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-morphic" data-close-modal="settingsModal" title="Đóng" aria-label="Đóng">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
         <button class="btn-morphic btn-morphic-primary" id="btnSaveSettings" title="Lưu cài đặt" aria-label="Lưu cài đặt">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -483,12 +465,6 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-morphic" data-close-modal="editWeekModal" title="Hủy" aria-label="Hủy">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
           <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteCurrentWeek" title="Xóa tuần này" aria-label="Xóa tuần này">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -534,13 +510,6 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-morphic" data-close-modal="shareSlipModal" title="Đóng" aria-label="Đóng">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-
         <button type="button" class="btn-morphic" id="btnDownloadSlipImage" title="Tải ảnh PNG về máy" aria-label="Tải ảnh PNG">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -719,7 +688,7 @@
         </div>
       </div>
 
-      <div class="modal-footer" style="justify-content: space-between;">
+      <div class="modal-footer" style="justify-content: flex-end;">
         <button type="button" class="btn-logout-action" id="btnLogoutUser" title="Đăng xuất khỏi tài khoản">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -727,12 +696,6 @@
             <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
           <span>Đăng xuất</span>
-        </button>
-        <button type="button" class="btn-morphic" data-close-modal="userProfileModal" title="Đóng" aria-label="Đóng">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
         </button>
       </div>
     </div>
@@ -743,6 +706,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024b"></script>
+  <script src="./app.js?v=20261024c"></script>
 </body>
 </html>
