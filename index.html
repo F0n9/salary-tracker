@@ -8,12 +8,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Salary Tracker</title>
 
-  <!-- PWA Manifest & Favicon (Money Icon) -->
+  
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
 
-  <!-- Distinctive Non-AI Typography: Outfit + JetBrains Mono -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,17 +21,17 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <!-- Ambient Soft Aura -->
+  
   <div class="ambient-aura" aria-hidden="true"></div>
 
-  <!-- App Scaffold -->
+  
   <div class="app-layout">
     
-    <!-- Header -->
+    
     <header class="app-header">
       <div class="header-left">
         <div class="brand-badge" title="Salary Tracker">
-          <!-- Money / Currency Icon -->
+          
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="6" width="20" height="12" rx="2"></rect>
             <circle cx="12" cy="12" r="3"></circle>
@@ -60,7 +60,7 @@
       </nav>
     </header>
 
-    <!-- Week Navigation -->
+    
     <section class="week-nav-bar">
       <div class="week-nav-meta">
         <div class="week-heading-group">
@@ -94,13 +94,13 @@
         </div>
       </div>
 
-      <!-- Week Pills Track -->
+      
       <div class="week-track" id="weekPillsList">
-        <!-- Injected via JavaScript -->
+        
       </div>
     </section>
 
-    <!-- Clean Ledger Summary Bar -->
+    
     <section class="ledger-card">
       <div class="ledger-cell primary">
         <span class="cell-label font-mono">Thu nhập tuần</span>
@@ -124,7 +124,7 @@
       </div>
     </section>
 
-    <!-- Shifts Section -->
+    
     <section class="shifts-section">
       <div class="shifts-header">
         <div class="shifts-title-group">
@@ -140,13 +140,13 @@
         </button>
       </div>
 
-      <!-- Shift Items -->
+      
       <div class="shifts-stack" id="shiftsList">
-        <!-- Injected via JavaScript -->
+        
       </div>
     </section>
 
-    <!-- Floating Morphic Dockbar -->
+    
     <nav class="floating-dock" aria-label="Điều hướng nhanh">
       <button id="dockPrevWeek" class="btn-morphic" title="Tuần trước" aria-label="Tuần trước">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
@@ -185,7 +185,7 @@
       </button>
     </nav>
 
-    <!-- App Footer: Copyright & Date -->
+    
     <footer class="app-footer">
       <div class="footer-meta font-mono">
         <span class="footer-copyright">© 2026 Salary Tracker. All rights reserved.</span>
@@ -195,7 +195,7 @@
     </footer>
   </div>
 
-  <!-- Modal: Add / Edit Shift -->
+  
   <div class="modal-backdrop" id="shiftModal" style="display: none;">
     <div class="modal-surface modal-surface-sm">
       <div class="modal-header">
@@ -262,7 +262,7 @@
           </div>
         </div>
 
-        <!-- Calculated Summary Box -->
+        
         <div class="calc-strip">
           <div>
             <span class="calc-label font-mono">Thời lượng:</span>
@@ -302,7 +302,7 @@
     </div>
   </div>
 
-  <!-- Modal: All Weeks Summary -->
+  
   <div class="modal-backdrop" id="allWeeksModal" style="display: none;">
     <div class="modal-surface modal-surface-wide">
       <div class="modal-header">
@@ -348,7 +348,7 @@
               </tr>
             </thead>
             <tbody id="allWeeksTableBody">
-              <!-- Injected via JavaScript -->
+              
             </tbody>
           </table>
         </div>
@@ -372,7 +372,7 @@
     </div>
   </div>
 
-  <!-- Modal: Settings & Backup -->
+  
   <div class="modal-backdrop" id="settingsModal" style="display: none;">
     <div class="modal-surface">
       <div class="modal-header">
@@ -460,7 +460,7 @@
     </div>
   </div>
 
-  <!-- Modal: Edit Week Details -->
+  
   <div class="modal-backdrop" id="editWeekModal" style="display: none;">
     <div class="modal-surface modal-surface-sm">
       <div class="modal-header">
@@ -510,7 +510,7 @@
     </div>
   </div>
 
-  <!-- Modal: Share Shift Slip (Gửi bảng chấm công cho chủ) -->
+  
   <div class="modal-backdrop" id="shareSlipModal" style="display: none;">
     <div class="modal-surface">
       <div class="modal-header">
@@ -524,12 +524,12 @@
       </div>
 
       <div class="modal-body">
-        <!-- Canvas Slip Preview -->
+        
         <div class="slip-canvas-container">
           <canvas id="slipCanvas" class="slip-canvas"></canvas>
         </div>
 
-        <!-- Options -->
+        
         <div class="slip-options-row">
           <label class="slip-toggle-label font-mono">
             <input type="checkbox" id="slipIncludeMoney">
@@ -564,7 +564,7 @@
     </div>
   </div>
 
-  <!-- Modal: Authentication (Login / Register) -->
+  
   <div class="modal-backdrop" id="authModal" style="display: none;">
     <div class="modal-surface modal-surface-sm">
       <div class="modal-header">
@@ -589,13 +589,13 @@
       </div>
 
       <div class="modal-body">
-        <!-- Auth Switch Tabs -->
+        
         <div class="auth-tabs-row">
           <button type="button" class="auth-tab-btn active" id="tabBtnLogin">Đăng nhập</button>
           <button type="button" class="auth-tab-btn" id="tabBtnRegister">Đăng ký mới</button>
         </div>
 
-        <!-- Login Form -->
+        
         <form id="formLogin" class="auth-form-panel">
           <div class="form-item">
             <label class="form-label font-mono" for="loginUsername">Tên đăng nhập</label>
@@ -625,7 +625,7 @@
           </div>
         </form>
 
-        <!-- Register Form -->
+        
         <form id="formRegister" class="auth-form-panel" style="display: none;">
           <div class="form-item">
             <label class="form-label font-mono" for="regDisplayName">Tên hiển thị</label>
@@ -681,7 +681,7 @@
     </div>
   </div>
 
-  <!-- Modal: User Profile / Manage Account -->
+  
   <div class="modal-backdrop" id="userProfileModal" style="display: none;">
     <div class="modal-surface modal-surface-sm">
       <div class="modal-header">
@@ -752,10 +752,10 @@
     </div>
   </div>
 
-  <!-- Toast -->
+  
   <div id="toast" class="toast-capsule" style="display: none;"></div>
 
-  <!-- Supabase Cloud SDK -->
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./app.js"></script>
 </body>

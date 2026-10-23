@@ -1,13 +1,7 @@
-/* ==========================================================================
-   Shift & Salary Tracker — Midnight Galaxy Theme
-   - Deep Midnight Blue / Cosmic Indigo / Nebula Hue
-   - Distinctive Typography: Outfit + JetBrains Mono
-   - Strict WCAG AAA High Contrast on Midnight Background
-   - Soft Starlight Ambient Aura & Tactile Dark Neu-Morphism
-   ========================================================================== */
+
 
 :root {
-  /* Canvas Surfaces (Midnight Galaxy — Not pitch black, deep celestial navy) */
+  
   --bg-app: #0b0f19;
   --bg-card: rgba(18, 24, 43, 0.72);
   --bg-subtle: rgba(28, 38, 68, 0.6);
@@ -15,18 +9,18 @@
   --bg-dark: #12182b;
   --bg-dark-hover: #1c2642;
 
-  /* Hairlines & Cosmic Borders */
+  
   --border-light: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(96, 165, 250, 0.25);
   --border-focus: #3b82f6;
 
-  /* Strict High-Contrast Text Colors (WCAG AAA Compliant on #0b0f19) */
-  --text-main: #f8fafc;          /* Pure crisp starlight: 16.8:1 on #0b0f19 */
-  --text-muted: #94a3b8;         /* Nebula slate-400: 6.5:1 on #0b0f19 */
-  --text-dim: #64748b;           /* Slate-500: 4.5:1 contrast */
+  
+  --text-main: #f8fafc;          
+  --text-muted: #94a3b8;         
+  --text-dim: #64748b;           
   --text-white: #ffffff;
 
-  /* Functional Cosmic Accents */
+  
   --accent-emerald: #34d399;
   --accent-emerald-bg: rgba(16, 185, 129, 0.15);
   --accent-rose: #f87171;
@@ -38,23 +32,23 @@
   --accent-cosmic: #38bdf8;
   --accent-cosmic-bg: rgba(56, 189, 248, 0.15);
 
-  /* Typography */
+  
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
 
-  /* Radii */
+  
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-pill: 9999px;
 
-  /* Soft Ambient Cosmic Shadows (Neutral Elevation) */
+  
   --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --shadow-float: 0 16px 40px -4px rgba(0, 0, 0, 0.65);
 }
 
-/* Base Reset */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -80,7 +74,7 @@ body {
   background: var(--bg-app);
 }
 
-/* Ambient Galaxy Sapphire Glow */
+
 .ambient-aura {
   position: fixed;
   inset: 0;
@@ -94,7 +88,7 @@ body {
   filter: blur(45px);
 }
 
-/* Typography Utilities */
+
 .font-mono {
   font-family: var(--font-mono);
   font-feature-settings: "tnum" 1;
@@ -122,7 +116,7 @@ body {
   outline-offset: 2px;
 }
 
-/* Hide scrollbars across all elements */
+
 * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -134,7 +128,7 @@ body {
   height: 0 !important;
 }
 
-/* Main Layout */
+
 .app-layout {
   position: relative;
   z-index: 1;
@@ -146,7 +140,7 @@ body {
   gap: 1.35rem;
 }
 
-/* Header */
+
 .app-header {
   display: flex;
   align-items: center;
@@ -178,7 +172,7 @@ body {
   height: 18px;
 }
 
-/* Distinctive Type Hierarchy: H1 26px (1.625rem), H2 20px (1.25rem), H3 15px (0.9375rem) */
+
 .brand-title {
   font-size: 1.625rem;
   font-weight: 700;
@@ -198,7 +192,7 @@ body {
   gap: 0.55rem;
 }
 
-/* User Morphic Button in Header */
+
 .btn-morphic.is-logged-in {
   border-color: rgba(56, 189, 248, 0.45);
   background: linear-gradient(145deg, rgba(23, 37, 72, 0.95), rgba(13, 21, 44, 0.98));
@@ -212,13 +206,7 @@ body {
   text-transform: uppercase;
 }
 
-/* ==========================================================================
-   Tactile Morphic Icon Buttons (Neu-Morphic & Glass-Morphic Precision)
-   - Zero Text Clutter
-   - Circular Geometry & Tactile Dual-Shadow Elevation
-   - Strict WCAG AAA High Contrast
-   - Physical Inset Pressed State on :active
-   ========================================================================== */
+
 
 .btn-morphic {
   width: 40px;
@@ -275,7 +263,7 @@ body {
   outline-offset: 3px;
 }
 
-/* Primary Sapphire Galaxy Morphic */
+
 .btn-morphic-primary {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -301,7 +289,7 @@ body {
   transform: translateY(0) scale(0.95);
 }
 
-/* Danger Morphic */
+
 .btn-morphic-danger {
   color: #fca5a5;
   background: linear-gradient(145deg, rgba(88, 18, 38, 0.75), rgba(46, 10, 20, 0.9));
@@ -328,7 +316,7 @@ body {
   transform: translateY(0) scale(0.95);
 }
 
-/* Sizes */
+
 .btn-morphic-lg {
   width: 44px;
   height: 44px;
@@ -362,7 +350,7 @@ body {
     inset -1px -1px 2px rgba(255, 255, 255, 0.06);
 }
 
-/* Modal Close specific */
+
 .modal-close.btn-morphic {
   width: 34px;
   height: 34px;
@@ -370,7 +358,7 @@ body {
   min-height: 34px;
 }
 
-/* Morphic Backup Actions Bar */
+
 .backup-actions-morphic {
   display: flex;
   align-items: center;
@@ -382,7 +370,7 @@ body {
   cursor: pointer;
 }
 
-/* Base button fallbacks if any */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -393,7 +381,7 @@ body {
   user-select: none;
 }
 
-/* Week Navigation */
+
 .week-nav-bar {
   display: flex;
   flex-direction: column;
@@ -412,7 +400,7 @@ body {
   gap: 0.65rem;
 }
 
-/* H2: 20px (1.25rem) */
+
 .week-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -514,7 +502,7 @@ body {
   color: #bfdbfe;
 }
 
-/* Ledger Summary Card */
+
 .ledger-card {
   background: linear-gradient(135deg, rgba(22, 31, 56, 0.85) 0%, rgba(13, 18, 36, 0.92) 100%);
   backdrop-filter: blur(16px);
@@ -571,7 +559,7 @@ body {
   color: #94a3b8;
 }
 
-/* Shifts Section */
+
 .shifts-section {
   display: flex;
   flex-direction: column;
@@ -590,7 +578,7 @@ body {
   gap: 0.5rem;
 }
 
-/* H3: 15px (0.9375rem) */
+
 .shifts-title {
   font-size: 0.9375rem;
   font-weight: 700;
@@ -609,7 +597,7 @@ body {
   border-radius: var(--radius-pill);
 }
 
-/* Shift Stack Items */
+
 .shifts-stack {
   display: flex;
   flex-direction: column;
@@ -662,7 +650,7 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* Cosmic Day Tints */
+
 .day-t2 { background-color: rgba(30, 58, 138, 0.45); color: #bfdbfe; border-color: rgba(147, 197, 253, 0.35); }
 .day-t3 { background-color: rgba(19, 78, 74, 0.45); color: #99f6e4; border-color: rgba(94, 234, 212, 0.35); }
 .day-t4 { background-color: rgba(20, 83, 45, 0.45); color: #bbf7d0; border-color: rgba(134, 239, 172, 0.35); }
@@ -816,7 +804,7 @@ body {
   height: 15px;
 }
 
-/* Empty State */
+
 .empty-state {
   background-color: rgba(18, 24, 43, 0.6);
   backdrop-filter: blur(12px);
@@ -855,7 +843,7 @@ body {
   max-width: 320px;
 }
 
-/* Modals */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -933,7 +921,7 @@ body {
   background-color: rgba(12, 17, 32, 0.6);
 }
 
-/* Form Controls */
+
 .form-item {
   display: flex;
   flex-direction: column;
@@ -1073,7 +1061,7 @@ body {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Stats Overview */
+
 .stats-overview-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1100,7 +1088,7 @@ body {
   font-weight: 700;
 }
 
-/* Table Container (with minimum 12px inset to avoid cramped-padding) */
+
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-sm);
@@ -1139,7 +1127,7 @@ body {
   gap: 0.35rem;
 }
 
-/* Toast */
+
 .toast-capsule {
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
@@ -1159,7 +1147,7 @@ body {
   pointer-events: none;
 }
 
-/* Responsive */
+
 @media (max-width: 640px) {
   .desktop-only {
     display: none;
@@ -1203,9 +1191,7 @@ body {
   }
 }
 
-/* ==========================================================================
-   Floating Morphic Dockbar
-   ========================================================================== */
+
 .floating-dock {
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
@@ -1231,9 +1217,7 @@ body {
   margin: 0 0.2rem;
 }
 
-/* ==========================================================================
-   Slip Generator (Phiếu chấm công Zalo)
-   ========================================================================== */
+
 .slip-canvas-container {
   display: flex;
   justify-content: center;
@@ -1274,9 +1258,7 @@ body {
   accent-color: var(--bg-dark);
 }
 
-/* ==========================================================================
-   GitHub Gist Cloud Sync
-   ========================================================================== */
+
 .gist-sync-form {
   display: flex;
   flex-direction: column;
@@ -1289,9 +1271,7 @@ body {
   gap: 0.65rem;
 }
 
-/* ==========================================================================
-   Authentication & User Profile Modal Styles
-   ========================================================================== */
+
 .auth-header-title-wrap {
   display: flex;
   align-items: center;
@@ -1424,7 +1404,7 @@ body {
   transform: translateY(0) scale(0.98);
 }
 
-/* User Profile Styles */
+
 .user-profile-body {
   display: flex;
   flex-direction: column;
@@ -1548,9 +1528,7 @@ body {
   transform: translateY(0) scale(0.96);
 }
 
-/* ==========================================================================
-   Footer & Toast Notification (Top-Right)
-   ========================================================================== */
+
 .app-footer {
   margin-top: 2.5rem;
   padding: 1.5rem 0 6rem;
@@ -1576,7 +1554,7 @@ body {
   color: #94a3b8;
 }
 
-/* Toast Notification (Top-Right Floating Pill) */
+
 .toast-capsule {
   position: fixed;
   top: 1.25rem;
@@ -1611,7 +1589,7 @@ body {
   }
 }
 
-/* Auth Lock Gate Banner (Unauthenticated Mode) */
+
 .auth-lock-banner {
   padding: 3rem 1.5rem;
   text-align: center;

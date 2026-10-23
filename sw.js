@@ -27,7 +27,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-First strategy: Always fetch newest code if online, fall back to cache when offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 

@@ -1,9 +1,5 @@
-/**
- * Shift & Salary Tracker — Application Logic
- * Pure Shift & Salary Data Entry (Supabase Cloud Sync & Offline-First)
- */
 
-// Supabase Cloud Configuration
+
 const SUPABASE_URL = 'https://vkrtqjghtgjnhuhiwlay.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrcnRxamdodGdqbmh1aGl3bGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NDA0MDQsImV4cCI6MjEwODMxNjQwNH0.GEZjiHjy7V7oNzG5CvRtwA2vOzeY7mx7Oh-A49SVKn4';
 
@@ -18,7 +14,6 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
   });
 }
 
-// Guest Default Template (Blank week for unauthenticated visitors)
 const GUEST_DEFAULT_DATA = [
   {
     "id": "week-1",
@@ -28,15 +23,13 @@ const GUEST_DEFAULT_DATA = [
   }
 ];
 
-// Storage Keys
 const GUEST_WEEKS_KEY = 'shift_tracker_weeks_v2';
 const GUEST_SETTINGS_KEY = 'shift_tracker_settings_v2';
 const LOCAL_CACHE_WEEKS_KEY = 'salary_cloud_cache_weeks';
 const LOCAL_CACHE_SETTINGS_KEY = 'salary_cloud_cache_settings';
 
-// Application State
 const state = {
-  currentUser: null, // { id, email, username, name }
+  currentUser: null,
   weeks: [],
   currentWeekId: null,
   settings: {
@@ -44,7 +37,6 @@ const state = {
   }
 };
 
-// User Scoped Storage Keys
 const getWeeksStorageKey = () => {
   if (state.currentUser && state.currentUser.id) {
     return `${LOCAL_CACHE_WEEKS_KEY}_${state.currentUser.id}`;
@@ -59,7 +51,6 @@ const getSettingsStorageKey = () => {
   return GUEST_SETTINGS_KEY;
 };
 
-// Formatting Utilities
 const fmtCurrency = (num) => {
   return new Intl.NumberFormat('vi-VN').format(Math.round(num || 0)) + ' đ';
 };
@@ -86,7 +77,7 @@ const calculateHoursDiff = (startStr, endStr) => {
   const startMins = parseTimeToMinutes(startStr);
   let endMins = parseTimeToMinutes(endStr);
   if (endMins < startMins) {
-    endMins += 24 * 60; // Overnight shift
+    endMins += 24 * 60;
   }
   const diffMinutes = endMins - startMins;
   return Number((diffMinutes / 60).toFixed(2));
@@ -129,11 +120,10 @@ const showToast = (message) => {
   }, 2400);
 };
 
-// Persistence (Supabase Cloud + Local Offline Cache)
 const loadState = async () => {
   try {
     if (state.currentUser && supabaseClient) {
-      // 1. Fetch from Supabase Cloud
+     
       const { data, error } = await supabaseClient
         .from('user_salary_data')
         .select('*')
@@ -143,11 +133,11 @@ const loadState = async () => {
       if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
         state.weeks = data.weeks;
         if (data.settings) state.settings = { ...state.settings, ...data.settings };
-        // Save to local cache for instant offline access
+       
         localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
         localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
       } else {
-        // Fallback to local cache if offline or newly created
+       
         const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
         const cachedSettings = localStorage.getItem(getSettingsStorageKey());
         if (cachedWeeks) {
@@ -159,7 +149,7 @@ const loadState = async () => {
         }
       }
     } else {
-      // Unauthenticated mode: strictly 0 and empty
+     
       state.weeks = [];
       state.currentWeekId = null;
     }
@@ -189,7 +179,7 @@ const saveWeeks = () => {
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
 
-  // Sync to Supabase Cloud if authenticated
+ 
   if (state.currentUser && supabaseClient) {
     clearTimeout(cloudSyncTimer);
     cloudSyncTimer = setTimeout(async () => {
@@ -220,7 +210,6 @@ const getCurrentWeek = () => {
   return state.weeks.find(w => w.id === state.currentWeekId) || state.weeks[0];
 };
 
-// Authentication Flow (Supabase Cloud Auth)
 const initAuth = async () => {
   if (supabaseClient) {
     try {
@@ -265,7 +254,6 @@ const updateHeaderAuthUI = () => {
   }
 };
 
-// Render Functions
 const renderApp = () => {
   renderDateDisplay();
   renderWeekPills();
@@ -507,7 +495,6 @@ const escapeHtml = (str) => {
   return div.innerHTML;
 };
 
-// Shift Actions (Add / Edit / Delete)
 const openAddShiftModal = (prefill = null) => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -632,7 +619,6 @@ const deleteShift = (shiftId) => {
   showToast('Đã xóa ca làm việc');
 };
 
-// Week Actions
 const createNewWeek = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -735,7 +721,6 @@ const navigateWeek = (direction) => {
   }
 };
 
-// All-time Summary
 const openAllWeeksModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -818,7 +803,6 @@ const openAllWeeksModal = () => {
   document.getElementById('allWeeksModal').style.display = 'flex';
 };
 
-// Settings Modal
 const openSettingsModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -850,7 +834,6 @@ const saveSettingsFromModal = () => {
   showToast('Đã lưu cài đặt');
 };
 
-// GitHub Gist Cloud Sync
 const syncWithGitHubGist = async (isSilent = false) => {
   const token = document.getElementById('settingGithubToken')?.value.trim() || state.settings.githubToken;
   let gistId = document.getElementById('settingGistId')?.value.trim() || state.settings.gistId;
@@ -922,15 +905,6 @@ const syncWithGitHubGist = async (isSilent = false) => {
   }
 };
 
-// ==========================================================================
-// Slip Generator (Phiếu chấm công Zalo)
-// ==========================================================================
-// ==========================================================================
-// Slip Generator (Phiếu chấm công Zalo — Executive Timesheet Voucher)
-// ==========================================================================
-// ==========================================================================
-// Slip Generator (Phiếu chấm công Zalo — Gọn gàng, tối giản thông tin)
-// ==========================================================================
 const renderSlipCanvas = () => {
   const week = getCurrentWeek();
   const canvas = document.getElementById('slipCanvas');
@@ -955,7 +929,7 @@ const renderSlipCanvas = () => {
 
   const totalHeight = padTop + headerHeight + thHeight + (shifts.length * rowHeight) + totalRowHeight + footerHeight;
 
-  // Set physical and display size for crisp Retina
+ 
   canvas.width = totalWidth * dpr;
   canvas.height = totalHeight * dpr;
   canvas.style.width = `${totalWidth}px`;
@@ -963,36 +937,36 @@ const renderSlipCanvas = () => {
 
   ctx.scale(dpr, dpr);
 
-  // Background
+ 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-  // Outer Border
+ 
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, totalWidth - 1, totalHeight - 1);
 
-  // Header Title: BẢNG CHẤM CÔNG — TUẦN X
+ 
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 15px "Outfit", system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(`BẢNG CHẤM CÔNG — ${week.name.toUpperCase()}`, totalWidth / 2, padTop + 16);
 
-  // Subtitle: Date
+ 
   ctx.fillStyle = '#64748b';
   ctx.font = '500 11px "JetBrains Mono", monospace';
   ctx.fillText(new Date().toLocaleDateString('vi-VN'), totalWidth / 2, padTop + 34);
 
-  // Table coordinates & columns
+ 
   const tableY = padTop + headerHeight;
   let colWidths;
   let thTitles;
 
   if (includeMoney) {
-    colWidths = [104, 85, 85, 90, 110]; // Sum = 474
+    colWidths = [104, 85, 85, 90, 110];
     thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ', 'Thành tiền'];
   } else {
-    colWidths = [104, 90, 90, 100]; // Sum = 384
+    colWidths = [104, 90, 90, 100];
     thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
   }
 
@@ -1001,7 +975,7 @@ const renderSlipCanvas = () => {
     colX.push(colX[i] + colWidths[i]);
   }
 
-  // Table Header (Slate Bar)
+ 
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(padX, tableY, contentWidth, thHeight);
 
@@ -1015,7 +989,7 @@ const renderSlipCanvas = () => {
     ctx.fillText(thTitles[i], tx, tableY + 21);
   }
 
-  // Draw Shifts Rows
+ 
   let curY = tableY + thHeight;
   let totalHours = 0;
 
@@ -1025,11 +999,11 @@ const renderSlipCanvas = () => {
     const shiftWage = shiftHours * week.rate;
     const isEven = idx % 2 === 0;
 
-    // Row zebra background
+   
     ctx.fillStyle = isEven ? '#ffffff' : '#f8fafc';
     ctx.fillRect(padX, curY, contentWidth, rowHeight);
 
-    // Border bottom
+   
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -1037,28 +1011,28 @@ const renderSlipCanvas = () => {
     ctx.lineTo(padX + contentWidth, curY + rowHeight + 0.5);
     ctx.stroke();
 
-    // Col 0: Ca (Thứ & Buổi)
+   
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`${s.day} ${s.type}`, colX[0] + 10, curY + 20);
 
-    // Col 1: Giờ vào
+   
     ctx.fillStyle = '#334155';
     ctx.font = '500 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText(s.start, colX[1] + colWidths[1] / 2, curY + 20);
 
-    // Col 2: Giờ ra
+   
     ctx.fillText(s.end, colX[2] + colWidths[2] / 2, curY + 20);
 
-    // Col 3: Số giờ
+   
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText(hoursToColonFormat(s.hours), colX[3] + colWidths[3] / 2, curY + 20);
 
-    // Col 4: Thành tiền (if included)
+   
     if (includeMoney) {
       ctx.fillStyle = '#1e3a8a';
       ctx.textAlign = 'right';
@@ -1068,22 +1042,22 @@ const renderSlipCanvas = () => {
     curY += rowHeight;
   });
 
-  // Table Total Row
+ 
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(padX, curY, contentWidth, totalRowHeight);
 
-  // Label: "Tổng"
+ 
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 13px "Outfit", sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('Tổng', colX[0] + 10, curY + 23);
 
-  // Total Hours
+ 
   ctx.font = 'bold 13px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(hoursToColonFormat(totalHours), colX[3] + colWidths[3] / 2, curY + 23);
 
-  // Total Salary (if included)
+ 
   if (includeMoney) {
     const totalSalary = totalHours * week.rate;
     ctx.fillStyle = '#34d399';
@@ -1091,16 +1065,13 @@ const renderSlipCanvas = () => {
     ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 10, curY + 23);
   }
 
-  // Footer Watermark
+ 
   ctx.fillStyle = '#94a3b8';
   ctx.font = '500 10px "Outfit", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Salary Tracker', totalWidth / 2, totalHeight - 8);
 };
 
-// ==========================================================================
-// Authentication Event Handlers & Modal Management
-// ==========================================================================
 const openAuthModal = (defaultTab = 'login') => {
   const modal = document.getElementById('authModal');
   if (!modal) return;
@@ -1155,7 +1126,7 @@ const openUserProfileModal = () => {
   document.getElementById('profileUsername').textContent = `@${state.currentUser.username}`;
   document.getElementById('profileEditName').value = state.currentUser.name;
 
-  // Stats
+ 
   const totalWeeks = state.weeks.length;
   let totalShifts = 0;
   let totalHours = 0;
@@ -1298,7 +1269,7 @@ const handleRegisterSubmit = async (e) => {
     const u = data.user;
     state.currentUser = { id: u.id, email: u.email, username: rawUsername, name };
 
-    // Copy guest data if requested
+   
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
     let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
     if (copyGuest) {
@@ -1310,7 +1281,7 @@ const handleRegisterSubmit = async (e) => {
 
     state.weeks = initialWeeks;
 
-    // Save initial workspace in Supabase Cloud
+   
     await supabaseClient.from('user_salary_data').upsert({
       user_id: u.id,
       username: rawUsername,
@@ -1417,7 +1388,6 @@ const copySlipImageToClipboard = async () => {
   }, 'image/png');
 };
 
-// Export to CSV / Excel
 const exportCurrentWeekCSV = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -1567,9 +1537,8 @@ const closeModal = (modalId) => {
   if (modal) modal.style.display = 'none';
 };
 
-// Event Listeners Binding
 const bindEvents = () => {
-  // Modal Close buttons
+ 
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
       const modalId = btn.getAttribute('data-close-modal');
@@ -1577,7 +1546,7 @@ const bindEvents = () => {
     });
   });
 
-  // Close modals on backdrop click
+ 
   document.querySelectorAll('.modal-backdrop').forEach(modal => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
@@ -1586,11 +1555,11 @@ const bindEvents = () => {
     });
   });
 
-  // Header Settings
+ 
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
-  // Week meta, new week, and quick delete week
+ 
   const btnNewWeek = document.getElementById('btnNewWeek');
   if (btnNewWeek) btnNewWeek.addEventListener('click', createNewWeek);
 
@@ -1600,11 +1569,11 @@ const bindEvents = () => {
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
-  // Quick export button on section
+ 
   const btnQuickExport = document.getElementById('btnQuickExportWeek');
   if (btnQuickExport) btnQuickExport.addEventListener('click', exportCurrentWeekCSV);
 
-  // Shift Modal Form
+ 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', updateModalComputedPreview);
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
@@ -1622,7 +1591,7 @@ const bindEvents = () => {
     });
   }
 
-  // Preset buttons in Shift Modal
+ 
   document.querySelectorAll('.preset-tile').forEach(btn => {
     btn.addEventListener('click', () => {
       const preset = btn.getAttribute('data-preset');
@@ -1639,11 +1608,11 @@ const bindEvents = () => {
     });
   });
 
-  // Edit Week Form
+ 
   document.getElementById('editWeekForm').addEventListener('submit', saveWeekMeta);
   document.getElementById('btnDeleteCurrentWeek').addEventListener('click', deleteCurrentWeek);
 
-  // Authentication & Profile Events
+ 
   const btnUserAuth = document.getElementById('btnUserAuth');
   if (btnUserAuth) {
     btnUserAuth.addEventListener('click', () => {
@@ -1673,20 +1642,20 @@ const bindEvents = () => {
   const btnSaveProfileName = document.getElementById('btnSaveProfileName');
   if (btnSaveProfileName) btnSaveProfileName.addEventListener('click', handleSaveProfileName);
 
-  // Settings Actions
+ 
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
   document.getElementById('btnResetToOriginal').addEventListener('click', resetToOriginalExcel);
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
 
-  // GitHub Gist Sync
+ 
   const btnSyncGist = document.getElementById('btnSyncGistNow');
   if (btnSyncGist) {
     btnSyncGist.addEventListener('click', () => syncWithGitHubGist(false));
   }
 
-  // Share Slip Modal & Dock Events
+ 
   const btnOpenShareSlip = document.getElementById('btnOpenShareSlip');
   if (btnOpenShareSlip) {
     btnOpenShareSlip.addEventListener('click', openShareSlipModal);
@@ -1734,7 +1703,7 @@ const bindEvents = () => {
     });
   }
 
-  // PWA Service Worker Registration & Auto-Update
+ 
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
       reg.update().catch(() => {});
@@ -1762,7 +1731,6 @@ const bindEvents = () => {
   }
 };
 
-// Realtime Cloud Sync Subscription
 const setupRealtimeSync = () => {
   if (!supabaseClient) return;
   try {
@@ -1788,7 +1756,6 @@ const setupRealtimeSync = () => {
   }
 };
 
-// App Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   await initAuth();
   await loadState();
