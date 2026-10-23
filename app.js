@@ -217,8 +217,7 @@ const initAuth = async () => {
       if (session && session.user) {
         const u = session.user;
         const username = u.user_metadata?.username || u.email.split('@')[0];
-        const name = u.user_metadata?.name || username;
-        state.currentUser = { id: u.id, email: u.email, username, name };
+        state.currentUser = { id: u.id, email: u.email, username };
       } else {
         state.currentUser = null;
       }
@@ -237,11 +236,11 @@ const updateHeaderAuthUI = () => {
   const btn = document.getElementById('btnUserAuth');
   if (!btn) return;
 
-  if (state.currentUser && state.currentUser.name) {
-    const initial = (state.currentUser.name[0] || 'U').toUpperCase();
+  if (state.currentUser && state.currentUser.username) {
+    const initial = (state.currentUser.username[0] || 'U').toUpperCase();
     btn.className = 'btn-morphic is-logged-in';
     btn.innerHTML = `<span class="user-morphic-initial font-mono">${initial}</span>`;
-    btn.title = `Tài khoản: ${state.currentUser.name} (@${state.currentUser.username})`;
+    btn.title = `Tài khoản: @${state.currentUser.username}`;
   } else {
     btn.className = 'btn-morphic';
     btn.innerHTML = `
@@ -1122,11 +1121,10 @@ const openUserProfileModal = () => {
   const modal = document.getElementById('userProfileModal');
   if (!modal) return;
 
-  const initial = (state.currentUser.name[0] || 'U').toUpperCase();
+  const username = state.currentUser.username || 'user';
+  const initial = (username[0] || 'U').toUpperCase();
   document.getElementById('profileAvatarBadge').textContent = initial;
-  document.getElementById('profileDisplayName').textContent = state.currentUser.name;
-  document.getElementById('profileUsername').textContent = `@${state.currentUser.username}`;
-  document.getElementById('profileEditName').value = state.currentUser.name;
+  document.getElementById('profileUsername').textContent = `@${username}`;
 
  
   const totalWeeks = state.weeks.length;
@@ -1191,8 +1189,7 @@ const handleLoginSubmit = async (e) => {
 
     const u = data.user;
     const username = u.user_metadata?.username || u.email.split('@')[0];
-    const name = u.user_metadata?.name || username;
-    state.currentUser = { id: u.id, email: u.email, username, name };
+    state.currentUser = { id: u.id, email: u.email, username };
 
     updateHeaderAuthUI();
     await loadState();
@@ -1200,7 +1197,7 @@ const handleLoginSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formLogin').reset();
-    showToast(`Đăng nhập thành công! Chào ${name}.`);
+    showToast(`Đăng nhập thành công! Chào @${username}.`);
   } catch (err) {
     errorEl.textContent = `Lỗi kết nối: ${err.message}`;
     errorEl.style.display = 'block';
@@ -1211,13 +1208,12 @@ const handleLoginSubmit = async (e) => {
 
 const handleRegisterSubmit = async (e) => {
   e.preventDefault();
-  const name = document.getElementById('regDisplayName').value.trim();
   const rawUsername = document.getElementById('regUsername').value.trim().toLowerCase();
   const password = document.getElementById('regPassword').value;
   const passwordConfirm = document.getElementById('regPasswordConfirm').value;
   const errorEl = document.getElementById('regError');
 
-  if (!name || !rawUsername || !password || !passwordConfirm) {
+  if (!rawUsername || !password || !passwordConfirm) {
     errorEl.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
     errorEl.style.display = 'block';
     return;
@@ -1262,7 +1258,7 @@ const handleRegisterSubmit = async (e) => {
       email,
       password,
       options: {
-        data: { name, username: rawUsername }
+        data: { username: rawUsername }
       }
     });
 
@@ -1281,35 +1277,29 @@ const handleRegisterSubmit = async (e) => {
     }
 
     const u = data.user;
-    state.currentUser = { id: u.id, email: u.email, username: rawUsername, name };
+    state.currentUser = { id: u.id, email: u.email, username: rawUsername };
 
-   
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
     let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
     if (copyGuest) {
       const guestRaw = localStorage.getItem(GUEST_WEEKS_KEY);
       if (guestRaw) {
-        try { initialWeeks = JSON.parse(guestRaw); } catch (e) {}
+        try {
+          const parsed = JSON.parse(guestRaw);
+          if (Array.isArray(parsed) && parsed.length > 0) initialWeeks = parsed;
+        } catch (_) {}
       }
     }
 
     state.weeks = initialWeeks;
-
-   
-    await supabaseClient.from('user_salary_data').upsert({
-      user_id: u.id,
-      username: rawUsername,
-      weeks: initialWeeks,
-      settings: state.settings,
-      updated_at: new Date().toISOString()
-    });
-
+    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+    await syncWithSupabase(state.weeks);
     updateHeaderAuthUI();
     renderApp();
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formRegister').reset();
-    showToast(`Chào mừng ${name}! Đăng ký tài khoản thành công.`);
+    showToast(`Tạo tài khoản thành công! Chào @${rawUsername}.`);
   } catch (err) {
     errorEl.textContent = `Lỗi: ${err.message}`;
     errorEl.style.display = 'block';
@@ -1332,27 +1322,7 @@ const handleLogout = async () => {
   }
 };
 
-const handleSaveProfileName = async () => {
-  const newName = document.getElementById('profileEditName').value.trim();
-  if (!newName) {
-    alert('Vui lòng nhập tên hiển thị hợp lệ.');
-    return;
-  }
 
-  if (!state.currentUser) return;
-
-  state.currentUser.name = newName;
-
-  if (supabaseClient) {
-    await supabaseClient.auth.updateUser({
-      data: { name: newName }
-    });
-  }
-
-  updateHeaderAuthUI();
-  document.getElementById('profileDisplayName').textContent = newName;
-  showToast('Cập nhật tên hiển thị thành công!');
-};
 
 const openShareSlipModal = () => {
   if (!state.currentUser) {
@@ -1653,8 +1623,7 @@ const bindEvents = () => {
   const btnLogoutUser = document.getElementById('btnLogoutUser');
   if (btnLogoutUser) btnLogoutUser.addEventListener('click', handleLogout);
 
-  const btnSaveProfileName = document.getElementById('btnSaveProfileName');
-  if (btnSaveProfileName) btnSaveProfileName.addEventListener('click', handleSaveProfileName);
+
 
  
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);

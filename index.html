@@ -627,16 +627,6 @@
         
         <form id="formRegister" class="auth-form-panel" style="display: none;">
           <div class="form-item">
-            <label class="form-label font-mono" for="regDisplayName">Tên hiển thị</label>
-            <div class="input-icon-wrap">
-              <svg class="input-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <input type="text" id="regDisplayName" class="form-input input-has-icon" required placeholder="Tên hiển thị của bạn">
-            </div>
-          </div>
-          <div class="form-item">
             <label class="form-label font-mono" for="regUsername">Tên đăng nhập</label>
             <div class="input-icon-wrap">
               <svg class="input-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -702,8 +692,7 @@
         <div class="profile-header-card">
           <div class="profile-avatar font-mono" id="profileAvatarBadge">P</div>
           <div class="profile-meta">
-            <h4 class="profile-name" id="profileDisplayName">Người dùng</h4>
-            <span class="profile-username font-mono" id="profileUsername">@username</span>
+            <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
           </div>
         </div>
 
@@ -721,18 +710,6 @@
           <div class="profile-stat-item">
             <span class="ps-label font-mono">Tổng số giờ</span>
             <span class="ps-val font-mono" id="profileTotalHours">0h</span>
-          </div>
-        </div>
-
-        <div class="form-item" style="margin-top: 0.35rem;">
-          <label class="form-label font-mono" for="profileEditName">Đổi tên hiển thị</label>
-          <div class="profile-name-edit-row">
-            <input type="text" id="profileEditName" class="form-input" placeholder="Tên hiển thị mới">
-            <button type="button" class="btn-morphic btn-morphic-primary" id="btnSaveProfileName" title="Lưu tên hiển thị" aria-label="Lưu tên hiển thị">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </button>
           </div>
         </div>
       </div>
