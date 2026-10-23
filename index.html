@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024k">
+  <link rel="stylesheet" href="./styles.css?v=20261024L">
 </head>
 <body>
   
@@ -192,7 +192,7 @@
 
   
   <div class="modal-backdrop" id="shiftModal" style="display: none;">
-    <div class="modal-surface modal-surface-sm">
+    <form id="shiftForm" class="modal-surface modal-surface-sm">
       <div class="modal-header">
         <h3 class="modal-title" id="shiftModalTitle">Thêm ca làm việc</h3>
         <button type="button" class="btn-morphic modal-close" data-close-modal="shiftModal" title="Đóng" aria-label="Đóng">
@@ -203,7 +203,7 @@
         </button>
       </div>
 
-      <form id="shiftForm" class="modal-body">
+      <div class="modal-body">
         <input type="hidden" id="editShiftId">
 
         <div class="form-grid-2">
@@ -256,22 +256,22 @@
           <label class="form-label font-mono" for="shiftNote">Ghi chú</label>
           <input type="text" id="shiftNote" class="form-input" placeholder="Tăng ca, đổi ca...">
         </div>
+      </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteShiftModal" title="Xóa ca làm việc này" aria-label="Xóa ca làm việc này" style="display: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
-          <button type="submit" class="btn-morphic btn-morphic-primary" id="btnSaveShift" title="Lưu ca làm việc" aria-label="Lưu ca làm việc">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteShiftModal" title="Xóa ca làm việc này" aria-label="Xóa ca làm việc này" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <button type="submit" class="btn-morphic btn-morphic-primary" id="btnSaveShift" title="Lưu ca làm việc" aria-label="Lưu ca làm việc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+      </div>
+    </form>
   </div>
 
   
@@ -395,7 +395,7 @@
 
   
   <div class="modal-backdrop" id="editWeekModal" style="display: none;">
-    <div class="modal-surface modal-surface-sm">
+    <form id="editWeekForm" class="modal-surface modal-surface-sm">
       <div class="modal-header">
         <h3 class="modal-title">Thông tin tuần</h3>
         <button type="button" class="btn-morphic modal-close" data-close-modal="editWeekModal" title="Đóng" aria-label="Đóng">
@@ -406,7 +406,7 @@
         </button>
       </div>
 
-      <form id="editWeekForm" class="modal-body">
+      <div class="modal-body">
         <div class="form-item">
           <label class="form-label font-mono" for="editWeekNameInput">Tên tuần</label>
           <input type="text" id="editWeekNameInput" class="form-input" required>
@@ -419,22 +419,22 @@
             <span class="tag font-mono">đ/h</span>
           </div>
         </div>
+      </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteCurrentWeek" title="Xóa tuần này" aria-label="Xóa tuần này">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
-          <button type="submit" class="btn-morphic btn-morphic-primary" title="Cập nhật thông tin tuần" aria-label="Cập nhật thông tin tuần">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-morphic btn-morphic-danger" id="btnDeleteCurrentWeek" title="Xóa tuần này" aria-label="Xóa tuần này">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <button type="submit" class="btn-morphic btn-morphic-primary" title="Cập nhật thông tin tuần" aria-label="Cập nhật thông tin tuần">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+      </div>
+    </form>
   </div>
 
   
@@ -662,6 +662,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024k"></script>
+  <script src="./app.js?v=20261024L"></script>
 </body>
 </html>
