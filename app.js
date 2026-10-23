@@ -1783,7 +1783,10 @@ const bindEvents = () => {
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
-  document.getElementById('btnResetToOriginal').addEventListener('click', resetToOriginalExcel);
+  const btnReset = document.getElementById('btnResetToOriginal');
+  if (btnReset) {
+    btnReset.addEventListener('click', resetToOriginalExcel);
+  }
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
 
  
