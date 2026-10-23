@@ -112,12 +112,34 @@ const getDayClass = (day) => {
 
 const showToast = (message) => {
   const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.style.display = 'block';
+  toast.innerHTML = `<span>${message}</span>`;
+  toast.style.display = 'flex';
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => {
     toast.style.display = 'none';
   }, 2400);
+};
+
+const showToastWithAction = (message, actionText, actionCallback, duration = 8000) => {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = `
+    <span>${message}</span>
+    <button type="button" class="toast-action-btn" id="btnToastAction">${actionText}</button>
+  `;
+  toast.style.display = 'flex';
+  clearTimeout(toast._timer);
+
+  const btn = document.getElementById('btnToastAction');
+  if (btn) {
+    btn.onclick = () => {
+      toast.style.display = 'none';
+      if (typeof actionCallback === 'function') actionCallback();
+    };
+  }
+
+  toast._timer = setTimeout(() => {
+    toast.style.display = 'none';
+  }, duration);
 };
 
 const loadState = async () => {
@@ -634,16 +656,52 @@ const saveShiftFromModal = (e) => {
   renderShiftsList();
 };
 
+let lastDeletedShiftRecord = null;
+
 const deleteShift = (shiftId) => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  week.shifts = week.shifts.filter(s => s.id !== shiftId);
+  const shiftIndex = week.shifts.findIndex(s => s.id === shiftId);
+  if (shiftIndex === -1) return;
+  const removedShift = week.shifts[shiftIndex];
+
+  week.shifts.splice(shiftIndex, 1);
   saveWeeks();
   renderWeekPills();
   renderWeekDetails();
   renderShiftsList();
-  showToast('Đã xóa ca làm việc');
+
+  lastDeletedShiftRecord = {
+    weekId: week.id,
+    shift: removedShift,
+    index: shiftIndex
+  };
+
+  showToastWithAction(`Đã xóa ca ${removedShift.day} (${removedShift.type})`, 'Hoàn tác', () => {
+    undoLastDeleteShift();
+  }, 8000);
+};
+
+const undoLastDeleteShift = () => {
+  if (!lastDeletedShiftRecord) return;
+  const { weekId, shift, index } = lastDeletedShiftRecord;
+  const targetWeek = state.weeks.find(w => w.id === weekId);
+  if (!targetWeek) {
+    showToast('Không tìm thấy tuần để khôi phục');
+    return;
+  }
+  if (typeof index === 'number' && index >= 0 && index <= targetWeek.shifts.length) {
+    targetWeek.shifts.splice(index, 0, shift);
+  } else {
+    targetWeek.shifts.push(shift);
+  }
+  lastDeletedShiftRecord = null;
+  saveWeeks();
+  renderWeekPills();
+  renderWeekDetails();
+  renderShiftsList();
+  showToast(`Đã khôi phục ca ${shift.day} (${shift.type})!`);
 };
 
 const createNewWeek = () => {
@@ -704,6 +762,8 @@ const saveWeekMeta = (e) => {
   showToast('Đã cập nhật thông tin tuần');
 };
 
+let lastDeletedWeekRecord = null;
+
 const deleteCurrentWeek = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -720,13 +780,39 @@ const deleteCurrentWeek = () => {
   }
 
   if (confirm(`Bạn có chắc chắn muốn xóa "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
+    const weekIndex = state.weeks.findIndex(w => w.id === week.id);
+    const removedWeek = { ...week, shifts: [...week.shifts] };
+
     state.weeks = state.weeks.filter(w => w.id !== week.id);
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     saveWeeks();
     closeModal('editWeekModal');
     renderApp();
-    showToast(`Đã xóa ${week.name}`);
+
+    lastDeletedWeekRecord = {
+      week: removedWeek,
+      index: weekIndex
+    };
+
+    showToastWithAction(`Đã xóa ${removedWeek.name}`, 'Hoàn tác', () => {
+      undoLastDeleteWeek();
+    }, 8000);
   }
+};
+
+const undoLastDeleteWeek = () => {
+  if (!lastDeletedWeekRecord) return;
+  const { week, index } = lastDeletedWeekRecord;
+  if (typeof index === 'number' && index >= 0 && index <= state.weeks.length) {
+    state.weeks.splice(index, 0, week);
+  } else {
+    state.weeks.push(week);
+  }
+  state.currentWeekId = week.id;
+  lastDeletedWeekRecord = null;
+  saveWeeks();
+  renderApp();
+  showToast(`Đã khôi phục ${week.name}!`);
 };
 
 const navigateWeek = (direction) => {

@@ -1290,17 +1290,32 @@ body {
   background: #0f172a;
   border: 1px solid #334155;
   color: #ffffff;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.85rem;
   border-radius: var(--radius-md);
   font-size: 0.8rem;
   font-weight: 500;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
-  pointer-events: none;
   animation: toastFadeIn 0.18s ease-out;
   max-width: 90vw;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.toast-action-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.toast-action-btn:hover {
+  background: #1d4ed8;
 }
 
 @keyframes toastFadeIn {
