@@ -527,9 +527,9 @@ const detectShiftType = (startTimeStr) => {
   const parts = startTimeStr.split(':');
   const h = parseInt(parts[0], 10);
   if (isNaN(h)) return 'Tối';
-  if (h >= 5 && h < 11) return 'Sáng';
-  if (h >= 11 && h < 14) return 'Trưa';
-  return 'Tối';
+  if (h >= 10 && h < 15) return 'Trưa';
+  if (h >= 15 && h < 24) return 'Tối';
+  return 'Sáng';
 };
 
 const openAddShiftModal = (prefill = null) => {
@@ -555,14 +555,18 @@ const openAddShiftModal = (prefill = null) => {
   let defaultStart = '17:00';
   let defaultEnd = '20:30';
 
-  if (currentHour >= 5 && currentHour < 11) {
+  if (currentHour >= 0 && currentHour < 10) {
     defaultType = 'Sáng';
     defaultStart = '08:00';
     defaultEnd = '12:00';
-  } else if (currentHour >= 11 && currentHour < 14) {
+  } else if (currentHour >= 10 && currentHour < 15) {
     defaultType = 'Trưa';
     defaultStart = '10:00';
     defaultEnd = '13:30';
+  } else {
+    defaultType = 'Tối';
+    defaultStart = '17:00';
+    defaultEnd = '20:30';
   }
 
   const defaultDay = prefill ? prefill.day : getVietnameseDayOfWeek(now);
