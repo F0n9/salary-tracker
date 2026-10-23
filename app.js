@@ -1332,7 +1332,16 @@ const handleRegisterSubmit = async (e) => {
 
     state.weeks = initialWeeks;
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
-    await syncWithSupabase(state.weeks);
+    saveWeeks();
+    try {
+      await supabaseClient.from('user_salary_data').upsert({
+        user_id: u.id,
+        username: rawUsername,
+        weeks: initialWeeks,
+        settings: state.settings,
+        updated_at: new Date().toISOString()
+      });
+    } catch (_) {}
     updateHeaderAuthUI();
     renderApp();
 
