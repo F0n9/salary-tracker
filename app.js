@@ -950,7 +950,7 @@ const renderSlipCanvas = () => {
 
   const padX = 18;
   const padTop = 18;
-  const totalWidth = includeMoney ? 510 : 420;
+  const totalWidth = 510;
   const contentWidth = totalWidth - padX * 2;
 
   const headerHeight = 44;
@@ -998,7 +998,7 @@ const renderSlipCanvas = () => {
     colWidths = [104, 85, 85, 90, 110];
     thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ', 'Thành tiền'];
   } else {
-    colWidths = [104, 90, 90, 100];
+    colWidths = [134, 110, 110, 120];
     thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
   }
 

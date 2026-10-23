@@ -728,6 +728,10 @@ body {
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
+#shareSlipModal .modal-surface {
+  max-width: 580px;
+}
+
 .slip-options-row {
   display: flex;
   align-items: center;
