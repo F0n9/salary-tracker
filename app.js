@@ -1,104 +1,22 @@
 /**
  * Shift & Salary Tracker — Application Logic
- * Pure Shift & Salary Data Entry (Offline-First, Zero-Dependency)
+ * Pure Shift & Salary Data Entry (Supabase Cloud Sync & Offline-First)
  */
 
-// 1. Embedded Seed Data for aoe1920 (migrated from Salary.xlsx Weeks 1-8)
-const AOE_SEED_DATA = [
-  {
-    "id": "week-1",
-    "name": "Tuần 1",
-    "rate": 35000,
-    "shifts": [
-      { "id": "s-1-1", "day": "T6", "type": "Tối", "start": "17:00", "end": "20:11", "hours": 3.18, "note": "" },
-      { "id": "s-1-2", "day": "T7", "type": "Trưa", "start": "10:00", "end": "13:14", "hours": 3.23, "note": "" },
-      { "id": "s-1-3", "day": "T7", "type": "Tối", "start": "17:00", "end": "19:48", "hours": 2.8, "note": "" },
-      { "id": "s-1-4", "day": "CN", "type": "Tối", "start": "17:00", "end": "20:04", "hours": 3.07, "note": "" }
-    ]
-  },
-  {
-    "id": "week-2",
-    "name": "Tuần 2",
-    "rate": 35000,
-    "shifts": [
-      { "id": "s-2-1", "day": "T2", "type": "Tối", "start": "17:00", "end": "20:00", "hours": 3.0, "note": "" },
-      { "id": "s-2-2", "day": "T3", "type": "Tối", "start": "17:00", "end": "20:00", "hours": 3.0, "note": "" },
-      { "id": "s-2-3", "day": "T5", "type": "Tối", "start": "17:00", "end": "20:30", "hours": 3.5, "note": "" },
-      { "id": "s-2-4", "day": "T7", "type": "Trưa", "start": "10:00", "end": "13:30", "hours": 3.5, "note": "" },
-      { "id": "s-2-5", "day": "T7", "type": "Tối", "start": "17:00", "end": "20:00", "hours": 3.0, "note": "" }
-    ]
-  },
-  {
-    "id": "week-3",
-    "name": "Tuần 3",
-    "rate": 35000,
-    "shifts": [
-      { "id": "s-3-1", "day": "T2", "type": "Tối", "start": "17:00", "end": "20:15", "hours": 3.25, "note": "" },
-      { "id": "s-3-2", "day": "T5", "type": "Trưa", "start": "10:10", "end": "13:10", "hours": 3.0, "note": "" },
-      { "id": "s-3-3", "day": "T5", "type": "Tối", "start": "17:00", "end": "20:00", "hours": 3.0, "note": "" },
-      { "id": "s-3-4", "day": "T6", "type": "Tối", "start": "17:00", "end": "20:30", "hours": 3.5, "note": "" },
-      { "id": "s-3-5", "day": "CN", "type": "Tối", "start": "17:00", "end": "19:49", "hours": 2.82, "note": "" }
-    ]
-  },
-  {
-    "id": "week-4",
-    "name": "Tuần 4",
-    "rate": 35000,
-    "shifts": [
-      { "id": "s-4-1", "day": "T2", "type": "Tối", "start": "17:00", "end": "19:59", "hours": 2.98, "note": "" },
-      { "id": "s-4-2", "day": "T3", "type": "Tối", "start": "17:04", "end": "20:06", "hours": 3.03, "note": "" },
-      { "id": "s-4-3", "day": "T4", "type": "Tối", "start": "17:00", "end": "19:53", "hours": 2.88, "note": "" },
-      { "id": "s-4-4", "day": "T5", "type": "Trưa", "start": "10:05", "end": "13:44", "hours": 3.65, "note": "" },
-      { "id": "s-4-5", "day": "T6", "type": "Trưa", "start": "10:00", "end": "12:54", "hours": 2.9, "note": "" },
-      { "id": "s-4-6", "day": "CN", "type": "Tối", "start": "17:00", "end": "20:00", "hours": 3.0, "note": "" }
-    ]
-  },
-  {
-    "id": "week-5",
-    "name": "Tuần 5",
-    "rate": 40000,
-    "shifts": [
-      { "id": "s-5-1", "day": "T2", "type": "Trưa", "start": "10:00", "end": "13:25", "hours": 3.42, "note": "" },
-      { "id": "s-5-2", "day": "T4", "type": "Tối", "start": "18:00", "end": "19:40", "hours": 1.67, "note": "" },
-      { "id": "s-5-3", "day": "T5", "type": "Trưa", "start": "10:00", "end": "13:30", "hours": 3.5, "note": "" },
-      { "id": "s-5-4", "day": "T5", "type": "Tối", "start": "17:00", "end": "19:24", "hours": 2.4, "note": "" },
-      { "id": "s-5-5", "day": "T6", "type": "Tối", "start": "17:00", "end": "19:48", "hours": 2.8, "note": "" }
-    ]
-  },
-  {
-    "id": "week-6",
-    "name": "Tuần 6",
-    "rate": 40000,
-    "shifts": [
-      { "id": "s-6-1", "day": "T2", "type": "Trưa", "start": "10:00", "end": "13:25", "hours": 3.42, "note": "" },
-      { "id": "s-6-2", "day": "T5", "type": "Trưa", "start": "10:00", "end": "13:00", "hours": 3.0, "note": "" },
-      { "id": "s-6-3", "day": "T5", "type": "Tối", "start": "17:00", "end": "19:35", "hours": 2.58, "note": "" },
-      { "id": "s-6-4", "day": "T6", "type": "Tối", "start": "17:00", "end": "20:15", "hours": 3.25, "note": "" }
-    ]
-  },
-  {
-    "id": "week-7",
-    "name": "Tuần 7",
-    "rate": 40000,
-    "shifts": [
-      { "id": "s-7-1", "day": "T2", "type": "Trưa", "start": "10:00", "end": "13:00", "hours": 3.0, "note": "" },
-      { "id": "s-7-2", "day": "T2", "type": "Tối", "start": "17:00", "end": "19:45", "hours": 2.75, "note": "" },
-      { "id": "s-7-3", "day": "T5", "type": "Trưa", "start": "10:00", "end": "12:54", "hours": 2.9, "note": "" },
-      { "id": "s-7-4", "day": "T5", "type": "Tối", "start": "17:00", "end": "20:20", "hours": 3.33, "note": "" },
-      { "id": "s-7-5", "day": "CN", "type": "Tối", "start": "17:00", "end": "20:10", "hours": 3.17, "note": "" }
-    ]
-  },
-  {
-    "id": "week-8",
-    "name": "Tuần 8",
-    "rate": 40000,
-    "shifts": [
-      { "id": "s-8-1", "day": "T2", "type": "Trưa", "start": "10:00", "end": "13:19", "hours": 3.32, "note": "" },
-      { "id": "s-8-2", "day": "T2", "type": "Tối", "start": "17:05", "end": "20:00", "hours": 2.92, "note": "" }
-    ]
-  }
-];
-const DEFAULT_SEED_DATA = AOE_SEED_DATA;
+// Supabase Cloud Configuration
+const SUPABASE_URL = 'https://vkrtqjghtgjnhuhiwlay.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrcnRxamdodGdqbmh1aGl3bGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NDA0MDQsImV4cCI6MjEwODMxNjQwNH0.GEZjiHjy7V7oNzG5CvRtwA2vOzeY7mx7Oh-A49SVKn4';
+
+let supabaseClient = null;
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+}
 
 // Guest Default Template (Blank week for unauthenticated visitors)
 const GUEST_DEFAULT_DATA = [
@@ -111,14 +29,14 @@ const GUEST_DEFAULT_DATA = [
 ];
 
 // Storage Keys
-const USERS_DB_KEY = 'salary_users_db_v1';
-const CURRENT_USER_KEY = 'salary_current_session_v1';
 const GUEST_WEEKS_KEY = 'shift_tracker_weeks_v2';
 const GUEST_SETTINGS_KEY = 'shift_tracker_settings_v2';
+const LOCAL_CACHE_WEEKS_KEY = 'salary_cloud_cache_weeks';
+const LOCAL_CACHE_SETTINGS_KEY = 'salary_cloud_cache_settings';
 
 // Application State
 const state = {
-  currentUser: null, // { username, name }
+  currentUser: null, // { id, email, username, name }
   weeks: [],
   currentWeekId: null,
   settings: {
@@ -126,113 +44,17 @@ const state = {
   }
 };
 
-// Password Hashing via Web Crypto API (SHA-256)
-const hashPassword = async (password) => {
-  try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + '_salt_st_2026');
-    const hashBuf = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-  } catch (e) {
-    let h = 0;
-    for (let i = 0; i < password.length; i++) {
-      h = ((h << 5) - h) + password.charCodeAt(i);
-      h |= 0;
-    }
-    return 'fallback_' + Math.abs(h).toString(16);
-  }
-};
-
-// Users DB Storage
-const loadUsersDB = () => {
-  try {
-    const raw = localStorage.getItem(USERS_DB_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    return {};
-  }
-};
-
-const saveUsersDB = (db) => {
-  localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
-};
-
-// Ensure aoe1920 Account and Migrate Real Salary Data
-const ensureAoeAccountAndMigration = () => {
-  try {
-    const aoeUsername = 'aoe1920';
-    // Precomputed SHA-256 hash of "LVCpy@2024" + "_salt_st_2026"
-    const aoePasswordHash = '964026c125efc877842cc80446ae31ed1e23d9d319b218cfd3fb42ac7040c97a';
-    const aoeWeeksKey = `salary_user_weeks_${aoeUsername}`;
-    const aoeSettingsKey = `salary_user_settings_${aoeUsername}`;
-
-    // 1. Ensure user account in database
-    const users = loadUsersDB();
-    if (!users[aoeUsername] || users[aoeUsername].passwordHash !== aoePasswordHash) {
-      users[aoeUsername] = {
-        username: aoeUsername,
-        name: 'aoe1920',
-        passwordHash: aoePasswordHash,
-        createdAt: users[aoeUsername]?.createdAt || new Date().toISOString()
-      };
-      saveUsersDB(users);
-    }
-
-    // 2. Transfer the 8 weeks of real data to aoe1920 workspace
-    const existingAoeWeeks = localStorage.getItem(aoeWeeksKey);
-    const guestWeeksRaw = localStorage.getItem(GUEST_WEEKS_KEY);
-
-    if (!existingAoeWeeks) {
-      let dataToMigrate = AOE_SEED_DATA;
-      if (guestWeeksRaw) {
-        try {
-          const parsed = JSON.parse(guestWeeksRaw);
-          if (Array.isArray(parsed) && parsed.length >= 8) {
-            dataToMigrate = parsed;
-          }
-        } catch (e) {}
-      }
-      localStorage.setItem(aoeWeeksKey, JSON.stringify(dataToMigrate));
-    }
-
-    // 3. Ensure aoe1920 settings
-    if (!localStorage.getItem(aoeSettingsKey)) {
-      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
-      if (guestSettings) {
-        localStorage.setItem(aoeSettingsKey, guestSettings);
-      } else {
-        localStorage.setItem(aoeSettingsKey, JSON.stringify({ defaultRate: 40000 }));
-      }
-    }
-
-    // 4. Clean Guest storage if it still holds the personal 8 weeks
-    if (guestWeeksRaw) {
-      try {
-        const parsed = JSON.parse(guestWeeksRaw);
-        const hasAoeData = Array.isArray(parsed) && parsed.some(w =>
-          w.shifts && w.shifts.some(s => s.id === 's-1-1' || s.id === 's-5-1')
-        );
-        if (hasAoeData) {
-          localStorage.setItem(GUEST_WEEKS_KEY, JSON.stringify(GUEST_DEFAULT_DATA));
-        }
-      } catch (e) {}
-    }
-  } catch (err) {
-    console.warn('Migration error:', err);
-  }
-};
-
 // User Scoped Storage Keys
 const getWeeksStorageKey = () => {
-  if (state.currentUser && state.currentUser.username) {
-    return `salary_user_weeks_${state.currentUser.username}`;
+  if (state.currentUser && state.currentUser.id) {
+    return `${LOCAL_CACHE_WEEKS_KEY}_${state.currentUser.id}`;
   }
   return GUEST_WEEKS_KEY;
 };
 
 const getSettingsStorageKey = () => {
-  if (state.currentUser && state.currentUser.username) {
-    return `salary_user_settings_${state.currentUser.username}`;
+  if (state.currentUser && state.currentUser.id) {
+    return `${LOCAL_CACHE_SETTINGS_KEY}_${state.currentUser.id}`;
   }
   return GUEST_SETTINGS_KEY;
 };
@@ -307,43 +129,55 @@ const showToast = (message) => {
   }, 2400);
 };
 
-// Persistence
-const loadState = () => {
+// Persistence (Supabase Cloud + Local Offline Cache)
+const loadState = async () => {
   try {
-    const weeksKey = getWeeksStorageKey();
-    const settingsKey = getSettingsStorageKey();
+    if (state.currentUser && supabaseClient) {
+      // 1. Fetch from Supabase Cloud
+      const { data, error } = await supabaseClient
+        .from('user_salary_data')
+        .select('*')
+        .eq('user_id', state.currentUser.id)
+        .maybeSingle();
 
-    let savedWeeks = localStorage.getItem(weeksKey);
-
-    if (savedWeeks) {
-      state.weeks = JSON.parse(savedWeeks);
-    } else {
-      if (state.currentUser) {
-        if (state.currentUser.username === 'aoe1920') {
-          state.weeks = JSON.parse(JSON.stringify(AOE_SEED_DATA));
+      if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
+        state.weeks = data.weeks;
+        if (data.settings) state.settings = { ...state.settings, ...data.settings };
+        // Save to local cache for instant offline access
+        localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
+        localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
+      } else {
+        // Fallback to local cache if offline or newly created
+        const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
+        const cachedSettings = localStorage.getItem(getSettingsStorageKey());
+        if (cachedWeeks) {
+          state.weeks = JSON.parse(cachedWeeks);
+          if (cachedSettings) state.settings = JSON.parse(cachedSettings);
         } else {
-          // Mỗi tài khoản đăng ký mới bắt đầu với 1 tuần làm việc trống riêng biệt
-          state.weeks = [
-            {
-              id: 'week-1',
-              name: 'Tuần 1',
-              rate: 40000,
-              shifts: []
-            }
-          ];
+          state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+          saveWeeks();
+        }
+      }
+    } else {
+      // Guest mode: completely isolated local storage
+      const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
+      if (guestWeeks) {
+        try {
+          state.weeks = JSON.parse(guestWeeks);
+        } catch (e) {
+          state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
         }
       } else {
-        // Chế độ Khách (Guest) mặc định hiển thị tuần trống (bảo mật dữ liệu cá nhân)
         state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+        localStorage.setItem(GUEST_WEEKS_KEY, JSON.stringify(state.weeks));
       }
-      saveWeeks();
-    }
 
-    const savedSettings = localStorage.getItem(settingsKey);
-    if (savedSettings) {
-      state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
-    } else {
-      state.settings = { defaultRate: 40000 };
+      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
+      if (guestSettings) {
+        try {
+          state.settings = { ...state.settings, ...JSON.parse(guestSettings) };
+        } catch (e) {}
+      }
     }
 
     if (state.weeks.length > 0) {
@@ -356,7 +190,9 @@ const loadState = () => {
   }
 };
 
+let cloudSyncTimer = null;
 let gistSyncTimer = null;
+
 const triggerAutoGistSync = () => {
   if (!state.settings || !state.settings.githubToken || !state.settings.gistId) return;
   clearTimeout(gistSyncTimer);
@@ -368,28 +204,56 @@ const triggerAutoGistSync = () => {
 const saveWeeks = () => {
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
+
+  // Sync to Supabase Cloud if authenticated
+  if (state.currentUser && supabaseClient) {
+    clearTimeout(cloudSyncTimer);
+    cloudSyncTimer = setTimeout(async () => {
+      try {
+        await supabaseClient.from('user_salary_data').upsert({
+          user_id: state.currentUser.id,
+          username: state.currentUser.username,
+          weeks: state.weeks,
+          settings: state.settings,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn('Supabase cloud sync error:', err);
+      }
+    }, 500);
+  }
+
   triggerAutoGistSync();
 };
 
 const saveSettings = () => {
   const settingsKey = getSettingsStorageKey();
   localStorage.setItem(settingsKey, JSON.stringify(state.settings));
+  saveWeeks();
 };
 
 const getCurrentWeek = () => {
   return state.weeks.find(w => w.id === state.currentWeekId) || state.weeks[0];
 };
 
-// Authentication Flow
-const initAuth = () => {
-  try {
-    const sessionRaw = localStorage.getItem(CURRENT_USER_KEY);
-    if (sessionRaw) {
-      state.currentUser = JSON.parse(sessionRaw);
-    } else {
+// Authentication Flow (Supabase Cloud Auth)
+const initAuth = async () => {
+  if (supabaseClient) {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        const u = session.user;
+        const username = u.user_metadata?.username || u.email.split('@')[0];
+        const name = u.user_metadata?.name || username;
+        state.currentUser = { id: u.id, email: u.email, username, name };
+      } else {
+        state.currentUser = null;
+      }
+    } catch (e) {
+      console.warn('Supabase auth check failed:', e);
       state.currentUser = null;
     }
-  } catch (e) {
+  } else {
     state.currentUser = null;
   }
 
@@ -1226,73 +1090,85 @@ const openUserProfileModal = () => {
 
 const handleLoginSubmit = async (e) => {
   e.preventDefault();
-  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const rawInput = document.getElementById('loginUsername').value.trim();
   const password = document.getElementById('loginPassword').value;
   const errorEl = document.getElementById('loginError');
 
-  if (!username || !password) {
+  if (!rawInput || !password) {
     errorEl.textContent = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
     errorEl.style.display = 'block';
     return;
   }
 
-  const users = loadUsersDB();
-  const user = users[username];
+  errorEl.style.display = 'none';
 
-  if (!user) {
-    errorEl.textContent = 'Tài khoản không tồn tại. Vui lòng đăng ký tài khoản mới.';
+  if (!supabaseClient) {
+    errorEl.textContent = 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.';
     errorEl.style.display = 'block';
     return;
   }
 
-  const hash = await hashPassword(password);
-  if (user.passwordHash !== hash) {
-    errorEl.textContent = 'Mật khẩu không chính xác. Vui lòng thử lại.';
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    const email = rawInput.includes('@') ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      errorEl.textContent = error.message === 'Invalid login credentials'
+        ? 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.'
+        : `Lỗi đăng nhập: ${error.message}`;
+      errorEl.style.display = 'block';
+      if (submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    const u = data.user;
+    const username = u.user_metadata?.username || u.email.split('@')[0];
+    const name = u.user_metadata?.name || username;
+    state.currentUser = { id: u.id, email: u.email, username, name };
+
+    updateHeaderAuthUI();
+    await loadState();
+    renderApp();
+
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('formLogin').reset();
+    showToast(`Đăng nhập thành công! Chào ${name}.`);
+  } catch (err) {
+    errorEl.textContent = `Lỗi kết nối: ${err.message}`;
     errorEl.style.display = 'block';
-    return;
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
-
-  // Set Session
-  state.currentUser = { username: user.username, name: user.name };
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
-
-  initAuth();
-  loadState();
-  renderApp();
-
-  document.getElementById('authModal').style.display = 'none';
-  document.getElementById('formLogin').reset();
-  showToast(`Đăng nhập thành công! Chào ${user.name}.`);
 };
 
 const handleRegisterSubmit = async (e) => {
   e.preventDefault();
   const name = document.getElementById('regDisplayName').value.trim();
-  const username = document.getElementById('regUsername').value.trim().toLowerCase();
+  const rawUsername = document.getElementById('regUsername').value.trim().toLowerCase();
   const password = document.getElementById('regPassword').value;
   const passwordConfirm = document.getElementById('regPasswordConfirm').value;
   const errorEl = document.getElementById('regError');
 
-  if (!name || !username || !password || !passwordConfirm) {
+  if (!name || !rawUsername || !password || !passwordConfirm) {
     errorEl.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
     errorEl.style.display = 'block';
     return;
   }
 
-  if (username.length < 3) {
+  if (rawUsername.length < 3) {
     errorEl.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
     errorEl.style.display = 'block';
     return;
   }
 
-  if (!/^[a-z0-9_]+$/.test(username)) {
-    errorEl.textContent = 'Tên đăng nhập chỉ bao gồm chữ cái thường, số và dấu gạch dưới (không khoảng trắng, không dấu).';
-    errorEl.style.display = 'block';
-    return;
-  }
-
-  if (password.length < 4) {
-    errorEl.textContent = 'Mật khẩu phải có ít nhất 4 ký tự.';
+  if (password.length < 6) {
+    errorEl.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.';
     errorEl.style.display = 'block';
     return;
   }
@@ -1303,68 +1179,92 @@ const handleRegisterSubmit = async (e) => {
     return;
   }
 
-  const users = loadUsersDB();
-  if (users[username]) {
-    errorEl.textContent = 'Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.';
+  if (!supabaseClient) {
+    errorEl.textContent = 'Chưa kết nối được với Supabase. Vui lòng tải lại trang.';
     errorEl.style.display = 'block';
     return;
   }
 
-  const hash = await hashPassword(password);
-  users[username] = {
-    username,
-    name,
-    passwordHash: hash,
-    createdAt: new Date().toISOString()
-  };
-  saveUsersDB(users);
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
 
-  // Isolate user data: create fresh workspace unless explicitly requested to inherit
-  const copyGuest = document.getElementById('regCopyGuestData')?.checked;
-  const userWeeksKey = `salary_user_weeks_${username}`;
-  if (copyGuest) {
-    const guestData = localStorage.getItem(GUEST_WEEKS_KEY);
-    if (guestData) {
-      localStorage.setItem(userWeeksKey, guestData);
-    }
-  } else {
-    const freshData = [
-      {
-        id: 'week-1',
-        name: 'Tuần 1',
-        rate: 40000,
-        shifts: []
+  try {
+    const email = rawUsername.includes('@') ? rawUsername : `${rawUsername}@salary.app`;
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name, username: rawUsername }
       }
-    ];
-    localStorage.setItem(userWeeksKey, JSON.stringify(freshData));
+    });
+
+    if (error) {
+      errorEl.textContent = `Đăng ký thất bại: ${error.message}`;
+      errorEl.style.display = 'block';
+      if (submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    if (!data.user) {
+      errorEl.textContent = 'Đăng ký không thành công. Vui lòng thử lại.';
+      errorEl.style.display = 'block';
+      if (submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    const u = data.user;
+    state.currentUser = { id: u.id, email: u.email, username: rawUsername, name };
+
+    // Copy guest data if requested
+    const copyGuest = document.getElementById('regCopyGuestData')?.checked;
+    let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+    if (copyGuest) {
+      const guestRaw = localStorage.getItem(GUEST_WEEKS_KEY);
+      if (guestRaw) {
+        try { initialWeeks = JSON.parse(guestRaw); } catch (e) {}
+      }
+    }
+
+    state.weeks = initialWeeks;
+
+    // Save initial workspace in Supabase Cloud
+    await supabaseClient.from('user_salary_data').upsert({
+      user_id: u.id,
+      username: rawUsername,
+      weeks: initialWeeks,
+      settings: state.settings,
+      updated_at: new Date().toISOString()
+    });
+
+    updateHeaderAuthUI();
+    renderApp();
+
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('formRegister').reset();
+    showToast(`Chào mừng ${name}! Đăng ký tài khoản thành công.`);
+  } catch (err) {
+    errorEl.textContent = `Lỗi: ${err.message}`;
+    errorEl.style.display = 'block';
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
-
-  // Set Session
-  state.currentUser = { username, name };
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
-
-  initAuth();
-  loadState();
-  renderApp();
-
-  document.getElementById('authModal').style.display = 'none';
-  document.getElementById('formRegister').reset();
-  showToast(`Chào mừng ${name}! Đăng ký tài khoản thành công.`);
 };
 
-const handleLogout = () => {
+const handleLogout = async () => {
   if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    if (supabaseClient) {
+      await supabaseClient.auth.signOut();
+    }
     state.currentUser = null;
-    initAuth();
-    loadState();
+    updateHeaderAuthUI();
+    await loadState();
     renderApp();
     document.getElementById('userProfileModal').style.display = 'none';
     showToast('Đã đăng xuất tài khoản.');
   }
 };
 
-const handleSaveProfileName = () => {
+const handleSaveProfileName = async () => {
   const newName = document.getElementById('profileEditName').value.trim();
   if (!newName) {
     alert('Vui lòng nhập tên hiển thị hợp lệ.');
@@ -1374,15 +1274,14 @@ const handleSaveProfileName = () => {
   if (!state.currentUser) return;
 
   state.currentUser.name = newName;
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(state.currentUser));
 
-  const users = loadUsersDB();
-  if (users[state.currentUser.username]) {
-    users[state.currentUser.username].name = newName;
-    saveUsersDB(users);
+  if (supabaseClient) {
+    await supabaseClient.auth.updateUser({
+      data: { name: newName }
+    });
   }
 
-  initAuth();
+  updateHeaderAuthUI();
   document.getElementById('profileDisplayName').textContent = newName;
   showToast('Cập nhật tên hiển thị thành công!');
 };
@@ -1516,14 +1415,31 @@ const restoreJSON = (e) => {
   reader.readAsText(file);
 };
 
-const resetToOriginalExcel = () => {
-  if (confirm('Khôi phục sẽ đưa dữ liệu về đúng 8 tuần ban đầu từ Salary.xlsx. Bạn có chắc không?')) {
-    state.weeks = JSON.parse(JSON.stringify(AOE_SEED_DATA));
-    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+const resetToOriginalExcel = async () => {
+  if (confirm('Khôi phục sẽ tải lại dữ liệu từ đám mây Supabase. Bạn có chắc không?')) {
+    if (state.currentUser && supabaseClient) {
+      const { data } = await supabaseClient
+        .from('user_salary_data')
+        .select('*')
+        .eq('user_id', state.currentUser.id)
+        .maybeSingle();
+
+      if (data && Array.isArray(data.weeks) && data.weeks.length > 0) {
+        state.weeks = data.weeks;
+        state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+        saveWeeks();
+        closeModal('settingsModal');
+        renderApp();
+        showToast('Đã đồng bộ lại dữ liệu từ Supabase Cloud!');
+        return;
+      }
+    }
+    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+    state.currentWeekId = state.weeks[0].id;
     saveWeeks();
     closeModal('settingsModal');
     renderApp();
-    showToast('Đã khôi phục dữ liệu gốc từ Salary.xlsx');
+    showToast('Đã khôi phục dữ liệu ban đầu.');
   }
 };
 
@@ -1748,11 +1664,37 @@ const bindEvents = () => {
   }
 };
 
+// Realtime Cloud Sync Subscription
+const setupRealtimeSync = () => {
+  if (!supabaseClient) return;
+  try {
+    supabaseClient
+      .channel('salary_realtime_changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'user_salary_data' },
+        (payload) => {
+          if (state.currentUser && payload.new && payload.new.user_id === state.currentUser.id) {
+            if (Array.isArray(payload.new.weeks)) {
+              state.weeks = payload.new.weeks;
+              if (payload.new.settings) state.settings = { ...state.settings, ...payload.new.settings };
+              renderApp();
+              showToast('Dữ liệu vừa được đồng bộ từ thiết bị khác!');
+            }
+          }
+        }
+      )
+      .subscribe();
+  } catch (e) {
+    console.warn('Realtime subscription skipped:', e);
+  }
+};
+
 // App Initialization
-document.addEventListener('DOMContentLoaded', () => {
-  ensureAoeAccountAndMigration();
-  initAuth();
-  loadState();
+document.addEventListener('DOMContentLoaded', async () => {
+  await initAuth();
+  await loadState();
   bindEvents();
   renderApp();
+  setupRealtimeSync();
 });

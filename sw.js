@@ -1,12 +1,11 @@
-const CACHE_NAME = 'salary-tracker-v8';
+const CACHE_NAME = 'salary-tracker-v9';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './manifest.json',
-  './icon.svg',
-  './initial-data.json'
+  './icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
