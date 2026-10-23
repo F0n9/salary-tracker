@@ -364,8 +364,12 @@ const renderShiftsList = () => {
         </div>
         <div class="auth-lock-title">Yêu cầu đăng nhập</div>
         <p class="auth-lock-desc">Hệ thống yêu cầu đăng nhập để sử dụng. Vui lòng đăng nhập tài khoản để quản lý ca làm việc và xem dữ liệu cá nhân.</p>
-        <button type="button" class="btn-morphic btn-morphic-primary" id="btnAuthGateLogin" style="margin-top: 0.5rem; height: 40px; padding: 0 1.25rem;">
-          <span>Đăng nhập ngay</span>
+        <button type="button" class="btn-morphic btn-morphic-primary btn-morphic-lg" id="btnAuthGateLogin" title="Đăng nhập" aria-label="Đăng nhập" style="margin-top: 0.5rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
         </button>
       </div>
     `;
@@ -1152,6 +1156,12 @@ const handleLoginSubmit = async (e) => {
     return;
   }
 
+  if (rawInput.includes('@')) {
+    errorEl.textContent = 'Chỉ cho phép đăng nhập bằng tên tài khoản (không dùng email).';
+    errorEl.style.display = 'block';
+    return;
+  }
+
   errorEl.style.display = 'none';
 
   if (!supabaseClient) {
@@ -1164,7 +1174,7 @@ const handleLoginSubmit = async (e) => {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const email = rawInput.includes('@') ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
+    const email = `${rawInput.toLowerCase()}@salary.app`;
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password
@@ -1213,6 +1223,12 @@ const handleRegisterSubmit = async (e) => {
     return;
   }
 
+  if (rawUsername.includes('@')) {
+    errorEl.textContent = 'Tên tài khoản không được chứa ký tự @.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
   if (rawUsername.length < 3) {
     errorEl.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
     errorEl.style.display = 'block';
@@ -1241,7 +1257,7 @@ const handleRegisterSubmit = async (e) => {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const email = rawUsername.includes('@') ? rawUsername : `${rawUsername}@salary.app`;
+    const email = `${rawUsername}@salary.app`;
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
