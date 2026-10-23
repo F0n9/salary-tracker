@@ -500,6 +500,16 @@ const escapeHtml = (str) => {
   return div.innerHTML;
 };
 
+const detectShiftType = (startTimeStr) => {
+  if (!startTimeStr) return 'Tối';
+  const parts = startTimeStr.split(':');
+  const h = parseInt(parts[0], 10);
+  if (isNaN(h)) return 'Tối';
+  if (h >= 5 && h < 11) return 'Sáng';
+  if (h >= 11 && h < 14) return 'Trưa';
+  return 'Tối';
+};
+
 const openAddShiftModal = (prefill = null) => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -518,10 +528,27 @@ const openAddShiftModal = (prefill = null) => {
   if (btnDel) btnDel.style.display = 'none';
 
   const now = new Date();
+  const currentHour = now.getHours();
+  let defaultType = 'Tối';
+  let defaultStart = '17:00';
+  let defaultEnd = '20:30';
+
+  if (currentHour >= 5 && currentHour < 11) {
+    defaultType = 'Sáng';
+    defaultStart = '08:00';
+    defaultEnd = '12:00';
+  } else if (currentHour >= 11 && currentHour < 14) {
+    defaultType = 'Trưa';
+    defaultStart = '10:00';
+    defaultEnd = '13:30';
+  }
+
   const defaultDay = prefill ? prefill.day : getVietnameseDayOfWeek(now);
-  const defaultType = prefill ? prefill.type : 'Tối';
-  const defaultStart = prefill ? prefill.start : '17:00';
-  const defaultEnd = prefill ? prefill.end : '20:30';
+  if (prefill) {
+    defaultStart = prefill.start || defaultStart;
+    defaultEnd = prefill.end || defaultEnd;
+    defaultType = prefill.type || detectShiftType(defaultStart);
+  }
   const defaultNote = prefill ? (prefill.note || '') : '';
 
   document.getElementById('shiftDay').value = defaultDay;
@@ -1576,7 +1603,15 @@ const bindEvents = () => {
 
  
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
-  document.getElementById('shiftStart').addEventListener('input', updateModalComputedPreview);
+  document.getElementById('shiftStart').addEventListener('input', () => {
+    const val = document.getElementById('shiftStart').value;
+    if (val) {
+      const detected = detectShiftType(val);
+      const sel = document.getElementById('shiftType');
+      if (sel) sel.value = detected;
+    }
+    updateModalComputedPreview();
+  });
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
 
   const btnDeleteShiftModal = document.getElementById('btnDeleteShiftModal');
@@ -1592,11 +1627,14 @@ const bindEvents = () => {
     });
   }
 
- 
   document.querySelectorAll('.preset-tile').forEach(btn => {
     btn.addEventListener('click', () => {
       const preset = btn.getAttribute('data-preset');
-      if (preset === 'noon') {
+      if (preset === 'morning') {
+        document.getElementById('shiftType').value = 'Sáng';
+        document.getElementById('shiftStart').value = '08:00';
+        document.getElementById('shiftEnd').value = '12:00';
+      } else if (preset === 'noon') {
         document.getElementById('shiftType').value = 'Trưa';
         document.getElementById('shiftStart').value = '10:00';
         document.getElementById('shiftEnd').value = '13:30';

@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024c">
+  <link rel="stylesheet" href="./styles.css?v=20261024d">
 </head>
 <body>
   
@@ -209,6 +209,10 @@
         <div class="form-item">
           <label class="form-label font-mono">Chọn nhanh ca mẫu</label>
           <div class="preset-cards-grid">
+            <button type="button" class="preset-tile" data-preset="morning">
+              <span class="pt-name">Ca Sáng</span>
+              <span class="pt-time font-mono">08:00 – 12:00</span>
+            </button>
             <button type="button" class="preset-tile" data-preset="noon">
               <span class="pt-name">Ca Trưa</span>
               <span class="pt-time font-mono">10:00 – 13:30</span>
@@ -237,9 +241,9 @@
           <div class="form-item">
             <label class="form-label font-mono" for="shiftType">Buổi ca</label>
             <select id="shiftType" class="form-select" required>
+              <option value="Sáng">Sáng</option>
               <option value="Trưa">Trưa</option>
               <option value="Tối">Tối</option>
-              <option value="Sáng">Sáng</option>
               <option value="Khác">Khác</option>
             </select>
           </div>
@@ -706,6 +710,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024c"></script>
+  <script src="./app.js?v=20261024d"></script>
 </body>
 </html>
