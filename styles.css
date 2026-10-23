@@ -887,23 +887,33 @@ body {
 }
 
 .calc-strip {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.9rem;
+  padding: 0.55rem 0.85rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.calc-strip-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.calc-dot {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
 .calc-label {
-  font-size: 0.725rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  display: block;
 }
 
 .calc-val {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-main);
 }

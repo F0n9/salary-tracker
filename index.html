@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024e">
+  <link rel="stylesheet" href="./styles.css?v=20261024f">
 </head>
 <body>
   
@@ -206,24 +206,6 @@
       <form id="shiftForm" class="modal-body">
         <input type="hidden" id="editShiftId">
 
-        <div class="form-item">
-          <label class="form-label font-mono">Chọn nhanh ca mẫu</label>
-          <div class="preset-cards-grid">
-            <button type="button" class="preset-tile" data-preset="morning">
-              <span class="pt-name">Ca Sáng</span>
-              <span class="pt-time font-mono">08:00 – 12:00</span>
-            </button>
-            <button type="button" class="preset-tile" data-preset="noon">
-              <span class="pt-name">Ca Trưa</span>
-              <span class="pt-time font-mono">10:00 – 13:30</span>
-            </button>
-            <button type="button" class="preset-tile" data-preset="night">
-              <span class="pt-name">Ca Tối</span>
-              <span class="pt-time font-mono">17:00 – 20:30</span>
-            </button>
-          </div>
-        </div>
-
         <div class="form-grid-2">
           <div class="form-item">
             <label class="form-label font-mono" for="shiftDay">Thứ</label>
@@ -251,31 +233,28 @@
 
         <div class="form-grid-2">
           <div class="form-item">
-            <label class="form-label font-mono" for="shiftStart">Giờ vào (24h)</label>
+            <label class="form-label font-mono" for="shiftStart">Giờ vào</label>
             <input type="time" id="shiftStart" class="form-input font-mono" required value="17:00" step="60">
           </div>
 
           <div class="form-item">
-            <label class="form-label font-mono" for="shiftEnd">Giờ ra (24h)</label>
+            <label class="form-label font-mono" for="shiftEnd">Giờ ra</label>
             <input type="time" id="shiftEnd" class="form-input font-mono" required value="20:00" step="60">
           </div>
         </div>
 
-        
         <div class="calc-strip">
-          <div>
-            <span class="calc-label font-mono">Thời lượng:</span>
-            <span id="previewDuration" class="calc-val font-mono">3.00 giờ (3h 00m)</span>
-          </div>
-          <div>
-            <span class="calc-label font-mono">Thành tiền:</span>
-            <span id="previewSalary" class="calc-val font-mono text-bold-dark">120.000 đ</span>
+          <span class="calc-label font-mono">Dự tính</span>
+          <div class="calc-strip-right">
+            <span id="previewDuration" class="calc-val font-mono">0.00h</span>
+            <span class="calc-dot">•</span>
+            <span id="previewSalary" class="calc-val font-mono text-bold-dark">0 đ</span>
           </div>
         </div>
 
         <div class="form-item">
-          <label class="form-label font-mono" for="shiftNote">Ghi chú (tùy chọn)</label>
-          <input type="text" id="shiftNote" class="form-input" placeholder="Tăng ca 15p, đổi ca...">
+          <label class="form-label font-mono" for="shiftNote">Ghi chú</label>
+          <input type="text" id="shiftNote" class="form-input" placeholder="Tăng ca, đổi ca...">
         </div>
 
         <div class="modal-footer">
@@ -710,6 +689,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024e"></script>
+  <script src="./app.js?v=20261024f"></script>
 </body>
 </html>

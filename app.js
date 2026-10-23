@@ -449,20 +449,15 @@ const renderShiftsList = () => {
         <div class="shift-info">
           <div class="shift-title-row">
             <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
-            <span class="shift-type-pill ${typeClass}">Ca ${shift.type}</span>
+            <span class="shift-type-pill ${typeClass}">${shift.type}</span>
+            <span class="shift-duration-badge font-mono">${shift.hours}h</span>
           </div>
-          <div class="shift-subtext font-mono">
-            <span class="shift-duration-badge">${shift.hours}h • ${hoursToHourMinutes(shift.hours)}</span>
-            ${shift.note ? `<span class="shift-note font-sans" title="${escapeHtml(shift.note)}">💬 ${escapeHtml(shift.note)}</span>` : ''}
-          </div>
+          ${shift.note ? `<div class="shift-subtext font-mono"><span class="shift-note font-sans" title="${escapeHtml(shift.note)}">${escapeHtml(shift.note)}</span></div>` : ''}
         </div>
       </div>
 
       <div class="shift-right">
-        <div class="shift-earnings-wrap">
-          <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
-          <div class="shift-hours-label font-mono">lương ca</div>
-        </div>
+        <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
           <button class="btn-morphic btn-morphic-sm" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -595,7 +590,7 @@ const updateModalComputedPreview = () => {
   const rate = week ? week.rate : state.settings.defaultRate;
   const wage = hours * rate;
 
-  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)} giờ (${hoursToHourMinutes(hours)})`;
+  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h`;
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
 };
 
