@@ -159,25 +159,9 @@ const loadState = async () => {
         }
       }
     } else {
-      // Guest mode: completely isolated local storage
-      const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
-      if (guestWeeks) {
-        try {
-          state.weeks = JSON.parse(guestWeeks);
-        } catch (e) {
-          state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-        }
-      } else {
-        state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-        localStorage.setItem(GUEST_WEEKS_KEY, JSON.stringify(state.weeks));
-      }
-
-      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
-      if (guestSettings) {
-        try {
-          state.settings = { ...state.settings, ...JSON.parse(guestSettings) };
-        } catch (e) {}
-      }
+      // Unauthenticated mode: strictly 0 and empty
+      state.weeks = [];
+      state.currentWeekId = null;
     }
 
     if (state.weeks.length > 0) {
@@ -294,12 +278,30 @@ const renderDateDisplay = () => {
   const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
   const dayName = days[now.getDay()];
   const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-  document.getElementById('currentDateDisplay').textContent = `${dayName}, ${dateStr}`;
+  const headerDateEl = document.getElementById('currentDateDisplay');
+  if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
+  const footerDateEl = document.getElementById('footerCurrentDate');
+  if (footerDateEl) footerDateEl.textContent = `${dayName}, ${dateStr}`;
 };
 
 const renderWeekPills = () => {
   const container = document.getElementById('weekPillsList');
   container.innerHTML = '';
+
+  if (!state.currentUser) {
+    const pill = document.createElement('div');
+    pill.className = 'week-pill active';
+    pill.innerHTML = `
+      <div class="pill-name">Chưa đăng nhập</div>
+      <div class="pill-sub font-mono">0 đ</div>
+    `;
+    pill.addEventListener('click', () => {
+      openAuthModal('login');
+      showToast('Vui lòng đăng nhập để sử dụng');
+    });
+    container.appendChild(pill);
+    return;
+  }
 
   state.weeks.forEach(week => {
     const pill = document.createElement('div');
@@ -330,6 +332,18 @@ const renderWeekPills = () => {
 };
 
 const renderWeekDetails = () => {
+  if (!state.currentUser) {
+    document.getElementById('currentWeekTitle').textContent = 'Chưa đăng nhập';
+    document.getElementById('currentWeekRateBadge').textContent = '0 đ/h';
+    document.getElementById('kpiWeekSalary').textContent = '0 đ';
+    document.getElementById('kpiWeekHours').textContent = '0.00 h';
+    document.getElementById('kpiWeekHoursDetail').textContent = '0h 00m';
+    document.getElementById('kpiShiftCount').textContent = '0 ca';
+    document.getElementById('kpiAvgHours').textContent = '0.00 h/ca';
+    document.getElementById('shiftsCountBadge').textContent = '0 ca';
+    return;
+  }
+
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -350,9 +364,32 @@ const renderWeekDetails = () => {
 };
 
 const renderShiftsList = () => {
-  const week = getCurrentWeek();
   const listContainer = document.getElementById('shiftsList');
   listContainer.innerHTML = '';
+
+  if (!state.currentUser) {
+    listContainer.innerHTML = `
+      <div class="auth-lock-banner">
+        <div class="auth-lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div class="auth-lock-title">Yêu cầu đăng nhập</div>
+        <p class="auth-lock-desc">Hệ thống yêu cầu đăng nhập để sử dụng. Vui lòng đăng nhập tài khoản để quản lý ca làm việc và xem dữ liệu cá nhân.</p>
+        <button type="button" class="btn-morphic btn-morphic-primary" id="btnAuthGateLogin" style="margin-top: 0.5rem; height: 40px; padding: 0 1.25rem;">
+          <span>Đăng nhập ngay</span>
+        </button>
+      </div>
+    `;
+
+    const btnGate = document.getElementById('btnAuthGateLogin');
+    if (btnGate) btnGate.addEventListener('click', () => openAuthModal('login'));
+    return;
+  }
+
+  const week = getCurrentWeek();
 
   if (!week || week.shifts.length === 0) {
     listContainer.innerHTML = `
@@ -472,6 +509,12 @@ const escapeHtml = (str) => {
 
 // Shift Actions (Add / Edit / Delete)
 const openAddShiftModal = (prefill = null) => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const modal = document.getElementById('shiftModal');
   const form = document.getElementById('shiftForm');
   form.reset();
@@ -500,6 +543,12 @@ const openAddShiftModal = (prefill = null) => {
 };
 
 const openEditShiftModal = (shift) => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const modal = document.getElementById('shiftModal');
   document.getElementById('shiftModalTitle').textContent = 'Chỉnh sửa ca làm việc';
   document.getElementById('editShiftId').value = shift.id;
@@ -585,6 +634,12 @@ const deleteShift = (shiftId) => {
 
 // Week Actions
 const createNewWeek = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
   const newWeekName = `Tuần ${nextNum}`;
@@ -605,6 +660,12 @@ const createNewWeek = () => {
 };
 
 const openEditWeekModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -631,6 +692,12 @@ const saveWeekMeta = (e) => {
 };
 
 const deleteCurrentWeek = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -650,6 +717,12 @@ const deleteCurrentWeek = () => {
 };
 
 const navigateWeek = (direction) => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
   if (currentIndex === -1) return;
 
@@ -664,6 +737,11 @@ const navigateWeek = (direction) => {
 
 // All-time Summary
 const openAllWeeksModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
   let totalHours = 0;
   let totalEarnings = 0;
   let totalShifts = 0;
@@ -742,6 +820,11 @@ const openAllWeeksModal = () => {
 
 // Settings Modal
 const openSettingsModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
   document.getElementById('settingDefaultRate').value = state.settings.defaultRate;
   if (document.getElementById('settingGithubToken')) {
     document.getElementById('settingGithubToken').value = state.settings.githubToken || '';
@@ -1287,6 +1370,11 @@ const handleSaveProfileName = async () => {
 };
 
 const openShareSlipModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -1331,6 +1419,11 @@ const copySlipImageToClipboard = async () => {
 
 // Export to CSV / Excel
 const exportCurrentWeekCSV = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -1353,6 +1446,11 @@ const exportCurrentWeekCSV = () => {
 };
 
 const exportAllWeeksCSV = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
   let csvContent = '\uFEFF';
   csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
   csvContent += `Tuần,Đơn giá (VNĐ/h),Thứ,Ca,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
