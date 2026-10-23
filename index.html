@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024L">
+  <link rel="stylesheet" href="./styles.css?v=20261024m">
 </head>
 <body>
   
@@ -59,7 +59,7 @@
 
     
     <section class="week-nav-bar">
-      <div class="week-nav-meta">
+      <div class="week-nav-left">
         <div class="week-heading-group">
           <h2 id="currentWeekTitle" class="week-title">Tuần 8</h2>
           <button id="btnEditWeekMeta" class="rate-tag font-mono" title="Chỉnh sửa đơn giá tuần này" aria-label="Chỉnh sửa đơn giá tuần này">
@@ -91,9 +91,9 @@
         </div>
       </div>
 
-      
-      <div class="week-track" id="weekPillsList">
-        
+      <div class="week-wheel-container">
+        <div class="week-wheel-lens"></div>
+        <div class="week-wheel-track" id="weekPillsList"></div>
       </div>
     </section>
 
@@ -662,6 +662,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024L"></script>
+  <script src="./app.js?v=20261024m"></script>
 </body>
 </html>

@@ -295,24 +295,33 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 
 .week-nav-bar {
   display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.week-nav-meta {
-  display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.25rem;
+  background: var(--bg-card-gradient);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.week-nav-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .week-heading-group {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.65rem;
 }
 
 .week-title {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.015em;
@@ -343,61 +352,97 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 .week-actions-group {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
-.week-track {
-  display: flex;
-  gap: 0.45rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  -webkit-overflow-scrolling: touch;
+.week-wheel-container {
+  position: relative;
+  width: 175px;
+  height: 130px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04), var(--shadow-sm);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
 }
 
-.week-pill {
-  flex-shrink: 0;
+.week-wheel-lens {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(219, 234, 254, 0.35) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+  z-index: 1;
+}
+
+.week-wheel-track {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding: 46px 6px;
   display: flex;
   flex-direction: column;
-  padding: 0.55rem 0.85rem;
-  border-radius: var(--radius-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  gap: 4px;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  position: relative;
+  z-index: 2;
+}
+
+.week-wheel-track::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.week-wheel-item {
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.65rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  min-width: 84px;
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: var(--shadow-sm);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  user-select: none;
+  transform-origin: center center;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.12s ease;
+  will-change: transform, opacity;
 }
 
-.week-pill:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-default);
-}
-
-.week-pill.active {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
-}
-
-.week-pill .pill-name {
+.week-wheel-item .wheel-item-name {
   font-size: 0.825rem;
   font-weight: 600;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
-.week-pill.active .pill-name {
-  color: #1d4ed8;
-}
-
-.week-pill .pill-sub {
+.week-wheel-item .wheel-item-sub {
   font-size: 0.725rem;
   color: var(--text-muted);
-  margin-top: 0.1rem;
+  white-space: nowrap;
 }
 
-.week-pill.active .pill-sub {
+.week-wheel-item.active .wheel-item-name {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.week-wheel-item.active .wheel-item-sub {
   color: #2563eb;
+  font-weight: 600;
 }
 
 .ledger-card {
@@ -1409,6 +1454,34 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 
   .shift-card {
     padding: 0.75rem 0.9rem;
+  }
+
+  .week-nav-bar {
+    padding: 0.75rem 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .week-wheel-container {
+    width: 140px;
+    height: 120px;
+  }
+
+  .week-wheel-track {
+    padding: 41px 4px;
+  }
+
+  .week-wheel-item {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 0.45rem;
+  }
+
+  .week-wheel-item .wheel-item-name {
+    font-size: 0.75rem;
+  }
+
+  .week-wheel-item .wheel-item-sub {
+    font-size: 0.675rem;
   }
 }
 

@@ -300,51 +300,129 @@ const renderDateDisplay = () => {
   if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
 };
 
+let isProgrammaticWheelScroll = false;
+let wheelScrollDebounceTimer = null;
+
+const updateWheelItemsVisual = () => {
+  const container = document.getElementById('weekPillsList');
+  if (!container) return null;
+  const items = container.querySelectorAll('.week-wheel-item');
+  if (!items.length) return null;
+
+  const containerRect = container.getBoundingClientRect();
+  const centerY = containerRect.top + containerRect.height / 2;
+  const maxDistance = containerRect.height / 2;
+
+  let closestItem = null;
+  let minDistance = Infinity;
+
+  items.forEach(item => {
+    const itemRect = item.getBoundingClientRect();
+    const itemCenter = itemRect.top + itemRect.height / 2;
+    const distance = Math.abs(centerY - itemCenter);
+    const signedDistance = itemCenter - centerY;
+    const ratio = Math.min(distance / maxDistance, 1);
+
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestItem = item;
+    }
+
+    const scale = 1 - ratio * 0.35;
+    const opacity = 1 - ratio * 0.65;
+    const rotateX = -(signedDistance / maxDistance) * 32;
+
+    item.style.transform = `perspective(300px) rotateX(${rotateX}deg) scale(${scale})`;
+    item.style.opacity = `${Math.max(opacity, 0.25)}`;
+
+    if (distance < 19) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+
+  return closestItem;
+};
+
+const onWheelTrackScroll = () => {
+  const closestItem = updateWheelItemsVisual();
+  if (isProgrammaticWheelScroll) return;
+
+  clearTimeout(wheelScrollDebounceTimer);
+  wheelScrollDebounceTimer = setTimeout(() => {
+    if (closestItem) {
+      const weekId = closestItem.getAttribute('data-week-id');
+      if (weekId && weekId !== state.currentWeekId) {
+        state.currentWeekId = weekId;
+        renderWeekDetails();
+        renderShiftsList();
+        closestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, 140);
+};
+
+const scrollWheelToActive = (behavior = 'smooth') => {
+  const container = document.getElementById('weekPillsList');
+  if (!container) return;
+  const activeItem = container.querySelector(`.week-wheel-item[data-week-id="${state.currentWeekId}"]`);
+  if (!activeItem) return;
+
+  isProgrammaticWheelScroll = true;
+  activeItem.scrollIntoView({ behavior, block: 'center' });
+  setTimeout(() => {
+    isProgrammaticWheelScroll = false;
+    updateWheelItemsVisual();
+  }, behavior === 'smooth' ? 320 : 60);
+};
+
 const renderWeekPills = () => {
   const container = document.getElementById('weekPillsList');
   container.innerHTML = '';
 
   if (!state.currentUser) {
-    const pill = document.createElement('div');
-    pill.className = 'week-pill active';
-    pill.innerHTML = `
-      <div class="pill-name">Chưa đăng nhập</div>
-      <div class="pill-sub font-mono">0 đ</div>
+    const item = document.createElement('div');
+    item.className = 'week-wheel-item active';
+    item.innerHTML = `
+      <span class="wheel-item-name font-mono">Chưa đăng nhập</span>
+      <span class="wheel-item-sub font-mono">0 đ</span>
     `;
-    pill.addEventListener('click', () => {
+    item.addEventListener('click', () => {
       openAuthModal('login');
       showToast('Vui lòng đăng nhập để sử dụng');
     });
-    container.appendChild(pill);
+    container.appendChild(item);
+    updateWheelItemsVisual();
     return;
   }
 
   state.weeks.forEach(week => {
-    const pill = document.createElement('div');
-    pill.className = `week-pill ${week.id === state.currentWeekId ? 'active' : ''}`;
-    
+    const item = document.createElement('div');
+    item.className = `week-wheel-item ${week.id === state.currentWeekId ? 'active' : ''}`;
+    item.setAttribute('data-week-id', week.id);
+
     const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
     const totalWage = totalHours * week.rate;
 
-    pill.innerHTML = `
-      <div class="pill-name">${week.name}</div>
-      <div class="pill-sub font-mono">${fmtCurrency(totalWage)}</div>
+    item.innerHTML = `
+      <span class="wheel-item-name font-mono">${week.name}</span>
+      <span class="wheel-item-sub font-mono">${fmtCurrency(totalWage)}</span>
     `;
 
-    pill.addEventListener('click', () => {
-      state.currentWeekId = week.id;
-      renderWeekPills();
-      renderWeekDetails();
-      renderShiftsList();
+    item.addEventListener('click', () => {
+      if (state.currentWeekId !== week.id) {
+        state.currentWeekId = week.id;
+        renderWeekDetails();
+        renderShiftsList();
+      }
+      scrollWheelToActive('smooth');
     });
 
-    container.appendChild(pill);
+    container.appendChild(item);
   });
 
-  const activePill = container.querySelector('.week-pill.active');
-  if (activePill) {
-    activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }
+  scrollWheelToActive('auto');
 };
 
 const renderWeekDetails = () => {
@@ -1841,6 +1919,15 @@ const bindEvents = () => {
     slipIncludeMoney.addEventListener('change', () => {
       renderSlipCanvas();
     });
+  }
+
+  const weekWheelTrack = document.getElementById('weekPillsList');
+  if (weekWheelTrack) {
+    weekWheelTrack.addEventListener('scroll', onWheelTrackScroll, { passive: true });
+    weekWheelTrack.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      weekWheelTrack.scrollTop += e.deltaY;
+    }, { passive: false });
   }
 
  
