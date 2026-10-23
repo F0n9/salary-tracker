@@ -1292,6 +1292,57 @@ body {
 /* ==========================================================================
    Authentication & User Profile Modal Styles
    ========================================================================== */
+.auth-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.auth-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  font-weight: 500;
+}
+
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-inline-icon {
+  position: absolute;
+  left: 0.85rem;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.form-input.input-has-icon {
+  padding-left: 2.35rem;
+}
+
+.input-icon-wrap:focus-within .input-inline-icon {
+  color: #38bdf8;
+}
+
 .auth-tabs-row {
   display: flex;
   background: rgba(11, 15, 25, 0.9);
