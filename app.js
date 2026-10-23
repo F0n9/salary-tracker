@@ -222,6 +222,11 @@ const saveWeeks = () => {
   triggerAutoGistSync();
 };
 
+const syncWithSupabase = async () => {
+  saveWeeks();
+};
+window.syncWithSupabase = syncWithSupabase;
+
 const saveSettings = () => {
   const settingsKey = getSettingsStorageKey();
   localStorage.setItem(settingsKey, JSON.stringify(state.settings));
