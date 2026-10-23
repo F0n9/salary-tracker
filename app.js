@@ -268,8 +268,6 @@ const renderDateDisplay = () => {
   const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
   const headerDateEl = document.getElementById('currentDateDisplay');
   if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
-  const footerDateEl = document.getElementById('footerCurrentDate');
-  if (footerDateEl) footerDateEl.textContent = `${dayName}, ${dateStr}`;
 };
 
 const renderWeekPills = () => {
