@@ -18,7 +18,7 @@ const GUEST_DEFAULT_DATA = [
   {
     "id": "week-1",
     "name": "Tuần 1",
-    "rate": 40000,
+    "rate": 25000,
     "shifts": []
   }
 ];
@@ -33,7 +33,7 @@ const state = {
   weeks: [],
   currentWeekId: null,
   settings: {
-    defaultRate: 40000,
+    defaultRate: 25000,
     workplaces: ['Cơm Chin Chin', 'Cafe', 'Gia sư']
   }
 };
@@ -112,7 +112,7 @@ const getShiftRate = (shift, week) => {
     const customRate = Number(state.settings.workplaceRates[shift.workplace]);
     if (customRate > 0) return customRate;
   }
-  return Number(week?.rate || state.settings?.defaultRate || 40000);
+  return Number(week?.rate || state.settings?.defaultRate || 25000);
 };
 
 const calculateWeekTotalSalary = (week) => {
@@ -162,7 +162,9 @@ const getShiftDateObj = (week, dayStr) => {
     month: m,
     year: y,
     short: `${d}/${m}`,
-    full: `${d}/${m}/${y}`
+    full: `${d}/${m}/${y}`,
+    iso: `${y}-${m}-${d}`,
+    monthKey: `${y}-${m}`
   };
 };
 
@@ -469,22 +471,26 @@ const updateWheelItemsVisual = () => {
   return closestItem;
 };
 
+let wheelRafId = null;
 const onWheelTrackScroll = () => {
-  const closestItem = updateWheelItemsVisual();
-  if (isProgrammaticWheelScroll) return;
+  if (wheelRafId) cancelAnimationFrame(wheelRafId);
+  wheelRafId = requestAnimationFrame(() => {
+    const closestItem = updateWheelItemsVisual();
+    if (isProgrammaticWheelScroll) return;
 
-  clearTimeout(wheelScrollDebounceTimer);
-  wheelScrollDebounceTimer = setTimeout(() => {
-    if (closestItem) {
-      const weekId = closestItem.getAttribute('data-week-id');
-      if (weekId && weekId !== state.currentWeekId) {
-        state.currentWeekId = weekId;
-        renderWeekDetails();
-        renderShiftsList();
-        closestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    clearTimeout(wheelScrollDebounceTimer);
+    wheelScrollDebounceTimer = setTimeout(() => {
+      if (closestItem) {
+        const weekId = closestItem.getAttribute('data-week-id');
+        if (weekId && weekId !== state.currentWeekId) {
+          state.currentWeekId = weekId;
+          renderWeekDetails();
+          renderShiftsList();
+          closestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-    }
-  }, 140);
+    }, 140);
+  });
 };
 
 const scrollWheelToActive = (behavior = 'smooth') => {
@@ -553,13 +559,48 @@ const renderWeekDetails = () => {
   document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ca`;
 };
 
+const shiftsFilterState = {
+  workplace: '',
+  date: ''
+};
+
+const updateFilterWorkplaceOptions = () => {
+  const select = document.getElementById('filterWorkplaceSelect');
+  if (!select) return;
+  const currentVal = select.value;
+
+  const week = getCurrentWeek();
+  const set = new Set(state.settings.workplaces || []);
+  if (week && Array.isArray(week.shifts)) {
+    week.shifts.forEach(s => {
+      if (s.workplace) set.add(s.workplace);
+    });
+  }
+
+  select.innerHTML = '<option value="">Tất cả nơi làm việc</option>';
+  Array.from(set).forEach(wp => {
+    const opt = document.createElement('option');
+    opt.value = wp;
+    opt.textContent = wp;
+    if (wp === currentVal || wp === shiftsFilterState.workplace) {
+      opt.selected = true;
+    }
+    select.appendChild(opt);
+  });
+};
+
 const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
   listContainer.innerHTML = '';
 
   const week = getCurrentWeek();
 
-  if (!week || week.shifts.length === 0) {
+  updateFilterWorkplaceOptions();
+
+  if (!week || !Array.isArray(week.shifts) || week.shifts.length === 0) {
+    const shiftsCountBadge = document.getElementById('shiftsCountBadge');
+    if (shiftsCountBadge) shiftsCountBadge.textContent = '0 ca';
+
     listContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">
@@ -598,6 +639,54 @@ const renderShiftsList = () => {
     return;
   }
 
+  const allShifts = week.shifts;
+  let filteredShifts = allShifts;
+
+  if (shiftsFilterState.workplace) {
+    filteredShifts = filteredShifts.filter(s => s.workplace === shiftsFilterState.workplace);
+  }
+
+  if (shiftsFilterState.date) {
+    filteredShifts = filteredShifts.filter(s => {
+      const dObj = getShiftDateObj(week, s.day);
+      return dObj && dObj.iso === shiftsFilterState.date;
+    });
+  }
+
+  const shiftsCountBadge = document.getElementById('shiftsCountBadge');
+  if (shiftsFilterState.workplace || shiftsFilterState.date) {
+    if (shiftsCountBadge) shiftsCountBadge.textContent = `${filteredShifts.length} / ${allShifts.length} ca`;
+  } else {
+    if (shiftsCountBadge) shiftsCountBadge.textContent = `${allShifts.length} ca`;
+  }
+
+  if (allShifts.length > 0 && filteredShifts.length === 0) {
+    listContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-title">Không tìm thấy ca làm việc phù hợp</div>
+        <p class="empty-state-desc">Không có ca nào khớp với bộ lọc bạn đã chọn.</p>
+        <div style="margin-top: 0.85rem;">
+          <button class="btn-morphic" id="btnResetShiftsFilter">Xóa bộ lọc</button>
+        </div>
+      </div>
+    `;
+    const btnReset = document.getElementById('btnResetShiftsFilter');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        shiftsFilterState.workplace = '';
+        shiftsFilterState.date = '';
+        const wpSel = document.getElementById('filterWorkplaceSelect');
+        const dtInp = document.getElementById('filterDateInput');
+        const clrBtn = document.getElementById('btnClearDateFilter');
+        if (wpSel) wpSel.value = '';
+        if (dtInp) dtInp.value = '';
+        if (clrBtn) clrBtn.style.display = 'none';
+        renderShiftsList();
+      });
+    }
+    return;
+  }
+
   const dayNames = {
     'T2': 'Thứ 2',
     'T3': 'Thứ 3',
@@ -608,7 +697,7 @@ const renderShiftsList = () => {
     'CN': 'Chủ Nhật'
   };
 
-  week.shifts.forEach((shift) => {
+  filteredShifts.forEach((shift) => {
     const card = document.createElement('div');
     card.className = 'shift-card';
     
@@ -965,7 +1054,7 @@ const createNewWeek = () => {
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
   const newWeekName = `Tuần ${nextNum}`;
-  const newWeekRate = state.settings.defaultRate || 40000;
+  const newWeekRate = state.settings.defaultRate || 25000;
 
   let newStartDate = getMondayDate(new Date());
   if (state.weeks.length > 0) {
@@ -1087,22 +1176,155 @@ const navigateWeek = (direction) => {
   }
 };
 
+const renderMonthlyReport = () => {
+  const container = document.getElementById('monthlyReportsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const monthMap = {};
+
+  state.weeks.forEach(week => {
+    (week.shifts || []).forEach(shift => {
+      const dObj = getShiftDateObj(week, shift.day);
+      const mKey = dObj ? dObj.monthKey : 'unknown';
+      const mLabel = dObj ? `Tháng ${dObj.month}/${dObj.year}` : 'Không rõ thời gian';
+
+      if (!monthMap[mKey]) {
+        monthMap[mKey] = {
+          key: mKey,
+          label: mLabel,
+          totalHours: 0,
+          totalEarnings: 0,
+          shiftCount: 0,
+          workplaces: {}
+        };
+      }
+
+      const shiftRate = getShiftRate(shift, week);
+      const shiftHours = Number(shift.hours || 0);
+      const shiftEarnings = shiftHours * shiftRate;
+      const wp = shift.workplace || 'Chung';
+
+      monthMap[mKey].totalHours += shiftHours;
+      monthMap[mKey].totalEarnings += shiftEarnings;
+      monthMap[mKey].shiftCount += 1;
+
+      if (!monthMap[mKey].workplaces[wp]) {
+        monthMap[mKey].workplaces[wp] = {
+          name: wp,
+          hours: 0,
+          earnings: 0,
+          count: 0
+        };
+      }
+      monthMap[mKey].workplaces[wp].hours += shiftHours;
+      monthMap[mKey].workplaces[wp].earnings += shiftEarnings;
+      monthMap[mKey].workplaces[wp].count += 1;
+    });
+  });
+
+  const monthKeys = Object.keys(monthMap).sort().reverse();
+
+  if (monthKeys.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 2.5rem 1rem;">
+        <div class="empty-state-title">Chưa có dữ liệu theo tháng</div>
+        <p class="empty-state-desc">Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.</p>
+      </div>
+    `;
+    return;
+  }
+
+  monthKeys.forEach(mKey => {
+    const data = monthMap[mKey];
+    const card = document.createElement('div');
+    card.className = 'monthly-report-card';
+
+    const wpList = Object.values(data.workplaces).sort((a, b) => b.earnings - a.earnings);
+
+    let wpBreakdownHtml = '';
+    wpList.forEach(wp => {
+      const col = getWorkplaceColor(wp.name);
+      const percent = data.totalEarnings > 0 ? Math.round((wp.earnings / data.totalEarnings) * 100) : 0;
+      wpBreakdownHtml += `
+        <div class="wb-item" style="margin-top: 0.55rem;">
+          <div class="wb-header font-mono">
+            <div class="wb-name-group">
+              <span class="wb-color-dot" style="background:${col.fill};"></span>
+              <span>${escapeHtml(wp.name)}</span>
+              <span class="field-hint" style="font-size:0.75rem;">(${percent}%)</span>
+            </div>
+            <span class="wb-amount font-mono">${fmtCurrency(wp.earnings)}</span>
+          </div>
+          <div class="wb-bar-track">
+            <div class="wb-bar-fill" style="width:${percent}%;background:${col.fill};"></div>
+          </div>
+          <span class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(2)}h</span>
+        </div>
+      `;
+    });
+
+    card.innerHTML = `
+      <div class="monthly-card-header">
+        <div class="monthly-header-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span class="font-mono" style="font-size:1.05rem; font-weight:700;">${data.label}</span>
+        </div>
+        <span class="badge-count font-mono">${data.shiftCount} ca</span>
+      </div>
+
+      <div class="monthly-kpi-row">
+        <div class="monthly-kpi-cell">
+          <span class="cell-label font-mono">Thu nhập tháng</span>
+          <span class="cell-number font-mono text-bold-dark" style="color:var(--primary); font-size:1.15rem;">${fmtCurrency(data.totalEarnings)}</span>
+        </div>
+        <div class="monthly-kpi-cell">
+          <span class="cell-label font-mono">Tổng thời gian</span>
+          <span class="cell-number font-mono">${fmtHours(data.totalHours)}</span>
+        </div>
+        <div class="monthly-kpi-cell">
+          <span class="cell-label font-mono">Nơi làm việc</span>
+          <span class="cell-number font-mono">${wpList.length} nơi</span>
+        </div>
+      </div>
+
+      <div class="monthly-workplaces-section">
+        <span class="field-hint font-mono" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">Phân bổ thu nhập trong tháng</span>
+        ${wpBreakdownHtml}
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+};
+
 const switchSummaryTab = (tab) => {
   const btnAnalytics = document.getElementById('tabBtnSummaryAnalytics');
   const btnTable = document.getElementById('tabBtnSummaryTable');
+  const btnMonthly = document.getElementById('tabBtnSummaryMonthly');
   const paneAnalytics = document.getElementById('summaryTabPaneAnalytics');
   const paneTable = document.getElementById('summaryTabPaneTable');
+  const paneMonthly = document.getElementById('summaryTabPaneMonthly');
+
+  [btnAnalytics, btnTable, btnMonthly].forEach(b => { if (b) b.classList.remove('active'); });
+  [paneAnalytics, paneTable, paneMonthly].forEach(p => { if (p) p.style.display = 'none'; });
+
   if (tab === 'analytics') {
     if (btnAnalytics) btnAnalytics.classList.add('active');
-    if (btnTable) btnTable.classList.remove('active');
     if (paneAnalytics) paneAnalytics.style.display = 'flex';
-    if (paneTable) paneTable.style.display = 'none';
     renderAnalyticsDashboard();
+  } else if (tab === 'monthly') {
+    if (btnMonthly) btnMonthly.classList.add('active');
+    if (paneMonthly) paneMonthly.style.display = 'flex';
+    renderMonthlyReport();
   } else {
     if (btnTable) btnTable.classList.add('active');
-    if (btnAnalytics) btnAnalytics.classList.remove('active');
     if (paneTable) paneTable.style.display = 'flex';
-    if (paneAnalytics) paneAnalytics.style.display = 'none';
   }
 };
 
@@ -1586,7 +1808,7 @@ const renderSettingsWorkplaces = () => {
         <span class="settings-wp-name">${escapeHtml(wp)}</span>
       </div>
       <div class="settings-wp-rate-wrap">
-        <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 40000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
+        <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 25000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
         <span class="tag font-mono" style="font-size:0.7rem;">đ/h</span>
         <button type="button" class="btn-remove-workplace" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
@@ -2461,6 +2683,39 @@ const bindEvents = () => {
     btnTabSummaryTable.addEventListener('click', () => switchSummaryTab('table'));
   }
 
+  const btnTabSummaryMonthly = document.getElementById('tabBtnSummaryMonthly');
+  if (btnTabSummaryMonthly) {
+    btnTabSummaryMonthly.addEventListener('click', () => switchSummaryTab('monthly'));
+  }
+
+  // Shifts Filter Bar Events
+  const filterWpSelect = document.getElementById('filterWorkplaceSelect');
+  if (filterWpSelect) {
+    filterWpSelect.addEventListener('change', (e) => {
+      shiftsFilterState.workplace = e.target.value;
+      renderShiftsList();
+    });
+  }
+
+  const filterDateInput = document.getElementById('filterDateInput');
+  const btnClearDate = document.getElementById('btnClearDateFilter');
+  if (filterDateInput) {
+    filterDateInput.addEventListener('change', (e) => {
+      shiftsFilterState.date = e.target.value;
+      if (btnClearDate) btnClearDate.style.display = e.target.value ? 'flex' : 'none';
+      renderShiftsList();
+    });
+  }
+
+  if (btnClearDate) {
+    btnClearDate.addEventListener('click', () => {
+      shiftsFilterState.date = '';
+      if (filterDateInput) filterDateInput.value = '';
+      btnClearDate.style.display = 'none';
+      renderShiftsList();
+    });
+  }
+
   const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
   if (btnAddWp) {
     btnAddWp.addEventListener('click', addWorkplaceFromSetting);
@@ -2520,7 +2775,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024v').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024x').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;

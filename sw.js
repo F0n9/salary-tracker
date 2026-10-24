@@ -1,19 +1,28 @@
-const CACHE_NAME = 'salary-tracker-v36';
-const ASSETS = [
+const CACHE_NAME = 'salary-tracker-v37';
+const CORE_ASSETS = [
   './',
   './index.html',
-  './styles.css?v=20261024v',
-  './app.js?v=20261024v',
+  './styles.css?v=20261024x',
+  './app.js?v=20261024x',
   './manifest.json',
   './icon.svg?v=20261024w',
   './icon.svg'
 ];
 
+const OPTIONAL_ASSETS = [
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+];
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(CORE_ASSETS);
+      try {
+        await cache.addAll(OPTIONAL_ASSETS);
+      } catch (err) {
+        console.warn('Optional asset caching skipped:', err);
+      }
     })
   );
 });
@@ -35,17 +44,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // Bỏ qua các API request tới Supabase database để không can thiệp vào auth/realtime
+  if (event.request.url.includes('.supabase.co')) {
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cached) => cached || caches.match('./index.html'));
-      })
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return cachedResponse || (event.request.mode === 'navigate' ? caches.match('./index.html') : null);
+        });
+
+      return cachedResponse || fetchPromise;
+    })
   );
 });
