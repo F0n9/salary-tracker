@@ -2604,9 +2604,10 @@ const handleChangePasswordSubmit = async (e) => {
   }
 
   errorEl.style.display = 'none';
+  const originalSvg = submitBtn ? submitBtn.innerHTML : '';
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Đang đổi mật khẩu...';
+    submitBtn.style.opacity = '0.6';
   }
 
   try {
@@ -2631,7 +2632,8 @@ const handleChangePasswordSubmit = async (e) => {
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Cập nhật mật khẩu';
+      submitBtn.style.opacity = '1';
+      if (originalSvg) submitBtn.innerHTML = originalSvg;
     }
   }
 };
@@ -3197,7 +3199,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024aa').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ab').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
