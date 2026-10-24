@@ -2179,7 +2179,7 @@ const renderSlipCanvas = () => {
   const totalWidth = 510;
   const contentWidth = totalWidth - padX * 2;
 
-  const headerHeight = 44;
+  const headerHeight = 36;
   const thHeight = 34;
   const rowHeight = 32;
   const totalRowHeight = 36;
@@ -2209,12 +2209,7 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 15px "Outfit", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(`BẢNG CHẤM CÔNG — ${week.name.toUpperCase()}`, totalWidth / 2, padTop + 16);
-
- 
-  ctx.fillStyle = '#64748b';
-  ctx.font = '500 11px "JetBrains Mono", monospace';
-  ctx.fillText(new Date().toLocaleDateString('vi-VN'), totalWidth / 2, padTop + 34);
+  ctx.fillText(`BẢNG CHẤM CÔNG — ${week.name.toUpperCase()}`, totalWidth / 2, padTop + 21);
 
  
   const tableY = padTop + headerHeight;
@@ -2274,8 +2269,7 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    const shiftDate = getShiftDateShort(week, s.day);
-    const shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
+    const shiftLabel = `${s.day} ${s.type}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -3257,7 +3251,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024ae').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024af').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
