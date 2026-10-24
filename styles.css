@@ -1283,13 +1283,12 @@ select option {
   color: var(--text-main);
   border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .custom-select-option:hover {
   background-color: rgba(37, 99, 235, 0.08);
   color: var(--primary);
-  transform: translateX(2px);
 }
 
 .custom-select-option.is-selected {
@@ -1421,13 +1420,12 @@ select option {
   color: var(--text-main);
   border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .workplace-dropdown-item:hover {
   background-color: rgba(37, 99, 235, 0.08);
   color: var(--primary);
-  transform: translateX(2px);
 }
 
 .workplace-item-left {
