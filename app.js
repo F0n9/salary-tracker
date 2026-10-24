@@ -1985,8 +1985,7 @@ const renderSlipCanvas = () => {
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
     const shiftDate = getShiftDateShort(week, s.day);
-    let shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
-    if (s.workplace) shiftLabel += ` • ${s.workplace}`;
+    const shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -2775,7 +2774,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024x').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024y').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
