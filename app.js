@@ -224,7 +224,12 @@ const showToastWithAction = (message, actionText, actionCallback, duration = 800
   const toast = document.getElementById('toast');
   toast.innerHTML = `
     <span>${message}</span>
-    <button type="button" class="toast-action-btn" id="btnToastAction">${actionText}</button>
+    <button type="button" class="toast-action-btn" id="btnToastAction" title="${escapeHtml(actionText || 'Hoàn tác')}" aria-label="${escapeHtml(actionText || 'Hoàn tác')}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+    </button>
   `;
   toast.style.display = 'flex';
   clearTimeout(toast._timer);
@@ -812,8 +817,13 @@ const renderShiftsList = () => {
       <div class="empty-state">
         <div class="empty-state-title">Không tìm thấy ca làm việc phù hợp</div>
         <p class="empty-state-desc">Không có ca nào khớp với bộ lọc bạn đã chọn.</p>
-        <div style="margin-top: 0.85rem;">
-          <button class="btn-morphic" id="btnResetShiftsFilter">Xóa bộ lọc</button>
+        <div style="margin-top: 0.85rem; display: flex; justify-content: center;">
+          <button class="btn-morphic btn-morphic-danger" id="btnResetShiftsFilter" title="Xóa toàn bộ bộ lọc" aria-label="Xóa bộ lọc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
     `;
@@ -3199,7 +3209,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024ab').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ac').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
