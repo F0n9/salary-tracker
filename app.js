@@ -1123,7 +1123,26 @@ const navigateWeek = (direction) => {
   }
 };
 
-const openAllWeeksModal = () => {
+const switchSummaryTab = (tab) => {
+  const btnAnalytics = document.getElementById('tabBtnSummaryAnalytics');
+  const btnTable = document.getElementById('tabBtnSummaryTable');
+  const paneAnalytics = document.getElementById('summaryTabPaneAnalytics');
+  const paneTable = document.getElementById('summaryTabPaneTable');
+  if (tab === 'analytics') {
+    if (btnAnalytics) btnAnalytics.classList.add('active');
+    if (btnTable) btnTable.classList.remove('active');
+    if (paneAnalytics) paneAnalytics.style.display = 'flex';
+    if (paneTable) paneTable.style.display = 'none';
+    renderAnalyticsDashboard();
+  } else {
+    if (btnTable) btnTable.classList.add('active');
+    if (btnAnalytics) btnAnalytics.classList.remove('active');
+    if (paneTable) paneTable.style.display = 'flex';
+    if (paneAnalytics) paneAnalytics.style.display = 'none';
+  }
+};
+
+const openAllWeeksModal = (initialTab = 'analytics') => {
   if (!state.currentUser) {
     openAuthModal('login');
     showToast('Vui lòng đăng nhập để sử dụng');
@@ -1188,7 +1207,7 @@ const openAllWeeksModal = () => {
         }
         saveWeeks();
         renderApp();
-        openAllWeeksModal();
+        openAllWeeksModal('table');
         showToast(`Đã xóa ${week.name}`);
       }
     });
@@ -1204,6 +1223,7 @@ const openAllWeeksModal = () => {
   document.getElementById('allTimeAvgWeekEarnings').textContent = fmtCurrency(avgWeekEarnings);
 
   document.getElementById('allWeeksModal').style.display = 'flex';
+  switchSummaryTab(initialTab);
 };
 
 let analyticsState = {
@@ -1584,13 +1604,7 @@ const renderAnalyticsDashboard = () => {
 };
 
 const openAnalyticsModal = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
-  document.getElementById('analyticsModal').style.display = 'flex';
-  renderAnalyticsDashboard();
+  openAllWeeksModal('analytics');
 };
 
 const renderSettingsWorkplaces = () => {
@@ -2538,17 +2552,27 @@ const bindEvents = () => {
 
   const dockAllWeeks = document.getElementById('dockAllWeeks');
   if (dockAllWeeks) {
-    dockAllWeeks.addEventListener('click', openAllWeeksModal);
+    dockAllWeeks.addEventListener('click', () => openAllWeeksModal('analytics'));
   }
 
   const dockAnalytics = document.getElementById('dockAnalytics');
   if (dockAnalytics) {
-    dockAnalytics.addEventListener('click', openAnalyticsModal);
+    dockAnalytics.addEventListener('click', () => openAllWeeksModal('analytics'));
   }
 
   const ledgerCard = document.getElementById('ledgerCardSummary');
   if (ledgerCard) {
-    ledgerCard.addEventListener('click', openAnalyticsModal);
+    ledgerCard.addEventListener('click', () => openAllWeeksModal('analytics'));
+  }
+
+  const btnTabSummaryAnalytics = document.getElementById('tabBtnSummaryAnalytics');
+  if (btnTabSummaryAnalytics) {
+    btnTabSummaryAnalytics.addEventListener('click', () => switchSummaryTab('analytics'));
+  }
+
+  const btnTabSummaryTable = document.getElementById('tabBtnSummaryTable');
+  if (btnTabSummaryTable) {
+    btnTabSummaryTable.addEventListener('click', () => switchSummaryTab('table'));
   }
 
   const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
@@ -2575,8 +2599,9 @@ const bindEvents = () => {
   });
 
   window.addEventListener('resize', () => {
-    const modal = document.getElementById('analyticsModal');
-    if (modal && modal.style.display !== 'none') {
+    const modal = document.getElementById('allWeeksModal');
+    const pane = document.getElementById('summaryTabPaneAnalytics');
+    if (modal && modal.style.display !== 'none' && pane && pane.style.display !== 'none') {
       renderAnalyticsDashboard();
     }
   });
