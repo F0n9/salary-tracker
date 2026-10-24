@@ -2211,7 +2211,7 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 15px "Outfit", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(`BẢNG CHẤM CÔNG — ${week.name.toUpperCase()}`, totalWidth / 2, padTop + 21);
+  ctx.fillText((week.name || 'Tuần').toUpperCase(), totalWidth / 2, padTop + 21);
 
  
   const tableY = padTop + headerHeight;
@@ -2698,7 +2698,7 @@ const openShareSlipModal = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  document.getElementById('shareSlipModalTitle').textContent = `Phiếu chấm công — ${week.name}`;
+  document.getElementById('shareSlipModalTitle').textContent = 'Phiếu chấm công';
   renderSlipCanvas();
   document.getElementById('shareSlipModal').style.display = 'flex';
 };
@@ -3253,7 +3253,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024ag').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ah').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
