@@ -475,7 +475,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 .cell-label {
-  font-size: 0.725rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -870,7 +870,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 .form-label {
-  font-size: 0.775rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -1012,8 +1012,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 .sc-label {
-  font-size: 0.725rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .sc-val {
@@ -1032,25 +1035,57 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.825rem;
-  text-align: left;
 }
 
 .minimal-table th, .minimal-table td {
   padding: 0.65rem 0.85rem;
   border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
 }
 
 .minimal-table th {
   background: #f8fafc;
   color: var(--text-muted);
   font-weight: 600;
-  font-size: 0.725rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
+.minimal-table th:first-child,
+.minimal-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.minimal-table th:nth-child(2),
+.minimal-table td:nth-child(2),
+.minimal-table th:nth-child(3),
+.minimal-table td:nth-child(3),
+.minimal-table th:nth-child(4),
+.minimal-table td:nth-child(4),
+.minimal-table th:nth-child(5),
+.minimal-table td:nth-child(5) {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.minimal-table th:last-child,
+.minimal-table td:last-child {
+  text-align: center;
+  width: 75px;
+}
+
 .minimal-table tbody tr:hover {
   background: var(--bg-subtle);
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
 }
 
 .backup-actions-morphic {
@@ -1277,14 +1312,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 .ps-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
 .ps-val {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
 }
