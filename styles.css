@@ -568,19 +568,31 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 .day-badge {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   border-radius: var(--radius-sm);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-weight: 700;
-  font-size: 0.875rem;
   background: var(--bg-subtle);
   border: 1px solid var(--border-default);
   color: var(--text-main);
+  line-height: 1.1;
+  box-shadow: var(--shadow-sm);
+}
+
+.day-badge-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.day-badge-date {
+  font-size: 0.625rem;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
 .day-t2 { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }

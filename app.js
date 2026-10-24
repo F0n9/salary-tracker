@@ -96,6 +96,65 @@ const getVietnameseDayOfWeek = (date = new Date()) => {
   return map[dayIndex];
 };
 
+const getMondayDate = (d = new Date()) => {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date.setDate(diff));
+  const year = monday.getFullYear();
+  const month = String(monday.getMonth() + 1).padStart(2, '0');
+  const dayOfMonth = String(monday.getDate()).padStart(2, '0');
+  return `${year}-${month}-${dayOfMonth}`;
+};
+
+const getShiftDateObj = (week, dayStr) => {
+  if (!week || !week.startDate) return null;
+  const dayOffsets = { 'T2': 0, 'T3': 1, 'T4': 2, 'T5': 3, 'T6': 4, 'T7': 5, 'CN': 6 };
+  const offset = dayOffsets[dayStr] ?? 0;
+  const parts = week.startDate.split('-');
+  if (parts.length !== 3) return null;
+  const baseDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  baseDate.setDate(baseDate.getDate() + offset);
+  const d = String(baseDate.getDate()).padStart(2, '0');
+  const m = String(baseDate.getMonth() + 1).padStart(2, '0');
+  const y = baseDate.getFullYear();
+  return {
+    dayOfMonth: d,
+    month: m,
+    year: y,
+    short: `${d}/${m}`,
+    full: `${d}/${m}/${y}`
+  };
+};
+
+const getShiftDateShort = (week, dayStr) => {
+  const obj = getShiftDateObj(week, dayStr);
+  return obj ? obj.short : '';
+};
+
+const getShiftDateFull = (week, dayStr) => {
+  const obj = getShiftDateObj(week, dayStr);
+  return obj ? obj.full : '';
+};
+
+const getWeekDateRangeDisplay = (week) => {
+  if (!week || !week.startDate) return '';
+  const start = getShiftDateObj(week, 'T2');
+  const end = getShiftDateObj(week, 'CN');
+  if (!start || !end) return '';
+  return `${start.short} – ${end.short}`;
+};
+
+const ensureWeekStartDate = (week, index) => {
+  if (week.startDate) return;
+  const now = new Date();
+  const totalWeeks = state.weeks.length || 1;
+  const weeksBack = (totalWeeks - 1 - index);
+  const targetDate = new Date(now);
+  targetDate.setDate(targetDate.getDate() - weeksBack * 7);
+  week.startDate = getMondayDate(targetDate);
+};
+
 const getDayClass = (day) => {
   const d = (day || '').toUpperCase().trim();
   switch (d) {
@@ -177,6 +236,7 @@ const loadState = async () => {
     }
 
     if (state.weeks.length > 0) {
+      state.weeks.forEach((w, idx) => ensureWeekStartDate(w, idx));
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
   } catch (err) {
@@ -441,7 +501,8 @@ const renderWeekDetails = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  document.getElementById('currentWeekTitle').textContent = week.name;
+  const dateRange = getWeekDateRangeDisplay(week);
+  document.getElementById('currentWeekTitle').textContent = dateRange ? `${week.name} (${dateRange})` : week.name;
   document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h`;
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
@@ -545,11 +606,13 @@ const renderShiftsList = () => {
     const shiftEarnings = Number(shift.hours || 0) * week.rate;
     const typeClass = shift.type === 'Trưa' ? 'type-trua' : (shift.type === 'Tối' ? 'type-toi' : (shift.type === 'Sáng' ? 'type-sang' : ''));
     const dayLabel = dayNames[shift.day] || shift.day;
+    const shiftDateStr = getShiftDateShort(week, shift.day);
 
     card.innerHTML = `
       <div class="shift-left">
         <div class="day-badge font-mono ${getDayClass(shift.day)}">
-          <span>${shift.day}</span>
+          <span class="day-badge-name">${shift.day}</span>
+          ${shiftDateStr ? `<span class="day-badge-date font-mono">${shiftDateStr}</span>` : ''}
         </div>
         <div class="shift-info">
           <div class="shift-title-row">
@@ -564,6 +627,12 @@ const renderShiftsList = () => {
       <div class="shift-right">
         <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
+          <button class="btn-morphic btn-morphic-sm" title="Nhân bản ca này" data-duplicate-shift="${shift.id}" aria-label="Nhân bản">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
           <button class="btn-morphic btn-morphic-sm" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -579,6 +648,18 @@ const renderShiftsList = () => {
         </div>
       </div>
     `;
+
+    card.querySelector(`[data-duplicate-shift="${shift.id}"]`).addEventListener('click', () => {
+      const dayOrder = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+      const nextDay = dayOrder[(dayOrder.indexOf(shift.day) + 1) % 7];
+      openAddShiftModal({
+        day: nextDay,
+        type: shift.type,
+        start: shift.start,
+        end: shift.end,
+        note: shift.note
+      });
+    });
 
     card.querySelector(`[data-edit-shift="${shift.id}"]`).addEventListener('click', () => {
       openEditShiftModal(shift);
@@ -610,6 +691,24 @@ const detectShiftType = (startTimeStr) => {
   return 'Sáng';
 };
 
+const updateShiftDayOptions = (week) => {
+  const select = document.getElementById('shiftDay');
+  if (!select) return;
+  const currentVal = select.value || 'T2';
+  const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  select.innerHTML = '';
+  days.forEach(day => {
+    const opt = document.createElement('option');
+    opt.value = day;
+    const dateStr = getShiftDateShort(week, day);
+    opt.textContent = dateStr ? `${day} (${dateStr})` : day;
+    select.appendChild(opt);
+  });
+  if (days.includes(currentVal)) {
+    select.value = currentVal;
+  }
+};
+
 const openAddShiftModal = (prefill = null) => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -626,6 +725,12 @@ const openAddShiftModal = (prefill = null) => {
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'none';
+
+  const btnDup = document.getElementById('btnDuplicateShiftModal');
+  if (btnDup) btnDup.style.display = 'none';
+
+  const week = getCurrentWeek();
+  updateShiftDayOptions(week);
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -678,6 +783,26 @@ const openEditShiftModal = (shift) => {
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'inline-flex';
+
+  const btnDup = document.getElementById('btnDuplicateShiftModal');
+  if (btnDup) {
+    btnDup.style.display = 'inline-flex';
+    btnDup.onclick = () => {
+      closeModal('shiftModal');
+      const dayOrder = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+      const nextDay = dayOrder[(dayOrder.indexOf(shift.day) + 1) % 7];
+      openAddShiftModal({
+        day: nextDay,
+        type: shift.type,
+        start: shift.start,
+        end: shift.end,
+        note: shift.note
+      });
+    };
+  }
+
+  const week = getCurrentWeek();
+  updateShiftDayOptions(week);
 
   document.getElementById('shiftDay').value = shift.day;
   document.getElementById('shiftType').value = shift.type;
@@ -803,9 +928,23 @@ const createNewWeek = () => {
   const newWeekName = `Tuần ${nextNum}`;
   const newWeekRate = state.settings.defaultRate || 40000;
 
+  let newStartDate = getMondayDate(new Date());
+  if (state.weeks.length > 0) {
+    const lastWeek = state.weeks[state.weeks.length - 1];
+    if (lastWeek && lastWeek.startDate) {
+      const parts = lastWeek.startDate.split('-');
+      if (parts.length === 3) {
+        const nextMon = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        nextMon.setDate(nextMon.getDate() + 7);
+        newStartDate = getMondayDate(nextMon);
+      }
+    }
+  }
+
   const newWeek = {
     id: newWeekId,
     name: newWeekName,
+    startDate: newStartDate,
     rate: newWeekRate,
     shifts: []
   };
@@ -828,6 +967,7 @@ const openEditWeekModal = () => {
   if (!week) return;
 
   document.getElementById('editWeekNameInput').value = week.name;
+  document.getElementById('editWeekStartDateInput').value = week.startDate || getMondayDate(new Date());
   document.getElementById('editWeekRateInput').value = week.rate;
   document.getElementById('editWeekModal').style.display = 'flex';
 };
@@ -838,9 +978,11 @@ const saveWeekMeta = (e) => {
   if (!week) return;
 
   const newName = document.getElementById('editWeekNameInput').value.trim();
+  const newStartDate = document.getElementById('editWeekStartDateInput').value;
   const newRate = Number(document.getElementById('editWeekRateInput').value);
 
   if (newName) week.name = newName;
+  if (newStartDate) week.startDate = newStartDate;
   if (newRate && newRate >= 1000) week.rate = newRate;
 
   saveWeeks();
@@ -943,9 +1085,10 @@ const openAllWeeksModal = () => {
     totalEarnings += weekEarnings;
     totalShifts += weekShifts;
 
+    const dateRange = getWeekDateRangeDisplay(week);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escapeHtml(week.name)}</td>
+      <td>${escapeHtml(week.name)} ${dateRange ? `<span class="field-hint" style="font-size:0.75rem;">(${dateRange})</span>` : ''}</td>
       <td>${fmtCurrency(week.rate)}/h</td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
@@ -1215,7 +1358,9 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`${s.day} ${s.type}`, colX[0] + 10, curY + 20);
+    const shiftDate = getShiftDateShort(week, s.day);
+    const shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
+    ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
     ctx.fillStyle = '#334155';
@@ -1628,21 +1773,23 @@ const exportAllWeeksCSV = () => {
   }
   let csvContent = '\uFEFF';
   csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
-  csvContent += `Tuần,Đơn giá (VNĐ/h),Thứ,Ca,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Tuần,Khoảng ngày,Đơn giá (VNĐ/h),Ngày làm,Thứ,Ca,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
 
   state.weeks.forEach(w => {
+    const weekRange = getWeekDateRangeDisplay(w);
     w.shifts.forEach(s => {
       const salary = Number(s.hours || 0) * w.rate;
+      const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${w.name}",${w.rate},"${s.day}","${s.type}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
 
   downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
   showToast('Đã xuất tổng hợp toàn bộ các tuần');
