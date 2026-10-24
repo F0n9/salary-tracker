@@ -627,12 +627,6 @@ const renderShiftsList = () => {
       <div class="shift-right">
         <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
-          <button class="btn-morphic btn-morphic-sm" title="Nhân bản ca này" data-duplicate-shift="${shift.id}" aria-label="Nhân bản">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-          </button>
           <button class="btn-morphic btn-morphic-sm" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -648,18 +642,6 @@ const renderShiftsList = () => {
         </div>
       </div>
     `;
-
-    card.querySelector(`[data-duplicate-shift="${shift.id}"]`).addEventListener('click', () => {
-      const dayOrder = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-      const nextDay = dayOrder[(dayOrder.indexOf(shift.day) + 1) % 7];
-      openAddShiftModal({
-        day: nextDay,
-        type: shift.type,
-        start: shift.start,
-        end: shift.end,
-        note: shift.note
-      });
-    });
 
     card.querySelector(`[data-edit-shift="${shift.id}"]`).addEventListener('click', () => {
       openEditShiftModal(shift);
@@ -726,9 +708,6 @@ const openAddShiftModal = (prefill = null) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'none';
 
-  const btnDup = document.getElementById('btnDuplicateShiftModal');
-  if (btnDup) btnDup.style.display = 'none';
-
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
 
@@ -783,23 +762,6 @@ const openEditShiftModal = (shift) => {
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'inline-flex';
-
-  const btnDup = document.getElementById('btnDuplicateShiftModal');
-  if (btnDup) {
-    btnDup.style.display = 'inline-flex';
-    btnDup.onclick = () => {
-      closeModal('shiftModal');
-      const dayOrder = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-      const nextDay = dayOrder[(dayOrder.indexOf(shift.day) + 1) % 7];
-      openAddShiftModal({
-        day: nextDay,
-        type: shift.type,
-        start: shift.start,
-        end: shift.end,
-        note: shift.note
-      });
-    };
-  }
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
