@@ -97,14 +97,29 @@ const parseTimeToMinutes = (timeStr) => {
   return (h || 0) * 60 + (m || 0);
 };
 
-const calculateHoursDiff = (startStr, endStr) => {
+const calculateHoursDiff = (startStr, endStr, breakMinutes = 0) => {
   const startMins = parseTimeToMinutes(startStr);
   let endMins = parseTimeToMinutes(endStr);
   if (endMins < startMins) {
     endMins += 24 * 60;
   }
-  const diffMinutes = endMins - startMins;
+  const diffMinutes = Math.max(0, endMins - startMins - (Number(breakMinutes) || 0));
   return Number((diffMinutes / 60).toFixed(2));
+};
+
+const getShiftRate = (shift, week) => {
+  if (shift && shift.workplace && state.settings && state.settings.workplaceRates && state.settings.workplaceRates[shift.workplace]) {
+    const customRate = Number(state.settings.workplaceRates[shift.workplace]);
+    if (customRate > 0) return customRate;
+  }
+  return Number(week?.rate || state.settings?.defaultRate || 40000);
+};
+
+const calculateWeekTotalSalary = (week) => {
+  if (!week || !Array.isArray(week.shifts)) return 0;
+  return week.shifts.reduce((acc, s) => {
+    return acc + Number(s.hours || 0) * getShiftRate(s, week);
+  }, 0);
 };
 
 const hoursToColonFormat = (hours) => {
@@ -255,8 +270,26 @@ const loadState = async () => {
         }
       }
     } else {
-      state.weeks = [];
-      state.currentWeekId = null;
+      const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
+      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
+      if (guestWeeks) {
+        try {
+          const parsed = JSON.parse(guestWeeks);
+          state.weeks = Array.isArray(parsed) && parsed.length > 0 ? parsed : JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+        } catch (_) {
+          state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+        }
+      } else {
+        state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+      }
+      if (guestSettings) {
+        try {
+          const parsedSet = JSON.parse(guestSettings);
+          if (parsedSet) state.settings = { ...state.settings, ...parsedSet };
+        } catch (_) {}
+      }
+      if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+      saveWeeks();
     }
 
     if (state.weeks.length > 0) {
@@ -284,27 +317,17 @@ const loadState = async () => {
     }
   } catch (err) {
     console.error('Error loading state:', err);
-    state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     state.currentWeekId = state.weeks[0].id;
   }
 };
 
 let cloudSyncTimer = null;
-let gistSyncTimer = null;
-
-const triggerAutoGistSync = () => {
-  if (!state.settings || !state.settings.githubToken || !state.settings.gistId) return;
-  clearTimeout(gistSyncTimer);
-  gistSyncTimer = setTimeout(() => {
-    syncWithGitHubGist(true);
-  }, 2500);
-};
 
 const saveWeeks = () => {
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
 
- 
   if (state.currentUser && supabaseClient) {
     clearTimeout(cloudSyncTimer);
     cloudSyncTimer = setTimeout(async () => {
@@ -321,8 +344,6 @@ const saveWeeks = () => {
       }
     }, 500);
   }
-
-  triggerAutoGistSync();
 };
 
 const syncWithSupabase = async () => {
@@ -476,37 +497,20 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   activeItem.scrollIntoView({ behavior, block: 'center' });
   setTimeout(() => {
     isProgrammaticWheelScroll = false;
-    updateWheelItemsVisual();
-  }, behavior === 'smooth' ? 320 : 60);
+    updateWheelIndicator();
+  }, 300);
 };
 
 const renderWeekPills = () => {
   const container = document.getElementById('weekPillsList');
   container.innerHTML = '';
 
-  if (!state.currentUser) {
-    const item = document.createElement('div');
-    item.className = 'week-wheel-item active';
-    item.innerHTML = `
-      <span class="wheel-item-name font-mono">Chưa đăng nhập</span>
-      <span class="wheel-item-sub font-mono">0 đ</span>
-    `;
-    item.addEventListener('click', () => {
-      openAuthModal('login');
-      showToast('Vui lòng đăng nhập để sử dụng');
-    });
-    container.appendChild(item);
-    updateWheelItemsVisual();
-    return;
-  }
-
   state.weeks.forEach(week => {
     const item = document.createElement('div');
     item.className = `week-wheel-item ${week.id === state.currentWeekId ? 'active' : ''}`;
     item.setAttribute('data-week-id', week.id);
 
-    const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
-    const totalWage = totalHours * week.rate;
+    const totalWage = calculateWeekTotalSalary(week);
 
     item.innerHTML = `
       <span class="wheel-item-name font-mono">${week.name}</span>
@@ -529,18 +533,6 @@ const renderWeekPills = () => {
 };
 
 const renderWeekDetails = () => {
-  if (!state.currentUser) {
-    document.getElementById('currentWeekTitle').textContent = 'Chưa đăng nhập';
-    document.getElementById('currentWeekRateBadge').textContent = '0 đ/h';
-    document.getElementById('kpiWeekSalary').textContent = '0 đ';
-    document.getElementById('kpiWeekHours').textContent = '0.00 h';
-    document.getElementById('kpiWeekHoursDetail').textContent = '0h 00m';
-    document.getElementById('kpiShiftCount').textContent = '0 ca';
-    document.getElementById('kpiAvgHours').textContent = '0.00 h/ca';
-    document.getElementById('shiftsCountBadge').textContent = '0 ca';
-    return;
-  }
-
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -549,7 +541,7 @@ const renderWeekDetails = () => {
   document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h`;
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
-  const totalSalary = totalHours * week.rate;
+  const totalSalary = calculateWeekTotalSalary(week);
   const shiftCount = week.shifts.length;
   const avgHours = shiftCount > 0 ? (totalHours / shiftCount).toFixed(2) : '0.00';
 
@@ -565,32 +557,6 @@ const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
   listContainer.innerHTML = '';
 
-  if (!state.currentUser) {
-    listContainer.innerHTML = `
-      <div class="auth-lock-banner">
-        <div class="auth-lock-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-        </div>
-        <div class="auth-lock-title">Yêu cầu đăng nhập</div>
-        <p class="auth-lock-desc">Hệ thống yêu cầu đăng nhập để sử dụng. Vui lòng đăng nhập tài khoản để quản lý ca làm việc và xem dữ liệu cá nhân.</p>
-        <button type="button" class="btn-morphic btn-morphic-primary btn-morphic-lg" id="btnAuthGateLogin" title="Đăng nhập" aria-label="Đăng nhập" style="margin-top: 0.5rem;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-            <polyline points="10 17 15 12 10 7"></polyline>
-            <line x1="15" y1="12" x2="3" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-    `;
-
-    const btnGate = document.getElementById('btnAuthGateLogin');
-    if (btnGate) btnGate.addEventListener('click', () => openAuthModal('login'));
-    return;
-  }
-
   const week = getCurrentWeek();
 
   if (!week || week.shifts.length === 0) {
@@ -604,7 +570,7 @@ const renderShiftsList = () => {
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
-        <div class="empty-state-title">Chưa có ca làm việc nào trong ${escapeHtml(week.name)}</div>
+        <div class="empty-state-title">Chưa có ca làm việc nào trong ${escapeHtml(week ? week.name : 'tuần này')}</div>
         <p class="empty-state-desc">Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.</p>
         <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
           <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
@@ -646,10 +612,12 @@ const renderShiftsList = () => {
     const card = document.createElement('div');
     card.className = 'shift-card';
     
-    const shiftEarnings = Number(shift.hours || 0) * week.rate;
+    const shiftRate = getShiftRate(shift, week);
+    const shiftEarnings = Number(shift.hours || 0) * shiftRate;
     const typeClass = shift.type === 'Trưa' ? 'type-trua' : (shift.type === 'Tối' ? 'type-toi' : (shift.type === 'Sáng' ? 'type-sang' : ''));
     const dayLabel = dayNames[shift.day] || shift.day;
     const shiftDateStr = getShiftDateShort(week, shift.day);
+    const breakTag = shift.breakMinutes ? ` • nghỉ ${shift.breakMinutes}m` : '';
 
     card.innerHTML = `
       <div class="shift-left">
@@ -665,7 +633,7 @@ const renderShiftsList = () => {
               const wpCol = getWorkplaceColor(shift.workplace);
               return `<span class="workplace-pill font-mono" style="background:${wpCol.bg};color:${wpCol.color};border-color:${wpCol.border};">${escapeHtml(shift.workplace)}</span>`;
             })() : ''}
-            <span class="shift-duration-badge font-mono">${shift.hours}h</span>
+            <span class="shift-duration-badge font-mono">${shift.hours}h${breakTag}</span>
           </div>
           ${shift.note ? `<div class="shift-subtext font-mono"><span class="shift-note font-sans" title="${escapeHtml(shift.note)}">${escapeHtml(shift.note)}</span></div>` : ''}
         </div>
@@ -777,12 +745,6 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
 };
 
 const openAddShiftModal = (prefill = null) => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
-
   const modal = document.getElementById('shiftModal');
   const form = document.getElementById('shiftForm');
   form.reset();
@@ -830,6 +792,8 @@ const openAddShiftModal = (prefill = null) => {
   document.getElementById('shiftType').value = defaultType;
   document.getElementById('shiftStart').value = defaultStart;
   document.getElementById('shiftEnd').value = defaultEnd;
+  const breakInput = document.getElementById('shiftBreak');
+  if (breakInput) breakInput.value = '0';
   document.getElementById('shiftNote').value = defaultNote;
 
   updateModalComputedPreview();
@@ -837,12 +801,6 @@ const openAddShiftModal = (prefill = null) => {
 };
 
 const openEditShiftModal = (shift) => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
-
   const modal = document.getElementById('shiftModal');
   document.getElementById('shiftModalTitle').textContent = 'Chỉnh sửa ca làm việc';
   document.getElementById('editShiftId').value = shift.id;
@@ -858,6 +816,8 @@ const openEditShiftModal = (shift) => {
   document.getElementById('shiftType').value = shift.type;
   document.getElementById('shiftStart').value = shift.start;
   document.getElementById('shiftEnd').value = shift.end;
+  const breakInput = document.getElementById('shiftBreak');
+  if (breakInput) breakInput.value = shift.breakMinutes || 0;
   document.getElementById('shiftNote').value = shift.note || '';
 
   updateModalComputedPreview();
@@ -867,14 +827,17 @@ const openEditShiftModal = (shift) => {
 const updateModalComputedPreview = () => {
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
+  const breakMins = Number(document.getElementById('shiftBreak')?.value || 0);
+  const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   if (!start || !end) return;
 
-  const hours = calculateHoursDiff(start, end);
+  const hours = calculateHoursDiff(start, end, breakMins);
   const week = getCurrentWeek();
-  const rate = week ? week.rate : state.settings.defaultRate;
+  const rate = getShiftRate({ workplace }, week);
   const wage = hours * rate;
 
-  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h`;
+  const breakLabel = breakMins > 0 ? ` (nghỉ ${breakMins}m)` : '';
+  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}`;
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
 };
 
@@ -885,12 +848,32 @@ const saveShiftFromModal = (e) => {
   const type = document.getElementById('shiftType').value;
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
+  const breakMinutes = Math.max(0, Number(document.getElementById('shiftBreak')?.value || 0));
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   const note = document.getElementById('shiftNote').value.trim();
-  const hours = calculateHoursDiff(start, end);
+  const hours = calculateHoursDiff(start, end, breakMinutes);
 
   const week = getCurrentWeek();
   if (!week) return;
+
+  // Cảnh báo trùng lặp giờ làm (Shift Overlapping Alert)
+  const curStartMins = parseTimeToMinutes(start);
+  let curEndMins = parseTimeToMinutes(end);
+  if (curEndMins <= curStartMins) curEndMins += 24 * 60;
+
+  const overlappingShift = (week.shifts || []).find(s => {
+    if (s.id === editId) return false;
+    if (s.day !== day) return false;
+    const sStart = parseTimeToMinutes(s.start);
+    let sEnd = parseTimeToMinutes(s.end);
+    if (sEnd <= sStart) sEnd += 24 * 60;
+    return Math.max(curStartMins, sStart) < Math.min(curEndMins, sEnd);
+  });
+
+  if (overlappingShift) {
+    const confirmSave = confirm(`CẢNH BÁO TRÙNG GIỜ:\nCa làm này (${start} – ${end}) bị đè thời gian lên ca "${overlappingShift.type}" (${overlappingShift.start} – ${overlappingShift.end}) của cùng ngày ${day}.\n\nBạn có chắc chắn vẫn muốn lưu không?`);
+    if (!confirmSave) return;
+  }
 
   if (workplace) {
     if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
@@ -903,7 +886,7 @@ const saveShiftFromModal = (e) => {
   if (editId) {
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
-      week.shifts[index] = { ...week.shifts[index], day, type, start, end, hours, workplace, note };
+      week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, hours, workplace, note };
       showToast('Đã cập nhật ca làm');
     }
   } else {
@@ -913,6 +896,7 @@ const saveShiftFromModal = (e) => {
       type,
       start,
       end,
+      breakMinutes,
       hours,
       workplace,
       note
@@ -977,11 +961,6 @@ const undoLastDeleteShift = () => {
 };
 
 const createNewWeek = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
 
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
@@ -1017,11 +996,6 @@ const createNewWeek = () => {
 };
 
 const openEditWeekModal = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
 
   const week = getCurrentWeek();
   if (!week) return;
@@ -1054,11 +1028,6 @@ const saveWeekMeta = (e) => {
 let lastDeletedWeekRecord = null;
 
 const deleteCurrentWeek = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
 
   const week = getCurrentWeek();
   if (!week) return;
@@ -1105,11 +1074,6 @@ const undoLastDeleteWeek = () => {
 };
 
 const navigateWeek = (direction) => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
 
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
   if (currentIndex === -1) return;
@@ -1143,11 +1107,6 @@ const switchSummaryTab = (tab) => {
 };
 
 const openAllWeeksModal = (initialTab = 'analytics') => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
   let totalHours = 0;
   let totalEarnings = 0;
   let totalShifts = 0;
@@ -1157,7 +1116,7 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
 
   state.weeks.forEach(week => {
     const weekHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
-    const weekEarnings = weekHours * week.rate;
+    const weekEarnings = calculateWeekTotalSalary(week);
     const weekShifts = week.shifts.length;
 
     totalHours += weekHours;
@@ -1261,7 +1220,7 @@ const getAnalyticsData = () => {
       if (analyticsState.workplaceFilter !== 'all' && wp !== analyticsState.workplaceFilter) {
         return;
       }
-      const wage = Number(s.hours || 0) * (w.rate || 40000);
+      const wage = Number(s.hours || 0) * getShiftRate(s, w);
       const h = Number(s.hours || 0);
       totalSalary += wage;
       totalHours += h;
@@ -1352,7 +1311,7 @@ const drawTimelineChart = (data) => {
         (curWeek.shifts || []).forEach(s => {
           const wp = s.workplace || 'Chung';
           if (s.day === d && (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter)) {
-            salary += Number(s.hours || 0) * (curWeek.rate || 40000);
+            salary += Number(s.hours || 0) * getShiftRate(s, curWeek);
             hours += Number(s.hours || 0);
           }
         });
@@ -1372,7 +1331,7 @@ const drawTimelineChart = (data) => {
       (w.shifts || []).forEach(s => {
         const wp = s.workplace || 'Chung';
         if (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter) {
-          salary += Number(s.hours || 0) * (w.rate || 40000);
+          salary += Number(s.hours || 0) * getShiftRate(s, w);
           hours += Number(s.hours || 0);
         }
       });
@@ -1612,24 +1571,52 @@ const renderSettingsWorkplaces = () => {
   if (!container) return;
   container.innerHTML = '';
   if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+  if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
+    state.settings.workplaceRates = {};
+  }
+
   state.settings.workplaces.forEach((wp, idx) => {
-    const tag = document.createElement('span');
-    tag.className = 'settings-workplace-tag font-mono';
-    tag.innerHTML = `
-      <span>${escapeHtml(wp)}</span>
-      <button type="button" class="btn-remove-workplace" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+    const wpCol = getWorkplaceColor(wp);
+    const customRate = state.settings.workplaceRates[wp] || '';
+    const row = document.createElement('div');
+    row.className = 'settings-workplace-row font-mono';
+    row.innerHTML = `
+      <div class="settings-wp-name-wrap">
+        <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+        <span class="settings-wp-name">${escapeHtml(wp)}</span>
+      </div>
+      <div class="settings-wp-rate-wrap">
+        <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 40000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
+        <span class="tag font-mono" style="font-size:0.7rem;">đ/h</span>
+        <button type="button" class="btn-remove-workplace" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     `;
-    tag.querySelector('[data-del-wp]').addEventListener('click', () => {
-      state.settings.workplaces.splice(idx, 1);
+
+    row.querySelector('[data-del-wp]').addEventListener('click', () => {
+      const removed = state.settings.workplaces.splice(idx, 1)[0];
+      if (removed && state.settings.workplaceRates) {
+        delete state.settings.workplaceRates[removed];
+      }
       saveSettings();
       renderSettingsWorkplaces();
     });
-    container.appendChild(tag);
+
+    row.querySelector('.settings-wp-rate-input').addEventListener('change', (e) => {
+      const val = Number(e.target.value);
+      if (val && val >= 1000) {
+        state.settings.workplaceRates[wp] = val;
+      } else {
+        delete state.settings.workplaceRates[wp];
+      }
+      saveSettings();
+    });
+
+    container.appendChild(row);
   });
 };
 
@@ -1649,18 +1636,7 @@ const addWorkplaceFromSetting = () => {
 };
 
 const openSettingsModal = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
   document.getElementById('settingDefaultRate').value = state.settings.defaultRate;
-  if (document.getElementById('settingGithubToken')) {
-    document.getElementById('settingGithubToken').value = state.settings.githubToken || '';
-  }
-  if (document.getElementById('settingGistId')) {
-    document.getElementById('settingGistId').value = state.settings.gistId || '';
-  }
   renderSettingsWorkplaces();
   document.getElementById('settingsModal').style.display = 'flex';
 };
@@ -1670,85 +1646,9 @@ const saveSettingsFromModal = () => {
   if (rate && rate >= 1000) {
     state.settings.defaultRate = rate;
   }
-  const token = document.getElementById('settingGithubToken')?.value.trim();
-  const gistId = document.getElementById('settingGistId')?.value.trim();
-  if (token !== undefined) state.settings.githubToken = token;
-  if (gistId !== undefined) state.settings.gistId = gistId;
-
   saveSettings();
   closeModal('settingsModal');
   showToast('Đã lưu cài đặt');
-};
-
-const syncWithGitHubGist = async (isSilent = false) => {
-  const token = document.getElementById('settingGithubToken')?.value.trim() || state.settings.githubToken;
-  let gistId = document.getElementById('settingGistId')?.value.trim() || state.settings.gistId;
-  const statusEl = document.getElementById('gistSyncStatusText');
-
-  if (!token) {
-    if (!isSilent) alert('Vui lòng nhập GitHub Personal Access Token (PAT) để đồng bộ.');
-    return;
-  }
-
-  if (statusEl) statusEl.textContent = 'Đang đồng bộ với GitHub Gist...';
-
-  const payload = {
-    description: 'Shift & Salary Tracker Data Backup',
-    public: false,
-    files: {
-      'shift_salary_tracker.json': {
-        content: JSON.stringify({
-          version: '2.0',
-          updatedAt: new Date().toISOString(),
-          settings: state.settings,
-          weeks: state.weeks
-        }, null, 2)
-      }
-    }
-  };
-
-  try {
-    let url = 'https://api.github.com/gists';
-    let method = 'POST';
-
-    if (gistId) {
-      url = `https://api.github.com/gists/${gistId}`;
-      method = 'PATCH';
-    }
-
-    const res = await fetch(url, {
-      method: method,
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${token}`,
-        'X-GitHub-Api-Version': '2022-11-28'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    state.settings.githubToken = token;
-    state.settings.gistId = data.id;
-    saveSettings();
-
-    if (document.getElementById('settingGistId')) {
-      document.getElementById('settingGistId').value = data.id;
-    }
-
-    if (statusEl) {
-      statusEl.textContent = `Đồng bộ thành công lúc ${new Date().toLocaleTimeString('vi-VN')} (Gist: ${data.id.slice(0, 8)}...)`;
-    }
-    if (!isSilent) showToast('Đồng bộ GitHub Gist thành công!');
-  } catch (err) {
-    console.error('GitHub Gist sync error:', err);
-    if (statusEl) statusEl.textContent = `Lỗi đồng bộ: ${err.message}`;
-    if (!isSilent) alert(`Không thể đồng bộ GitHub Gist: ${err.message}`);
-  }
 };
 
 const renderSlipCanvas = () => {
@@ -1778,8 +1678,9 @@ const renderSlipCanvas = () => {
  
   canvas.width = totalWidth * dpr;
   canvas.height = totalHeight * dpr;
-  canvas.style.width = `${totalWidth}px`;
-  canvas.style.height = `${totalHeight}px`;
+  canvas.style.maxWidth = `${totalWidth}px`;
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
 
   ctx.scale(dpr, dpr);
 
@@ -1842,7 +1743,7 @@ const renderSlipCanvas = () => {
   shifts.forEach((s, idx) => {
     const shiftHours = Number(s.hours || 0);
     totalHours += shiftHours;
-    const shiftWage = shiftHours * week.rate;
+    const shiftWage = shiftHours * getShiftRate(s, week);
     const isEven = idx % 2 === 0;
 
    
@@ -1908,7 +1809,7 @@ const renderSlipCanvas = () => {
 
  
   if (includeMoney) {
-    const totalSalary = totalHours * week.rate;
+    const totalSalary = shifts.reduce((acc, s) => acc + (Number(s.hours || 0) * getShiftRate(s, week)), 0);
     ctx.fillStyle = '#34d399';
     ctx.textAlign = 'right';
     ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 10, curY + 23);
@@ -2195,11 +2096,6 @@ const handleLogout = async () => {
 
 
 const openShareSlipModal = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -2243,41 +2139,31 @@ const copySlipImageToClipboard = async () => {
 };
 
 const exportCurrentWeekCSV = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
   const week = getCurrentWeek();
   if (!week) return;
 
   let csvContent = '\uFEFF';
   csvContent += `BẢNG CHẤM CÔNG VÀ LƯƠNG — ${week.name}\r\n`;
-  csvContent += `Đơn giá: ${week.rate} VNĐ/h\r\n\r\n`;
-  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Đơn giá mặc định: ${week.rate} VNĐ/h\r\n\r\n`;
+  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Nghỉ (phút),Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
 
   week.shifts.forEach(s => {
-    const salary = Number(s.hours || 0) * week.rate;
-    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    const salary = Number(s.hours || 0) * getShiftRate(s, week);
+    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
-  const totalSalary = totalHours * week.rate;
-  csvContent += `\r\nTỔNG CỘNG,,,"",,${totalHours.toFixed(2)},${Math.round(totalSalary)},""\r\n`;
+  const totalSalary = calculateWeekTotalSalary(week);
+  csvContent += `\r\nTỔNG CỘNG,,,"",,,${totalHours.toFixed(2)},${Math.round(totalSalary)},""\r\n`;
 
   downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
   showToast(`Đã xuất file CSV cho ${week.name}`);
 };
 
 const exportAllWeeksCSV = () => {
-  if (!state.currentUser) {
-    openAuthModal('login');
-    showToast('Vui lòng đăng nhập để sử dụng');
-    return;
-  }
   let csvContent = '\uFEFF';
   csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
-  csvContent += `Tuần,Khoảng ngày,Đơn giá (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Tuần,Khoảng ngày,Đơn giá mặc định (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Nghỉ (phút),Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -2285,15 +2171,15 @@ const exportAllWeeksCSV = () => {
   state.weeks.forEach(w => {
     const weekRange = getWeekDateRangeDisplay(w);
     w.shifts.forEach(s => {
-      const salary = Number(s.hours || 0) * w.rate;
+      const salary = Number(s.hours || 0) * getShiftRate(s, w);
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
 
   downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
   showToast('Đã xuất tổng hợp toàn bộ các tuần');
@@ -2441,6 +2327,10 @@ const bindEvents = () => {
     updateModalComputedPreview();
   });
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
+  const shiftBreakInput = document.getElementById('shiftBreak');
+  if (shiftBreakInput) shiftBreakInput.addEventListener('input', updateModalComputedPreview);
+  const shiftWorkplaceInput = document.getElementById('shiftWorkplace');
+  if (shiftWorkplaceInput) shiftWorkplaceInput.addEventListener('input', updateModalComputedPreview);
 
   const btnDeleteShiftModal = document.getElementById('btnDeleteShiftModal');
   if (btnDeleteShiftModal) {
@@ -2518,11 +2408,7 @@ const bindEvents = () => {
   }
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
 
- 
-  const btnSyncGist = document.getElementById('btnSyncGistNow');
-  if (btnSyncGist) {
-    btnSyncGist.addEventListener('click', () => syncWithGitHubGist(false));
-  }
+
 
  
   const btnOpenShareSlip = document.getElementById('btnOpenShareSlip');
@@ -2634,7 +2520,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024v').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
