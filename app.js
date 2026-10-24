@@ -33,8 +33,29 @@ const state = {
   weeks: [],
   currentWeekId: null,
   settings: {
-    defaultRate: 40000
+    defaultRate: 40000,
+    workplaces: ['Cafe', 'Gia sư']
   }
+};
+
+const WORKPLACE_PALETTES = [
+  { bg: 'rgba(99, 102, 241, 0.1)', color: '#4f46e5', border: 'rgba(99, 102, 241, 0.25)', fill: '#6366f1' },
+  { bg: 'rgba(16, 185, 129, 0.1)', color: '#059669', border: 'rgba(16, 185, 129, 0.25)', fill: '#10b981' },
+  { bg: 'rgba(245, 158, 11, 0.1)', color: '#d97706', border: 'rgba(245, 158, 11, 0.25)', fill: '#f59e0b' },
+  { bg: 'rgba(244, 63, 94, 0.1)', color: '#e11d48', border: 'rgba(244, 63, 94, 0.25)', fill: '#f43f5e' },
+  { bg: 'rgba(6, 182, 212, 0.1)', color: '#0891b2', border: 'rgba(6, 182, 212, 0.25)', fill: '#06b6d4' },
+  { bg: 'rgba(139, 92, 246, 0.1)', color: '#7c3aed', border: 'rgba(139, 92, 246, 0.25)', fill: '#8b5cf6' }
+];
+
+const getWorkplaceColor = (name) => {
+  if (!name) return { bg: 'rgba(100, 116, 139, 0.08)', color: '#475569', border: 'rgba(100, 116, 139, 0.2)', fill: '#64748b' };
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash << 5) - hash + name.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % WORKPLACE_PALETTES.length;
+  return WORKPLACE_PALETTES[idx];
 };
 
 const getWeeksStorageKey = () => {
@@ -214,18 +235,19 @@ const loadState = async () => {
       if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
         state.weeks = data.weeks;
         if (data.settings) state.settings = { ...state.settings, ...data.settings };
-       
+        if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
         localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
         localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
       } else {
-       
         const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
         const cachedSettings = localStorage.getItem(getSettingsStorageKey());
         if (cachedWeeks) {
           state.weeks = JSON.parse(cachedWeeks);
           if (cachedSettings) state.settings = JSON.parse(cachedSettings);
+          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
         } else {
           state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
           saveWeeks();
         }
       }
@@ -618,6 +640,10 @@ const renderShiftsList = () => {
           <div class="shift-title-row">
             <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
             <span class="shift-type-pill ${typeClass}">${shift.type}</span>
+            ${shift.workplace ? (() => {
+              const wpCol = getWorkplaceColor(shift.workplace);
+              return `<span class="workplace-pill font-mono" style="background:${wpCol.bg};color:${wpCol.color};border-color:${wpCol.border};">${escapeHtml(shift.workplace)}</span>`;
+            })() : ''}
             <span class="shift-duration-badge font-mono">${shift.hours}h</span>
           </div>
           ${shift.note ? `<div class="shift-subtext font-mono"><span class="shift-note font-sans" title="${escapeHtml(shift.note)}">${escapeHtml(shift.note)}</span></div>` : ''}
@@ -691,6 +717,44 @@ const updateShiftDayOptions = (week) => {
   }
 };
 
+const updateWorkplaceInputOptions = (currentVal = '') => {
+  const datalist = document.getElementById('workplaceDatalist');
+  const chipsContainer = document.getElementById('shiftWorkplaceChips');
+  const input = document.getElementById('shiftWorkplace');
+  if (input) input.value = currentVal;
+
+  if (datalist) {
+    datalist.innerHTML = '';
+    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cafe', 'Gia sư'];
+    list.forEach(wp => {
+      const opt = document.createElement('option');
+      opt.value = wp;
+      datalist.appendChild(opt);
+    });
+  }
+
+  if (chipsContainer) {
+    chipsContainer.innerHTML = '';
+    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cafe', 'Gia sư'];
+    list.forEach(wp => {
+      const chip = document.createElement('span');
+      chip.className = `workplace-chip font-mono ${currentVal === wp ? 'active' : ''}`;
+      chip.textContent = wp;
+      chip.addEventListener('click', () => {
+        if (input.value === wp) {
+          input.value = '';
+          chip.classList.remove('active');
+        } else {
+          input.value = wp;
+          chipsContainer.querySelectorAll('.workplace-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+        }
+      });
+      chipsContainer.appendChild(chip);
+    });
+  }
+};
+
 const openAddShiftModal = (prefill = null) => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -710,6 +774,7 @@ const openAddShiftModal = (prefill = null) => {
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
+  updateWorkplaceInputOptions('');
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -765,6 +830,7 @@ const openEditShiftModal = (shift) => {
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
+  updateWorkplaceInputOptions(shift.workplace || '');
 
   document.getElementById('shiftDay').value = shift.day;
   document.getElementById('shiftType').value = shift.type;
@@ -797,16 +863,25 @@ const saveShiftFromModal = (e) => {
   const type = document.getElementById('shiftType').value;
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
+  const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   const note = document.getElementById('shiftNote').value.trim();
   const hours = calculateHoursDiff(start, end);
 
   const week = getCurrentWeek();
   if (!week) return;
 
+  if (workplace) {
+    if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+    if (!state.settings.workplaces.includes(workplace)) {
+      state.settings.workplaces.push(workplace);
+      saveSettings();
+    }
+  }
+
   if (editId) {
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
-      week.shifts[index] = { ...week.shifts[index], day, type, start, end, hours, note };
+      week.shifts[index] = { ...week.shifts[index], day, type, start, end, hours, workplace, note };
       showToast('Đã cập nhật ca làm');
     }
   } else {
@@ -817,6 +892,7 @@ const saveShiftFromModal = (e) => {
       start,
       end,
       hours,
+      workplace,
       note
     };
     week.shifts.push(newShift);
@@ -1108,6 +1184,434 @@ const openAllWeeksModal = () => {
   document.getElementById('allWeeksModal').style.display = 'flex';
 };
 
+let analyticsState = {
+  timeFilter: 'current',
+  workplaceFilter: 'all'
+};
+
+const getAnalyticsData = () => {
+  let weeks = [];
+  if (analyticsState.timeFilter === 'current') {
+    const cur = getCurrentWeek();
+    if (cur) weeks = [cur];
+  } else if (analyticsState.timeFilter === 'recent') {
+    weeks = state.weeks.slice(-4);
+  } else {
+    weeks = [...state.weeks];
+  }
+
+  const allWorkplacesSet = new Set();
+  weeks.forEach(w => {
+    (w.shifts || []).forEach(s => {
+      allWorkplacesSet.add(s.workplace || 'Chung');
+    });
+  });
+  const availableWorkplaces = Array.from(allWorkplacesSet);
+
+  let totalSalary = 0;
+  let totalHours = 0;
+  let totalShifts = 0;
+  const workplaceMap = {};
+
+  weeks.forEach(w => {
+    (w.shifts || []).forEach(s => {
+      const wp = s.workplace || 'Chung';
+      if (analyticsState.workplaceFilter !== 'all' && wp !== analyticsState.workplaceFilter) {
+        return;
+      }
+      const wage = Number(s.hours || 0) * (w.rate || 40000);
+      const h = Number(s.hours || 0);
+      totalSalary += wage;
+      totalHours += h;
+      totalShifts += 1;
+
+      if (!workplaceMap[wp]) {
+        workplaceMap[wp] = { name: wp, salary: 0, hours: 0, count: 0 };
+      }
+      workplaceMap[wp].salary += wage;
+      workplaceMap[wp].hours += h;
+      workplaceMap[wp].count += 1;
+    });
+  });
+
+  const workplaceList = Object.values(workplaceMap).sort((a, b) => b.salary - a.salary);
+  let topWp = '--';
+  let topShare = '0%';
+  if (workplaceList.length > 0 && totalSalary > 0) {
+    topWp = workplaceList[0].name;
+    topShare = `${Math.round((workplaceList[0].salary / totalSalary) * 100)}%`;
+  }
+
+  return {
+    weeks,
+    availableWorkplaces,
+    totalSalary,
+    totalHours,
+    totalShifts,
+    workplaceList,
+    topWp,
+    topShare
+  };
+};
+
+const compactCurrency = (val) => {
+  const num = Math.round(val || 0);
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+  if (num >= 1000) return Math.round(num / 1000) + 'k';
+  return num.toString();
+};
+
+const drawRoundedBar = (ctx, x, y, width, height, radius) => {
+  if (height <= 0) return;
+  const r = Math.min(radius, width / 2, height);
+  ctx.beginPath();
+  ctx.moveTo(x, y + height);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height);
+  ctx.closePath();
+  ctx.fill();
+};
+
+const drawTimelineChart = (data) => {
+  const canvas = document.getElementById('timelineChartCanvas');
+  if (!canvas) return;
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const width = parent.clientWidth || 600;
+  const height = 210;
+
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  const padLeft = 40;
+  const padRight = 16;
+  const padTop = 30;
+  const padBottom = 42;
+  const chartW = width - padLeft - padRight;
+  const chartH = height - padTop - padBottom;
+
+  let points = [];
+  if (analyticsState.timeFilter === 'current') {
+    const curWeek = getCurrentWeek();
+    const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    points = days.map(d => {
+      let salary = 0;
+      let hours = 0;
+      if (curWeek) {
+        (curWeek.shifts || []).forEach(s => {
+          const wp = s.workplace || 'Chung';
+          if (s.day === d && (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter)) {
+            salary += Number(s.hours || 0) * (curWeek.rate || 40000);
+            hours += Number(s.hours || 0);
+          }
+        });
+      }
+      const dateStr = curWeek ? getShiftDateShort(curWeek, d) : '';
+      return {
+        label: d,
+        subLabel: dateStr,
+        salary,
+        hours
+      };
+    });
+  } else {
+    points = data.weeks.map(w => {
+      let salary = 0;
+      let hours = 0;
+      (w.shifts || []).forEach(s => {
+        const wp = s.workplace || 'Chung';
+        if (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter) {
+          salary += Number(s.hours || 0) * (w.rate || 40000);
+          hours += Number(s.hours || 0);
+        }
+      });
+      const range = getWeekDateRangeDisplay(w);
+      return {
+        label: w.name,
+        subLabel: range ? range.split('–')[0].trim() : '',
+        salary,
+        hours
+      };
+    });
+  }
+
+  const maxVal = Math.max(...points.map(p => p.salary), 100000);
+  const roundedMax = Math.ceil(maxVal / 100000) * 100000;
+
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+
+  const steps = 3;
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '500 10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+
+  for (let i = 0; i <= steps; i++) {
+    const yVal = padTop + (chartH / steps) * (steps - i);
+    ctx.beginPath();
+    ctx.moveTo(padLeft, yVal);
+    ctx.lineTo(width - padRight, yVal);
+    ctx.stroke();
+
+    const labelVal = (roundedMax / steps) * i;
+    ctx.fillText(compactCurrency(labelVal), padLeft - 6, yVal + 3.5);
+  }
+  ctx.setLineDash([]);
+
+  if (points.length === 0) return;
+
+  const barCount = points.length;
+  const colWidth = chartW / barCount;
+  const barWidth = Math.max(14, Math.min(42, colWidth * 0.58));
+
+  points.forEach((p, idx) => {
+    const cx = padLeft + idx * colWidth + colWidth / 2;
+    const barX = cx - barWidth / 2;
+    const barHeight = p.salary > 0 ? (p.salary / roundedMax) * chartH : 0;
+    const barY = padTop + chartH - barHeight;
+
+    if (p.salary > 0) {
+      const grad = ctx.createLinearGradient(0, barY, 0, barY + barHeight);
+      if (analyticsState.workplaceFilter !== 'all') {
+        const wpCol = getWorkplaceColor(analyticsState.workplaceFilter);
+        grad.addColorStop(0, wpCol.fill);
+        grad.addColorStop(1, wpCol.fill + '88');
+      } else {
+        grad.addColorStop(0, '#4f46e5');
+        grad.addColorStop(1, '#818cf8');
+      }
+      ctx.fillStyle = grad;
+      drawRoundedBar(ctx, barX, barY, barWidth, barHeight, 5);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 10px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(compactCurrency(p.salary), cx, barY - 6);
+    } else {
+      ctx.fillStyle = '#e2e8f0';
+      drawRoundedBar(ctx, barX, padTop + chartH - 3, barWidth, 3, 2);
+    }
+
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '600 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.label, cx, padTop + chartH + 16);
+
+    if (p.subLabel) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '500 9px "JetBrains Mono", monospace';
+      ctx.fillText(p.subLabel, cx, padTop + chartH + 28);
+    }
+  });
+};
+
+const drawDonutChart = (data) => {
+  const canvas = document.getElementById('donutChartCanvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const size = 180;
+  canvas.width = Math.floor(size * dpr);
+  canvas.height = Math.floor(size * dpr);
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, size, size);
+
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerR = 76;
+  const innerR = 52;
+
+  if (data.totalSalary <= 0 || data.workplaceList.length === 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, (outerR + innerR) / 2, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = outerR - innerR;
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '500 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Chưa có ca', cx, cy + 4);
+    return;
+  }
+
+  let startAngle = -Math.PI / 2;
+  const gap = data.workplaceList.length > 1 ? 0.04 : 0;
+
+  data.workplaceList.forEach(wp => {
+    const sliceAngle = (wp.salary / data.totalSalary) * (2 * Math.PI);
+    const endAngle = startAngle + sliceAngle;
+    const col = getWorkplaceColor(wp.name);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, startAngle + gap / 2, endAngle - gap / 2, false);
+    ctx.arc(cx, cy, innerR, endAngle - gap / 2, startAngle + gap / 2, true);
+    ctx.closePath();
+
+    ctx.fillStyle = col.fill;
+    ctx.fill();
+
+    startAngle = endAngle;
+  });
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 15px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(compactCurrency(data.totalSalary), cx, cy + 1);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '500 9px "Outfit", sans-serif';
+  ctx.fillText('Tổng thu', cx, cy + 15);
+};
+
+const renderAnalyticsDashboard = () => {
+  const data = getAnalyticsData();
+
+  document.getElementById('akTotalSalary').textContent = fmtCurrency(data.totalSalary);
+  document.getElementById('akTotalHours').textContent = fmtHours(data.totalHours);
+  document.getElementById('akTotalShifts').textContent = `${data.totalShifts} ca`;
+  document.getElementById('akTopWorkplace').textContent = data.topWp;
+  document.getElementById('akTopWorkplaceShare').textContent = `${data.topShare} tổng thu`;
+
+  const periodNames = {
+    'current': 'Tuần này',
+    'recent': '4 tuần gần nhất',
+    'all': 'Tất cả các tuần'
+  };
+  document.getElementById('akSalaryPeriod').textContent = periodNames[analyticsState.timeFilter] || '';
+
+  const subtitle = document.getElementById('timelineChartSubtitle');
+  if (subtitle) {
+    subtitle.textContent = analyticsState.timeFilter === 'current' ? 'Theo ngày (VNĐ)' : 'Theo tuần (VNĐ)';
+  }
+  const title = document.getElementById('timelineChartTitle');
+  if (title) {
+    title.textContent = analyticsState.timeFilter === 'current' ? 'Thu nhập theo ngày làm việc' : 'Thu nhập theo từng tuần';
+  }
+
+  const pillsContainer = document.getElementById('analyticsWorkplaceFilterPills');
+  if (pillsContainer) {
+    pillsContainer.innerHTML = '';
+    const allPill = document.createElement('span');
+    allPill.className = `workplace-chip font-mono ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
+    allPill.textContent = 'Tất cả';
+    allPill.addEventListener('click', () => {
+      analyticsState.workplaceFilter = 'all';
+      renderAnalyticsDashboard();
+    });
+    pillsContainer.appendChild(allPill);
+
+    data.availableWorkplaces.forEach(wp => {
+      const chip = document.createElement('span');
+      chip.className = `workplace-chip font-mono ${analyticsState.workplaceFilter === wp ? 'active' : ''}`;
+      const col = getWorkplaceColor(wp);
+      chip.innerHTML = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col.fill};margin-right:4px;"></span>${escapeHtml(wp)}`;
+      chip.addEventListener('click', () => {
+        analyticsState.workplaceFilter = (analyticsState.workplaceFilter === wp) ? 'all' : wp;
+        renderAnalyticsDashboard();
+      });
+      pillsContainer.appendChild(chip);
+    });
+  }
+
+  drawTimelineChart(data);
+  drawDonutChart(data);
+
+  const breakdownContainer = document.getElementById('workplaceBreakdownList');
+  if (breakdownContainer) {
+    breakdownContainer.innerHTML = '';
+    if (data.workplaceList.length === 0) {
+      breakdownContainer.innerHTML = `<span class="field-hint" style="font-size:0.8rem;">Chưa có dữ liệu ca làm việc.</span>`;
+    } else {
+      data.workplaceList.forEach(wp => {
+        const percent = data.totalSalary > 0 ? Math.round((wp.salary / data.totalSalary) * 100) : 0;
+        const col = getWorkplaceColor(wp.name);
+        const item = document.createElement('div');
+        item.className = 'wb-item';
+        item.innerHTML = `
+          <div class="wb-header font-mono">
+            <div class="wb-name-group">
+              <span class="wb-color-dot" style="background:${col.fill};"></span>
+              <span>${escapeHtml(wp.name)}</span>
+              <span class="field-hint" style="font-size:0.7rem;">(${percent}%)</span>
+            </div>
+            <span class="wb-amount font-mono">${fmtCurrency(wp.salary)}</span>
+          </div>
+          <div class="wb-bar-track">
+            <div class="wb-bar-fill" style="width:${percent}%;background:${col.fill};"></div>
+          </div>
+          <span class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(2)}h</span>
+        `;
+        breakdownContainer.appendChild(item);
+      });
+    }
+  }
+};
+
+const openAnalyticsModal = () => {
+  if (!state.currentUser) {
+    openAuthModal('login');
+    showToast('Vui lòng đăng nhập để sử dụng');
+    return;
+  }
+  document.getElementById('analyticsModal').style.display = 'flex';
+  renderAnalyticsDashboard();
+};
+
+const renderSettingsWorkplaces = () => {
+  const container = document.getElementById('settingsWorkplacesList');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
+  state.settings.workplaces.forEach((wp, idx) => {
+    const tag = document.createElement('span');
+    tag.className = 'settings-workplace-tag font-mono';
+    tag.innerHTML = `
+      <span>${escapeHtml(wp)}</span>
+      <button type="button" class="btn-remove-workplace" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    `;
+    tag.querySelector('[data-del-wp]').addEventListener('click', () => {
+      state.settings.workplaces.splice(idx, 1);
+      saveSettings();
+      renderSettingsWorkplaces();
+    });
+    container.appendChild(tag);
+  });
+};
+
+const addWorkplaceFromSetting = () => {
+  const input = document.getElementById('newWorkplaceInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+  if (!state.settings.workplaces.includes(val)) {
+    state.settings.workplaces.push(val);
+    saveSettings();
+    renderSettingsWorkplaces();
+    input.value = '';
+    showToast(`Đã thêm nơi làm: ${val}`);
+  }
+};
+
 const openSettingsModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -1121,6 +1625,7 @@ const openSettingsModal = () => {
   if (document.getElementById('settingGistId')) {
     document.getElementById('settingGistId').value = state.settings.gistId || '';
   }
+  renderSettingsWorkplaces();
   document.getElementById('settingsModal').style.display = 'flex';
 };
 
@@ -1321,7 +1826,8 @@ const renderSlipCanvas = () => {
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
     const shiftDate = getShiftDateShort(week, s.day);
-    const shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
+    let shiftLabel = shiftDate ? `${s.day} (${shiftDate}) ${s.type}` : `${s.day} ${s.type}`;
+    if (s.workplace) shiftLabel += ` • ${s.workplace}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -1712,16 +2218,16 @@ const exportCurrentWeekCSV = () => {
   let csvContent = '\uFEFF';
   csvContent += `BẢNG CHẤM CÔNG VÀ LƯƠNG — ${week.name}\r\n`;
   csvContent += `Đơn giá: ${week.rate} VNĐ/h\r\n\r\n`;
-  csvContent += `Thứ,Ca,Giờ bắt đầu,Giờ kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
 
   week.shifts.forEach(s => {
     const salary = Number(s.hours || 0) * week.rate;
-    csvContent += `"${s.day}","${s.type}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = totalHours * week.rate;
-  csvContent += `\r\nTỔNG CỘNG,,,"",${totalHours.toFixed(2)},${Math.round(totalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG CỘNG,,,"",,${totalHours.toFixed(2)},${Math.round(totalSalary)},""\r\n`;
 
   downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
   showToast(`Đã xuất file CSV cho ${week.name}`);
@@ -1735,7 +2241,7 @@ const exportAllWeeksCSV = () => {
   }
   let csvContent = '\uFEFF';
   csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
-  csvContent += `Tuần,Khoảng ngày,Đơn giá (VNĐ/h),Ngày làm,Thứ,Ca,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Tuần,Khoảng ngày,Đơn giá (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -1747,11 +2253,11 @@ const exportAllWeeksCSV = () => {
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
 
   downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
   showToast('Đã xuất tổng hợp toàn bộ các tuần');
@@ -2012,6 +2518,46 @@ const bindEvents = () => {
   if (dockAllWeeks) {
     dockAllWeeks.addEventListener('click', openAllWeeksModal);
   }
+
+  const dockAnalytics = document.getElementById('dockAnalytics');
+  if (dockAnalytics) {
+    dockAnalytics.addEventListener('click', openAnalyticsModal);
+  }
+
+  const ledgerCard = document.getElementById('ledgerCardSummary');
+  if (ledgerCard) {
+    ledgerCard.addEventListener('click', openAnalyticsModal);
+  }
+
+  const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
+  if (btnAddWp) {
+    btnAddWp.addEventListener('click', addWorkplaceFromSetting);
+  }
+  const newWpInput = document.getElementById('newWorkplaceInput');
+  if (newWpInput) {
+    newWpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addWorkplaceFromSetting();
+      }
+    });
+  }
+
+  document.querySelectorAll('[data-time-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-time-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      analyticsState.timeFilter = btn.getAttribute('data-time-filter');
+      renderAnalyticsDashboard();
+    });
+  });
+
+  window.addEventListener('resize', () => {
+    const modal = document.getElementById('analyticsModal');
+    if (modal && modal.style.display !== 'none') {
+      renderAnalyticsDashboard();
+    }
+  });
 
   const btnCopySlipImage = document.getElementById('btnCopySlipImage');
   if (btnCopySlipImage) {
