@@ -3013,7 +3013,7 @@ const bindEvents = () => {
   if (btnToggleChangePwd && formChangePwd) {
     btnToggleChangePwd.addEventListener('click', () => {
       const isHidden = formChangePwd.style.display === 'none';
-      formChangePwd.style.display = isHidden ? 'block' : 'none';
+      formChangePwd.style.display = isHidden ? 'flex' : 'none';
       if (iconChevron) {
         iconChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
       }
@@ -3253,7 +3253,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024ah').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ai').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
