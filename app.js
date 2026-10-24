@@ -34,7 +34,7 @@ const state = {
   currentWeekId: null,
   settings: {
     defaultRate: 40000,
-    workplaces: ['Cafe', 'Gia sư']
+    workplaces: ['Cơm Chin Chin', 'Cafe', 'Gia sư']
   }
 };
 
@@ -49,6 +49,9 @@ const WORKPLACE_PALETTES = [
 
 const getWorkplaceColor = (name) => {
   if (!name) return { bg: 'rgba(100, 116, 139, 0.08)', color: '#475569', border: 'rgba(100, 116, 139, 0.2)', fill: '#64748b' };
+  if (name === 'Cơm Chin Chin') {
+    return { bg: 'rgba(234, 88, 12, 0.1)', color: '#ea580c', border: 'rgba(234, 88, 12, 0.28)', fill: '#ea580c' };
+  }
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = (hash << 5) - hash + name.charCodeAt(i);
@@ -235,7 +238,7 @@ const loadState = async () => {
       if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
         state.weeks = data.weeks;
         if (data.settings) state.settings = { ...state.settings, ...data.settings };
-        if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
+        if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
         localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
         localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
       } else {
@@ -244,21 +247,39 @@ const loadState = async () => {
         if (cachedWeeks) {
           state.weeks = JSON.parse(cachedWeeks);
           if (cachedSettings) state.settings = JSON.parse(cachedSettings);
-          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
+          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
         } else {
           state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
-          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
+          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
           saveWeeks();
         }
       }
     } else {
-     
       state.weeks = [];
       state.currentWeekId = null;
     }
 
     if (state.weeks.length > 0) {
-      state.weeks.forEach((w, idx) => ensureWeekStartDate(w, idx));
+      let migrated = false;
+      state.weeks.forEach((w, idx) => {
+        ensureWeekStartDate(w, idx);
+        (w.shifts || []).forEach(s => {
+          if (!s.workplace || s.workplace === 'Cafe' || s.workplace === 'Gia sư' || s.workplace === 'Chung') {
+            s.workplace = 'Cơm Chin Chin';
+            migrated = true;
+          }
+        });
+      });
+      if (!Array.isArray(state.settings.workplaces)) {
+        state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+        migrated = true;
+      } else if (!state.settings.workplaces.includes('Cơm Chin Chin')) {
+        state.settings.workplaces.unshift('Cơm Chin Chin');
+        migrated = true;
+      }
+      if (migrated) {
+        saveWeeks();
+      }
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
   } catch (err) {
@@ -725,7 +746,7 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
 
   if (datalist) {
     datalist.innerHTML = '';
-    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cafe', 'Gia sư'];
+    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
     list.forEach(wp => {
       const opt = document.createElement('option');
       opt.value = wp;
@@ -735,7 +756,7 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
 
   if (chipsContainer) {
     chipsContainer.innerHTML = '';
-    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cafe', 'Gia sư'];
+    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
     list.forEach(wp => {
       const chip = document.createElement('span');
       chip.className = `workplace-chip font-mono ${currentVal === wp ? 'active' : ''}`;
@@ -774,7 +795,8 @@ const openAddShiftModal = (prefill = null) => {
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
-  updateWorkplaceInputOptions('');
+  const defaultWp = (state.settings.workplaces && state.settings.workplaces.length > 0) ? state.settings.workplaces[0] : 'Cơm Chin Chin';
+  updateWorkplaceInputOptions(defaultWp);
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -1575,7 +1597,7 @@ const renderSettingsWorkplaces = () => {
   const container = document.getElementById('settingsWorkplacesList');
   if (!container) return;
   container.innerHTML = '';
-  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cafe', 'Gia sư'];
+  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
   state.settings.workplaces.forEach((wp, idx) => {
     const tag = document.createElement('span');
     tag.className = 'settings-workplace-tag font-mono';
