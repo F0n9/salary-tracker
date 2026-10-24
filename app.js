@@ -564,6 +564,151 @@ const shiftsFilterState = {
   date: ''
 };
 
+const setupCustomSelect = (selectId) => {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  const parent = select.parentElement;
+  let wrapper = parent.querySelector(`.custom-select-wrapper[data-for="${selectId}"]`);
+
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'custom-select-wrapper' + (select.classList.contains('font-mono') ? ' font-mono' : '');
+    wrapper.setAttribute('data-for', selectId);
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-select-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    const label = document.createElement('span');
+    label.className = 'custom-select-label';
+
+    const chevron = document.createElement('span');
+    chevron.className = 'custom-select-chevron-icon';
+    chevron.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+
+    trigger.appendChild(label);
+    trigger.appendChild(chevron);
+
+    const menu = document.createElement('div');
+    menu.className = 'custom-select-menu';
+    menu.setAttribute('role', 'listbox');
+
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(menu);
+
+    select.classList.add('native-select-hidden');
+    select.parentNode.insertBefore(wrapper, select.nextSibling);
+
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = wrapper.classList.contains('open');
+      closeAllCustomSelects();
+      if (!isOpen) {
+        wrapper.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
+
+  const menu = wrapper.querySelector('.custom-select-menu');
+  const label = wrapper.querySelector('.custom-select-label');
+  menu.innerHTML = '';
+
+  const options = Array.from(select.options);
+  const selectedOption = select.options[select.selectedIndex] || options[0];
+  if (selectedOption && label) {
+    label.textContent = selectedOption.textContent;
+  }
+
+  options.forEach((opt) => {
+    const item = document.createElement('div');
+    const isSelected = opt.value === select.value || (opt.selected && !select.value);
+    item.className = 'custom-select-option' + (isSelected ? ' is-selected' : '');
+    item.setAttribute('role', 'option');
+    item.setAttribute('data-value', opt.value);
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = opt.textContent;
+
+    const checkIcon = document.createElement('span');
+    checkIcon.className = 'custom-select-check';
+    checkIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+    item.appendChild(textSpan);
+    item.appendChild(checkIcon);
+
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      select.value = opt.value;
+      if (label) label.textContent = opt.textContent;
+      wrapper.querySelectorAll('.custom-select-option').forEach(el => el.classList.remove('is-selected'));
+      item.classList.add('is-selected');
+      wrapper.classList.remove('open');
+      const trig = wrapper.querySelector('.custom-select-trigger');
+      if (trig) trig.setAttribute('aria-expanded', 'false');
+
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    menu.appendChild(item);
+  });
+};
+
+const syncCustomSelect = (selectId) => {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const parent = select.parentElement;
+  const wrapper = parent.querySelector(`.custom-select-wrapper[data-for="${selectId}"]`);
+  if (!wrapper) {
+    setupCustomSelect(selectId);
+    return;
+  }
+  const label = wrapper.querySelector('.custom-select-label');
+  const selectedOption = select.options[select.selectedIndex];
+  if (label && selectedOption) {
+    label.textContent = selectedOption.textContent;
+  }
+  wrapper.querySelectorAll('.custom-select-option').forEach(el => {
+    if (el.getAttribute('data-value') === select.value) {
+      el.classList.add('is-selected');
+    } else {
+      el.classList.remove('is-selected');
+    }
+  });
+};
+
+const closeAllCustomSelects = () => {
+  document.querySelectorAll('.custom-select-wrapper.open').forEach(el => {
+    el.classList.remove('open');
+    const trigger = el.querySelector('.custom-select-trigger');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  });
+  const wpDropdown = document.getElementById('customWorkplaceDropdown');
+  if (wpDropdown) wpDropdown.style.display = 'none';
+};
+
+const updateFilterActiveState = () => {
+  const dot = document.getElementById('filterActiveDot');
+  const btnToggle = document.getElementById('btnToggleShiftsFilter');
+  const btnReset = document.getElementById('btnResetAllFilters');
+  const tray = document.getElementById('shiftsFilterBar');
+
+  const hasFilter = Boolean(shiftsFilterState.workplace || shiftsFilterState.date);
+
+  if (dot) dot.style.display = hasFilter ? 'inline-block' : 'none';
+  if (btnToggle) btnToggle.classList.toggle('is-active', hasFilter);
+  if (btnReset) btnReset.style.display = hasFilter ? 'flex' : 'none';
+
+  if (hasFilter && tray) {
+    tray.style.display = 'block';
+  }
+};
+
 const updateFilterWorkplaceOptions = () => {
   const select = document.getElementById('filterWorkplaceSelect');
   if (!select) return;
@@ -587,6 +732,8 @@ const updateFilterWorkplaceOptions = () => {
     }
     select.appendChild(opt);
   });
+
+  setupCustomSelect('filterWorkplaceSelect');
 };
 
 const renderShiftsList = () => {
@@ -679,11 +826,13 @@ const renderShiftsList = () => {
         const dtInp = document.getElementById('filterDateInput');
         const clrBtn = document.getElementById('btnClearDateFilter');
         if (wpSel) wpSel.value = '';
+        syncCustomSelect('filterWorkplaceSelect');
         if (dtInp) dtInp.value = '';
         if (clrBtn) clrBtn.style.display = 'none';
         renderShiftsList();
       });
     }
+    updateFilterActiveState();
     return;
   }
 
@@ -759,6 +908,7 @@ const renderShiftsList = () => {
 
     listContainer.appendChild(card);
   });
+  updateFilterActiveState();
 };
 
 const escapeHtml = (str) => {
@@ -793,27 +943,92 @@ const updateShiftDayOptions = (week) => {
   if (days.includes(currentVal)) {
     select.value = currentVal;
   }
+  setupCustomSelect('shiftDay');
+};
+
+const getUniqueWorkplacesList = () => {
+  const set = new Set();
+  if (Array.isArray(state.settings.workplaces)) {
+    state.settings.workplaces.forEach(wp => { if (wp && wp.trim()) set.add(wp.trim()); });
+  }
+  if (Array.isArray(state.weeks)) {
+    state.weeks.forEach(w => {
+      if (Array.isArray(w.shifts)) {
+        w.shifts.forEach(s => { if (s.workplace && s.workplace.trim()) set.add(s.workplace.trim()); });
+      }
+    });
+  }
+  return Array.from(set);
+};
+
+const renderCustomWorkplaceDropdown = (filterText = '') => {
+  const dropdown = document.getElementById('customWorkplaceDropdown');
+  const input = document.getElementById('shiftWorkplace');
+  if (!dropdown || !input) return;
+
+  const allWps = getUniqueWorkplacesList();
+  const filtered = filterText
+    ? allWps.filter(wp => wp.toLowerCase().includes(filterText.toLowerCase()))
+    : allWps;
+
+  dropdown.innerHTML = '';
+  if (filtered.length === 0) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  const week = getCurrentWeek();
+  filtered.forEach(wp => {
+    const item = document.createElement('div');
+    item.className = 'workplace-dropdown-item';
+
+    const left = document.createElement('div');
+    left.className = 'workplace-item-left';
+    left.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" class="workplace-item-icon">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+      <span>${escapeHtml(wp)}</span>
+    `;
+
+    const rate = getShiftRate({ workplace: wp }, week);
+    const right = document.createElement('span');
+    right.className = 'workplace-item-rate font-mono';
+    right.textContent = fmtCurrency(rate) + '/h';
+
+    item.appendChild(left);
+    item.appendChild(right);
+
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      input.value = wp;
+      dropdown.style.display = 'none';
+      updateModalComputedPreview();
+      const chips = document.getElementById('shiftWorkplaceChips');
+      if (chips) {
+        chips.querySelectorAll('.workplace-chip').forEach(c => {
+          c.classList.toggle('active', c.textContent === wp);
+        });
+      }
+    });
+
+    dropdown.appendChild(item);
+  });
+
+  dropdown.style.display = 'block';
 };
 
 const updateWorkplaceInputOptions = (currentVal = '') => {
-  const datalist = document.getElementById('workplaceDatalist');
   const chipsContainer = document.getElementById('shiftWorkplaceChips');
   const input = document.getElementById('shiftWorkplace');
   if (input) input.value = currentVal;
 
-  if (datalist) {
-    datalist.innerHTML = '';
-    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
-    list.forEach(wp => {
-      const opt = document.createElement('option');
-      opt.value = wp;
-      datalist.appendChild(opt);
-    });
-  }
+  const list = getUniqueWorkplacesList();
 
   if (chipsContainer) {
     chipsContainer.innerHTML = '';
-    const list = Array.isArray(state.settings.workplaces) ? state.settings.workplaces : ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
     list.forEach(wp => {
       const chip = document.createElement('span');
       chip.className = `workplace-chip font-mono ${currentVal === wp ? 'active' : ''}`;
@@ -827,6 +1042,7 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
           chipsContainer.querySelectorAll('.workplace-chip').forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
         }
+        updateModalComputedPreview();
       });
       chipsContainer.appendChild(chip);
     });
@@ -844,9 +1060,12 @@ const openAddShiftModal = (prefill = null) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'none';
 
+  const wpDropdown = document.getElementById('customWorkplaceDropdown');
+  if (wpDropdown) wpDropdown.style.display = 'none';
+
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
-  const defaultWp = (state.settings.workplaces && state.settings.workplaces.length > 0) ? state.settings.workplaces[0] : 'Cơm Chin Chin';
+  const defaultWp = (state.settings.workplaces && state.settings.workplaces.length > 0) ? state.settings.workplaces[0] : '';
   updateWorkplaceInputOptions(defaultWp);
 
   const now = new Date();
@@ -879,6 +1098,11 @@ const openAddShiftModal = (prefill = null) => {
 
   document.getElementById('shiftDay').value = defaultDay;
   document.getElementById('shiftType').value = defaultType;
+  setupCustomSelect('shiftDay');
+  setupCustomSelect('shiftType');
+  syncCustomSelect('shiftDay');
+  syncCustomSelect('shiftType');
+
   document.getElementById('shiftStart').value = defaultStart;
   document.getElementById('shiftEnd').value = defaultEnd;
   const breakInput = document.getElementById('shiftBreak');
@@ -897,12 +1121,20 @@ const openEditShiftModal = (shift) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'inline-flex';
 
+  const wpDropdown = document.getElementById('customWorkplaceDropdown');
+  if (wpDropdown) wpDropdown.style.display = 'none';
+
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
   updateWorkplaceInputOptions(shift.workplace || '');
 
   document.getElementById('shiftDay').value = shift.day;
   document.getElementById('shiftType').value = shift.type;
+  setupCustomSelect('shiftDay');
+  setupCustomSelect('shiftType');
+  syncCustomSelect('shiftDay');
+  syncCustomSelect('shiftType');
+
   document.getElementById('shiftStart').value = shift.start;
   document.getElementById('shiftEnd').value = shift.end;
   const breakInput = document.getElementById('shiftBreak');
@@ -2639,7 +2871,10 @@ const bindEvents = () => {
     if (val) {
       const detected = detectShiftType(val);
       const sel = document.getElementById('shiftType');
-      if (sel) sel.value = detected;
+      if (sel) {
+        sel.value = detected;
+        syncCustomSelect('shiftType');
+      }
     }
     updateModalComputedPreview();
   });
@@ -2678,6 +2913,7 @@ const bindEvents = () => {
         document.getElementById('shiftStart').value = '17:00';
         document.getElementById('shiftEnd').value = '20:30';
       }
+      syncCustomSelect('shiftType');
       updateModalComputedPreview();
     });
   });
@@ -2802,11 +3038,24 @@ const bindEvents = () => {
     btnTabSummaryMonthly.addEventListener('click', () => switchSummaryTab('monthly'));
   }
 
-  // Shifts Filter Bar Events
+  // Shifts Filter Tray & Custom Select Events
+  const btnToggleFilter = document.getElementById('btnToggleShiftsFilter');
+  const shiftsFilterTray = document.getElementById('shiftsFilterBar');
+  if (btnToggleFilter && shiftsFilterTray) {
+    btnToggleFilter.addEventListener('click', () => {
+      const isHidden = shiftsFilterTray.style.display === 'none' || shiftsFilterTray.style.display === '';
+      shiftsFilterTray.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) {
+        syncCustomSelect('filterWorkplaceSelect');
+      }
+    });
+  }
+
   const filterWpSelect = document.getElementById('filterWorkplaceSelect');
   if (filterWpSelect) {
     filterWpSelect.addEventListener('change', (e) => {
       shiftsFilterState.workplace = e.target.value;
+      syncCustomSelect('filterWorkplaceSelect');
       renderShiftsList();
     });
   }
@@ -2829,6 +3078,65 @@ const bindEvents = () => {
       renderShiftsList();
     });
   }
+
+  const btnResetAll = document.getElementById('btnResetAllFilters');
+  if (btnResetAll) {
+    btnResetAll.addEventListener('click', () => {
+      shiftsFilterState.workplace = '';
+      shiftsFilterState.date = '';
+      if (filterWpSelect) filterWpSelect.value = '';
+      syncCustomSelect('filterWorkplaceSelect');
+      if (filterDateInput) filterDateInput.value = '';
+      if (btnClearDate) btnClearDate.style.display = 'none';
+      renderShiftsList();
+    });
+  }
+
+  // Custom Workplace Autocomplete Dropdown Popover
+  const btnToggleWp = document.getElementById('btnToggleWorkplaceDropdown');
+  const shiftWpInput = document.getElementById('shiftWorkplace');
+  const customWpDropdown = document.getElementById('customWorkplaceDropdown');
+  if (btnToggleWp && shiftWpInput && customWpDropdown) {
+    btnToggleWp.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isHidden = customWpDropdown.style.display === 'none' || customWpDropdown.style.display === '';
+      if (isHidden) {
+        closeAllCustomSelects();
+        renderCustomWorkplaceDropdown(shiftWpInput.value.trim());
+      } else {
+        customWpDropdown.style.display = 'none';
+      }
+    });
+
+    shiftWpInput.addEventListener('focus', () => {
+      closeAllCustomSelects();
+      renderCustomWorkplaceDropdown(shiftWpInput.value.trim());
+    });
+
+    shiftWpInput.addEventListener('input', (e) => {
+      renderCustomWorkplaceDropdown(e.target.value.trim());
+      updateModalComputedPreview();
+    });
+  }
+
+  // Global dismiss for Custom Selects and Workplace Dropdown
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-select-wrapper') && !e.target.closest('.workplace-field-group')) {
+      closeAllCustomSelects();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAllCustomSelects();
+    }
+  });
+
+  // Khởi tạo các Custom Dropdowns đồng bộ giao diện
+  setupCustomSelect('shiftDay');
+  setupCustomSelect('shiftType');
+  setupCustomSelect('filterWorkplaceSelect');
 
   const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
   if (btnAddWp) {
@@ -2889,7 +3197,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024z').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024aa').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
