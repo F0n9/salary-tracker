@@ -2098,10 +2098,12 @@ const renderSettingsWorkplaces = () => {
         <span class="settings-wp-name">${escapeHtml(wp)}</span>
       </div>
       <div class="settings-wp-rate-wrap">
-        <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 25000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
-        <span class="tag font-mono" style="font-size:0.7rem;">đ/h</span>
-        <button type="button" class="btn-remove-workplace" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+        <div class="settings-wp-rate-box">
+          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 25000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
+          <span class="settings-wp-rate-tag font-mono">đ/h</span>
+        </div>
+        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}" aria-label="Xóa nơi làm ${escapeHtml(wp)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -3251,7 +3253,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024af').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ag').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
