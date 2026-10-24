@@ -2314,6 +2314,96 @@ const handleLogout = async () => {
   }
 };
 
+const EYE_OPEN_SVG = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+`;
+
+const EYE_OFF_SVG = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+    <line x1="1" y1="1" x2="23" y2="23"></line>
+  </svg>
+`;
+
+const setupPasswordToggles = () => {
+  document.querySelectorAll('.btn-toggle-pwd').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.getAttribute('data-target');
+      if (!targetId) return;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = EYE_OFF_SVG;
+        btn.setAttribute('title', 'Ẩn mật khẩu');
+        btn.setAttribute('aria-label', 'Ẩn mật khẩu');
+      } else {
+        input.type = 'password';
+        btn.innerHTML = EYE_OPEN_SVG;
+        btn.setAttribute('title', 'Hiện mật khẩu');
+        btn.setAttribute('aria-label', 'Hiện mật khẩu');
+      }
+    });
+  });
+};
+
+const handleChangePasswordSubmit = async (e) => {
+  e.preventDefault();
+  const newPassword = document.getElementById('changeNewPassword').value;
+  const confirmPassword = document.getElementById('changeConfirmPassword').value;
+  const errorEl = document.getElementById('changePasswordMsg');
+  const submitBtn = document.getElementById('btnSubmitChangePassword');
+
+  if (!newPassword || newPassword.length < 6) {
+    errorEl.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    errorEl.textContent = 'Mật khẩu xác nhận không khớp.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang đổi mật khẩu...';
+  }
+
+  try {
+    if (!supabaseClient) {
+      throw new Error('Chưa kết nối tới cơ sở dữ liệu đám mây.');
+    }
+
+    const { data, error } = await supabaseClient.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) throw error;
+
+    showToast('Đổi mật khẩu thành công!');
+    document.getElementById('formChangePassword').reset();
+    document.getElementById('formChangePassword').style.display = 'none';
+    const chevron = document.getElementById('iconChangePwdChevron');
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } catch (err) {
+    errorEl.textContent = `Lỗi: ${err.message || 'Không thể đổi mật khẩu.'}`;
+    errorEl.style.display = 'block';
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Cập nhật mật khẩu';
+    }
+  }
+};
+
 
 
 const openShareSlipModal = () => {
@@ -2414,9 +2504,15 @@ const backupJSON = () => {
     weeks: state.weeks
   };
   const jsonStr = JSON.stringify(data, null, 2);
-  const dateStr = new Date().toISOString().slice(0, 10);
-  downloadFile(jsonStr, `shift_salary_backup_${dateStr}.json`, 'application/json');
-  showToast('Đã tải file sao lưu JSON');
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const fileName = `SalaryTracker_Backup_${y}-${m}-${d}_${hh}${mm}.json`;
+  downloadFile(jsonStr, fileName, 'application/json');
+  showToast(`Đã xuất sao lưu: ${fileName}`);
 };
 
 const restoreJSON = (e) => {
@@ -2617,6 +2713,25 @@ const bindEvents = () => {
   const btnLogoutUser = document.getElementById('btnLogoutUser');
   if (btnLogoutUser) btnLogoutUser.addEventListener('click', handleLogout);
 
+  setupPasswordToggles();
+
+  const btnToggleChangePwd = document.getElementById('btnToggleChangePwdSection');
+  const formChangePwd = document.getElementById('formChangePassword');
+  const iconChevron = document.getElementById('iconChangePwdChevron');
+  if (btnToggleChangePwd && formChangePwd) {
+    btnToggleChangePwd.addEventListener('click', () => {
+      const isHidden = formChangePwd.style.display === 'none';
+      formChangePwd.style.display = isHidden ? 'block' : 'none';
+      if (iconChevron) {
+        iconChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    });
+  }
+
+  if (formChangePwd) {
+    formChangePwd.addEventListener('submit', handleChangePasswordSubmit);
+  }
+
 
 
  
@@ -2774,7 +2889,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024y').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024z').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
