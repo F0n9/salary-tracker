@@ -1294,11 +1294,9 @@ const renderShiftsList = () => {
         shiftsFilterState.date = '';
         const wpSel = document.getElementById('filterWorkplaceSelect');
         const dtInp = document.getElementById('filterDateInput');
-        const clrBtn = document.getElementById('btnClearDateFilter');
         if (wpSel) wpSel.value = '';
         syncCustomSelect('filterWorkplaceSelect');
         if (dtInp) dtInp.value = '';
-        if (clrBtn) clrBtn.style.display = 'none';
         renderShiftsList();
       });
     }
@@ -3293,33 +3291,6 @@ const restoreJSON = (e) => {
   reader.readAsText(file);
 };
 
-const resetToOriginalExcel = async () => {
-  if (confirm('Khôi phục sẽ tải lại dữ liệu từ đám mây Supabase. Bạn có chắc không?')) {
-    if (state.currentUser && supabaseClient) {
-      const { data } = await supabaseClient
-        .from('user_salary_data')
-        .select('*')
-        .eq('user_id', state.currentUser.id)
-        .maybeSingle();
-
-      if (data && Array.isArray(data.weeks) && data.weeks.length > 0) {
-        state.weeks = data.weeks;
-        state.currentWeekId = state.weeks[state.weeks.length - 1].id;
-        saveWeeks();
-        closeModal('settingsModal');
-        renderApp();
-        showToast('Đã đồng bộ lại dữ liệu từ Supabase Cloud!');
-        return;
-      }
-    }
-    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-    state.currentWeekId = state.weeks[0].id;
-    saveWeeks();
-    closeModal('settingsModal');
-    renderApp();
-    showToast('Đã khôi phục dữ liệu ban đầu.');
-  }
-};
 
 const downloadFile = (content, filename, type) => {
   const blob = new Blob([content], { type: type });
@@ -3369,11 +3340,6 @@ const bindEvents = () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
-  const btnToggleTheme = document.getElementById('btnToggleTheme');
-  if (btnToggleTheme) {
-    btnToggleTheme.addEventListener('click', toggleTheme);
-  }
-
   document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
     btn.addEventListener('click', () => {
       const val = btn.dataset.themeVal;
@@ -3396,14 +3362,8 @@ const bindEvents = () => {
   const btnNewWeek = document.getElementById('btnNewWeek');
   if (btnNewWeek) btnNewWeek.addEventListener('click', createNewWeek);
 
-  const btnDeleteCurrentWeekBar = document.getElementById('btnDeleteCurrentWeekBar');
-  if (btnDeleteCurrentWeekBar) btnDeleteCurrentWeekBar.addEventListener('click', deleteCurrentWeek);
-
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
-
-  const btnQuickExport = document.getElementById('btnQuickExportWeek');
-  if (btnQuickExport) btnQuickExport.addEventListener('click', exportCurrentWeekCSV);
 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', () => {
@@ -3524,19 +3484,7 @@ const bindEvents = () => {
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
-  const btnReset = document.getElementById('btnResetToOriginal');
-  if (btnReset) {
-    btnReset.addEventListener('click', resetToOriginalExcel);
-  }
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
-
-
-
- 
-  const btnOpenShareSlip = document.getElementById('btnOpenShareSlip');
-  if (btnOpenShareSlip) {
-    btnOpenShareSlip.addEventListener('click', openShareSlipModal);
-  }
 
   const dockShareSlip = document.getElementById('dockShareSlip');
   if (dockShareSlip) {
@@ -3611,20 +3559,9 @@ const bindEvents = () => {
   }
 
   const filterDateInput = document.getElementById('filterDateInput');
-  const btnClearDate = document.getElementById('btnClearDateFilter');
   if (filterDateInput) {
     filterDateInput.addEventListener('change', (e) => {
       shiftsFilterState.date = e.target.value;
-      if (btnClearDate) btnClearDate.style.display = e.target.value ? 'flex' : 'none';
-      renderShiftsList();
-    });
-  }
-
-  if (btnClearDate) {
-    btnClearDate.addEventListener('click', () => {
-      shiftsFilterState.date = '';
-      if (filterDateInput) filterDateInput.value = '';
-      btnClearDate.style.display = 'none';
       renderShiftsList();
     });
   }
@@ -3637,7 +3574,6 @@ const bindEvents = () => {
       if (filterWpSelect) filterWpSelect.value = '';
       syncCustomSelect('filterWorkplaceSelect');
       if (filterDateInput) filterDateInput.value = '';
-      if (btnClearDate) btnClearDate.style.display = 'none';
       renderShiftsList();
     });
   }
@@ -3747,7 +3683,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025c').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025d').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
