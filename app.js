@@ -29,10 +29,9 @@ const LOCAL_CACHE_WEEKS_KEY = 'salary_cloud_cache_weeks';
 const LOCAL_CACHE_SETTINGS_KEY = 'salary_cloud_cache_settings';
 const PENDING_SYNC_KEY = 'salary_tracker_pending_sync';
 
-// ===== I18N TRANSLATIONS (VI, EN, JA) =====
-const I18N = {
-  vi: {
-    app_title: 'Salary Tracker',
+// ===== BẢN DỊCH & CHUỖI GIAO DIỆN TIẾNG VIỆT =====
+const I18N_VI = {
+  app_title: 'Salary Tracker',
     nav_account: 'Tài khoản & Đăng nhập',
     nav_settings: 'Cài đặt & Dữ liệu',
     btn_edit_week_meta: 'Chỉnh sửa đơn giá tuần này',
@@ -312,616 +311,25 @@ const I18N = {
     toast_csv_exported: 'Đã xuất file CSV cho',
     toast_csv_all_exported: 'Đã xuất tổng hợp toàn bộ các tuần',
     nav_account_user: 'Tài khoản'
-  },
-  en: {
-    app_title: 'Salary Tracker',
-    nav_account: 'Account & Login',
-    nav_settings: 'Settings & Data',
-    btn_edit_week_meta: 'Edit this week rate',
-    btn_add_week: 'Create new week',
-    btn_delete_week: 'Delete this week',
-    week_prefix: 'Week',
-    rate_unit: '$/h',
-    currency_unit: '$',
-
-    theme_light: 'Light',
-    theme_dark: 'Dark',
-    theme_auto: 'Auto',
-
-    cloud_synced: 'Cloud Synced',
-    cloud_pending: 'Waiting for network to sync',
-    cloud_offline: 'Offline Mode',
-    cloud_syncing: 'Syncing...',
-    cloud_btn_sync: 'Sync Now',
-    cloud_online_status: 'Online (Synced)',
-    cloud_guest_status: 'Guest mode: Data is saved safely in your browser.',
-
-    toast_online_syncing: 'Back online. Auto-syncing to cloud...',
-    toast_synced_success: 'All data successfully auto-synced to cloud!',
-    toast_offline_mode: 'You are offline. Data is saved locally and will auto-sync when online.',
-    toast_sync_manual_done: 'Cloud sync completed successfully!',
-    toast_sync_manual_fail: 'Could not connect to server to sync.',
-    toast_shift_added: 'New shift added successfully',
-    toast_shift_updated: 'Shift updated successfully',
-    toast_shift_deleted: 'Shift deleted',
-    toast_shift_restored: 'Shift restored successfully!',
-    toast_week_created: 'New week created',
-    toast_week_updated: 'Week details updated',
-    toast_week_deleted: 'Week deleted',
-    toast_week_restored: 'Week restored!',
-    toast_settings_saved: 'Settings saved',
-    toast_wp_added: 'New workplace added',
-    toast_backup_exported: 'JSON backup exported',
-    toast_restore_success: 'Data restored successfully!',
-    toast_csv_week: 'CSV exported for week',
-    toast_csv_all: 'All weeks summary exported',
-    toast_slip_downloaded: 'Timesheet image downloaded!',
-    toast_slip_copied: 'Image copied to clipboard! Press Ctrl+V to paste.',
-    toast_logged_out: 'Logged out successfully.',
-    toast_login_success: 'Logged in successfully!',
-    toast_register_success: 'Account created successfully!',
-    toast_password_changed: 'Password changed successfully!',
-
-    kpi_salary: 'Week Earnings',
-    kpi_hours: 'Total Hours',
-    kpi_shifts: 'Total Shifts',
-    unit_shift: 'shifts',
-    unit_per_shift: 'h/shift',
-    unit_hour: 'h',
-    unit_min: 'm',
-
-    shifts_title: 'Shifts List',
-    filter_all: 'All',
-    filter_morning: 'Morning',
-    filter_noon: 'Noon',
-    filter_evening: 'Evening',
-    filter_all_workplaces: 'Workplace: All',
-    filter_toggle: 'Search & filter shifts',
-    filter_wp_title: 'Filter by workplace',
-    filter_date_title: 'Filter by specific date',
-    filter_clear_all: 'Clear all filters',
-    filter_no_match_title: 'No matching shifts found',
-    filter_no_match_desc: 'No shifts match your selected filter.',
-    empty_shifts_title: 'No shifts in this week',
-    empty_shifts_desc: 'Add a new shift or delete this week if created by mistake.',
-
-    shift_morning: 'Morning',
-    shift_noon: 'Noon',
-    shift_evening: 'Evening',
-    shift_other: 'Other',
-    break_tag: 'break',
-    ot_prefix: 'OT',
-    btn_edit_shift: 'Edit shift',
-    btn_delete_shift: 'Delete shift',
-    confirm_delete_shift: 'Are you sure you want to delete this shift?',
-
-    dock_prev: 'Previous week',
-    dock_slip: 'Pay slip image',
-    dock_add: 'Add new shift',
-    dock_reports: 'All weeks report',
-    dock_next: 'Next week',
-
-    modal_add_shift: 'Add Shift',
-    modal_edit_shift: 'Edit Shift',
-    modal_day: 'Day',
-    modal_type: 'Shift Type',
-    modal_start: 'Start Time',
-    modal_end: 'End Time',
-    modal_break: 'Break (minutes)',
-    modal_ot: 'Overtime Rate',
-    modal_allowance: 'Bonus / Allowance',
-    modal_workplace: 'Workplace',
-    modal_note: 'Note',
-    modal_preview_est: 'Est.',
-    modal_prev_dur: 'Estimated Duration',
-    modal_prev_sal: 'Estimated Earnings',
-    modal_btn_cancel: 'Cancel',
-    modal_btn_save: 'Save Shift',
-    modal_btn_delete: 'Delete Shift',
-    modal_btn_close: 'Close',
-    ph_break: 'Break mins',
-    ph_workplace: 'Workplace',
-    ph_note: 'Note',
-    title_workplace_list: 'Workplaces list',
-
-    analytics_title: 'Summary & Analytics',
-    tab_charts: 'Charts',
-    tab_weeks: 'Weeks List',
-    tab_months: 'Monthly Report',
-    lbl_time_range: 'Period',
-    time_this_week: 'This Week',
-    time_4_weeks: 'Last 4 Weeks',
-    time_all_weeks: 'All Weeks',
-    lbl_workplace: 'Workplace',
-    kpi_total_income: 'Total Earnings',
-    kpi_total_hours: 'Total Hours',
-    kpi_total_shifts: 'Total Shifts',
-    kpi_top_workplace: 'Top Workplace',
-    kpi_avg_week: 'Avg / Week',
-    chart_title_daily: 'Daily Earnings',
-    chart_title_weekly: 'Weekly Earnings',
-    chart_sub_daily: 'By Day',
-    chart_sub_weekly: 'By Week',
-    chart_title_workplace: 'Earnings by Workplace',
-    no_shift_data: 'No shift data recorded.',
-    no_shifts: 'No shifts',
-    lbl_total_revenue: 'of total',
-    th_week: 'Week',
-    th_rate: 'Rate',
-    th_shifts: 'Shifts',
-    th_hours: 'Hours',
-    th_income: 'Earnings',
-    th_actions: 'Actions',
-    view_this_week: 'View this week',
-    confirm_delete_week: 'Are you sure you want to delete this week?',
-    alert_cannot_delete_only_week: 'Cannot delete the only remaining week.',
-    btn_export_excel: 'Export to Excel / CSV',
-    empty_month_title: 'No monthly data',
-    empty_month_desc: 'Add shifts to weeks to automatically generate monthly reports.',
-    time_unknown: 'Unknown period',
-
-    settings_title: 'Settings',
-    setting_default_rate: 'Default Hourly Rate',
-    setting_workplaces: 'Workplaces',
-    ph_new_workplace: 'New workplace',
-    btn_add_workplace: 'Add workplace',
-    setting_data: 'Data',
-    btn_export_json: 'Export JSON',
-    btn_import_json: 'Import JSON',
-    btn_clear_data: 'Clear all data',
-    setting_theme: 'Appearance (Theme)',
-    setting_language: 'Language',
-    setting_cloud_sync: 'Cloud Sync',
-    btn_save_settings: 'Save Settings',
-    empty_workplaces_hint: 'No workplaces added yet. Add a new workplace below.',
-    custom_wp_rate: 'Custom rate (/h)',
-    btn_delete_wp: 'Delete workplace',
-
-    modal_week_title: 'Week Details',
-    modal_week_name: 'Week Name',
-    ph_week_name: 'Week name',
-    modal_week_start: 'Week Start Date (Mon)',
-    modal_week_rate: 'Hourly Rate (/hr)',
-    btn_update_week: 'Update week details',
-
-    slip_modal_title: 'Pay Slip',
-    slip_toggle_wage: 'Show earnings amount',
-    btn_download_png: 'Download PNG Image',
-    btn_copy_slip_img: 'Copy Image to Clipboard',
-    btn_copy_slip_text: 'Copy Text',
-    slip_th_shift: 'Shift',
-    slip_th_start: 'Start',
-    slip_th_end: 'End',
-    slip_th_hours: 'Hours',
-    slip_th_amount: 'Amount',
-    slip_total: 'Total',
-
-    auth_title: 'Account',
-    auth_subtitle: 'Multi-device Cloud Sync',
-    tab_login: 'Login',
-    tab_register: 'Register',
-    auth_username: 'Username',
-    ph_username: 'Username',
-    auth_password: 'Password',
-    ph_password: 'Password',
-    auth_password_confirm: 'Confirm Password',
-    ph_password_confirm: 'Confirm password',
-    auth_toggle_pw: 'Toggle password visibility',
-    auth_remember_data: 'Save current data into this account',
-    btn_login: 'Login',
-    btn_register: 'Create Account & Login',
-
-    profile_title: 'User Profile',
-    profile_total_weeks: 'Total Weeks',
-    profile_total_shifts: 'Total Shifts',
-    profile_total_hours: 'Total Hours',
-    profile_change_pw: 'Change Password',
-    profile_new_pw: 'New Password',
-    ph_new_pw: 'New password',
-    profile_confirm_pw: 'Confirm New Password',
-    ph_confirm_pw: 'Confirm new password',
-    btn_update_pw: 'Update Password',
-    btn_logout: 'Log out of account',
-
-    day_t2: 'Mon',
-    day_t3: 'Tue',
-    day_t4: 'Wed',
-    day_t5: 'Thu',
-    day_t6: 'Fri',
-    day_t7: 'Sat',
-    day_cn: 'Sun',
-    confirm_shift_overlap: 'OVERLAPPING TIME WARNING:\nThis shift ({start} – {end}) overlaps with shift "{type}" ({oStart} – {oEnd}) on {day}.\n\nAre you sure you want to save anyway?',
-    toast_cannot_restore_week: 'Target week not found for restoration',
-    confirm_delete_week_named: 'Are you sure you want to delete "{name}" containing {count} shifts?',
-    toast_week_deleted_undo: 'Deleted {name}',
-    toast_shift_deleted_undo: 'Deleted shift {day} ({type})',
-    btn_undo: 'Undo',
-    btn_clear_filters: 'Clear all filters',
-    filter_no_match_title: 'No matching shifts found',
-    filter_no_match_desc: 'No shifts match your selected filters.',
-    filter_wp_all: 'Workplace: All',
-    lbl_month_income: 'Monthly Income',
-    lbl_month_hours: 'Total Hours',
-    lbl_month_workplaces: 'Workplaces',
-    unit_workplaces: 'places',
-    lbl_month_dist: 'Monthly Income Distribution',
-    auth_tab_login: 'Account Login',
-    auth_tab_register: 'Create New Account',
-    auth_err_missing_fields: 'Please enter both username and password.',
-    auth_err_no_email: 'Please log in with username only (not email).',
-    auth_err_supabase: 'Cannot connect to Supabase. Check your network or reload.',
-    auth_err_invalid_creds: 'Invalid username or password. Please try again.',
-    auth_err_login_prefix: 'Login error: ',
-    auth_err_conn_prefix: 'Connection error: ',
-    auth_login_success: 'Logged in successfully! Welcome @{username}.',
-    auth_err_all_fields: 'Please fill in all fields.',
-    auth_err_at_char: 'Username cannot contain "@".',
-    auth_err_min_user: 'Username must be at least 3 characters.',
-    auth_err_min_pass: 'Password must be at least 6 characters.',
-    auth_err_pass_mismatch: 'Passwords do not match.',
-    auth_err_user_exists: 'This username is already taken. Please choose another.',
-    auth_reg_fail_prefix: 'Registration failed: ',
-    confirm_logout: 'Are you sure you want to log out?',
-    toast_logged_out: 'Logged out successfully.',
-    pwd_hide: 'Hide password',
-    pwd_show: 'Show password',
-    profile_pw_updated: 'Password updated successfully!',
-    alert_file_read_error: 'Unable to read file: ',
-    confirm_delete_shift: 'Are you sure you want to delete this shift?',
-    toast_data_cleared: 'All data cleared!',
-    toast_imported_success: 'Data imported successfully!',
-    toast_invalid_json: 'Invalid JSON file or missing data.',
-    toast_slip_downloaded: 'Pay slip image downloaded!',
-    toast_slip_copied: 'Slip copied to clipboard! Paste with Ctrl+V.',
-    csv_slip_title: 'PAY SLIP & WORK HOURS',
-    csv_default_rate: 'Default Hourly Rate',
-    csv_col_day: 'Day',
-    csv_col_type: 'Shift',
-    csv_col_workplace: 'Workplace',
-    csv_col_start: 'Start Time',
-    csv_col_end: 'End Time',
-    csv_col_break: 'Break (min)',
-    csv_col_hours: 'Hours',
-    csv_col_ot: 'OT Multiplier',
-    csv_col_allowance: 'Allowance/Bonus',
-    csv_col_total: 'Amount',
-    csv_col_note: 'Note',
-    csv_grand_total: 'TOTAL',
-    csv_all_weeks_title: 'ALL WEEKS SUMMARY OF SHIFTS & SALARY',
-    csv_col_week: 'Week',
-    csv_col_date_range: 'Date Range',
-    csv_col_work_date: 'Work Date',
-    toast_csv_exported: 'CSV file exported for',
-    toast_csv_all_exported: 'Summary CSV exported for all weeks',
-    nav_account_user: 'Account'
-  },
-  ja: {
-    app_title: 'Salary Tracker',
-    nav_account: 'アカウントとログイン',
-    nav_settings: '設定とデータ',
-    btn_edit_week_meta: '今週の時給を編集',
-    btn_add_week: '新しい週を作成',
-    btn_delete_week: 'この週を削除',
-    week_prefix: '第',
-    week_suffix: '週',
-    rate_unit: '円/h',
-    currency_unit: '円',
-
-    theme_light: 'ライト',
-    theme_dark: 'ダーク',
-    theme_auto: '自動',
-
-    cloud_synced: 'クラウド同期完了',
-    cloud_pending: '接続待機中（未同期）',
-    cloud_offline: 'オフラインモード',
-    cloud_syncing: '同期中...',
-    cloud_btn_sync: '今すぐ同期',
-    cloud_online_status: 'オンライン（同期済み）',
-    cloud_guest_status: 'ゲストモード: データはブラウザ内に安全に保存されています。',
-
-    toast_online_syncing: 'オンラインに復帰しました。自動同期中...',
-    toast_synced_success: 'クラウドへの自動同期が完了しました！',
-    toast_offline_mode: 'オフラインです。データは端末に保存され、接続時に自動同期されます。',
-    toast_sync_manual_done: 'クラウドとの同期が完了しました！',
-    toast_sync_manual_fail: 'サーバーに接続できませんでした。',
-    toast_shift_added: '新しいシフトを追加しました',
-    toast_shift_updated: 'シフトを更新しました',
-    toast_shift_deleted: 'シフトを削除しました',
-    toast_shift_restored: 'シフトを復元しました！',
-    toast_week_created: '新しい週を作成しました',
-    toast_week_updated: '週の情報を更新しました',
-    toast_week_deleted: '週を削除しました',
-    toast_week_restored: '週を復元しました！',
-    toast_settings_saved: '設定を保存しました',
-    toast_wp_added: '新しい勤務先を追加しました',
-    toast_backup_exported: 'JSONバックアップを出力しました',
-    toast_restore_success: 'データの復元に成功しました！',
-    toast_csv_week: '週のCSVを出力しました',
-    toast_csv_all: '全週の集計CSVを出力しました',
-    toast_slip_downloaded: '勤務明細画像を保存しました！',
-    toast_slip_copied: '画像をクリップボードにコピーしました！Ctrl+Vで貼り付けできます。',
-    toast_logged_out: 'ログアウトしました。',
-    toast_login_success: 'ログインに成功しました！',
-    toast_register_success: 'アカウントを作成しました！',
-    toast_password_changed: 'パスワードを変更しました！',
-
-    kpi_salary: '週間給与',
-    kpi_hours: '総勤務時間',
-    kpi_shifts: 'シフト数',
-    unit_shift: '回',
-    unit_per_shift: 'h/回',
-    unit_hour: 'h',
-    unit_min: '分',
-
-    shifts_title: 'シフト一覧',
-    filter_all: 'すべて',
-    filter_morning: '朝',
-    filter_noon: '昼',
-    filter_evening: '夜',
-    filter_all_workplaces: '勤務先: すべて',
-    filter_toggle: 'シフトの検索と絞り込み',
-    filter_wp_title: '勤務先で絞り込み',
-    filter_date_title: '特定の日付で絞り込み',
-    filter_clear_all: 'すべてのフィルターを解除',
-    filter_no_match_title: '一致するシフトがありません',
-    filter_no_match_desc: '選択したフィルター条件に合うシフトはありません。',
-    empty_shifts_title: '今週のシフトはまだありません',
-    empty_shifts_desc: 'シフトを追加するか、誤って作成した場合はこの週を削除してください。',
-
-    shift_morning: '朝',
-    shift_noon: '昼',
-    shift_evening: '夜',
-    shift_other: 'その他',
-    break_tag: '休憩',
-    ot_prefix: '残業',
-    btn_edit_shift: 'シフト編集',
-    btn_delete_shift: 'シフト削除',
-    confirm_delete_shift: 'このシフトを削除してもよろしいですか？',
-
-    dock_prev: '前週',
-    dock_slip: '明細画像',
-    dock_add: 'シフト追加',
-    dock_reports: '全週レポート',
-    dock_next: '次週',
-
-    modal_add_shift: 'シフト追加',
-    modal_edit_shift: 'シフト編集',
-    modal_day: '曜日',
-    modal_type: '時間帯',
-    modal_start: '開始時間',
-    modal_end: '終了時間',
-    modal_break: '休憩（分）',
-    modal_ot: '残業割増率',
-    modal_allowance: '手当・ボーナス',
-    modal_workplace: '勤務先',
-    modal_note: 'メモ',
-    modal_preview_est: '予定',
-    modal_prev_dur: '予定勤務時間',
-    modal_prev_sal: '概算給与',
-    modal_btn_cancel: 'キャンセル',
-    modal_btn_save: 'シフトを保存',
-    modal_btn_delete: 'このシフトを削除',
-    modal_btn_close: '閉じる',
-    ph_break: '休憩（分）',
-    ph_workplace: '勤務先',
-    ph_note: 'メモ',
-    title_workplace_list: '勤務先一覧',
-
-    analytics_title: '集計と統計',
-    tab_charts: '統計グラフ',
-    tab_weeks: '週一覧',
-    tab_months: '月別レポート',
-    lbl_time_range: '期間',
-    time_this_week: '今週',
-    time_4_weeks: '直近4週間',
-    time_all_weeks: 'すべての週',
-    lbl_workplace: '勤務先',
-    kpi_total_income: '総給与',
-    kpi_total_hours: '総時間',
-    kpi_total_shifts: '総シフト数',
-    kpi_top_workplace: '最多勤務先',
-    kpi_avg_week: '平均 / 週',
-    chart_title_daily: '日別給与',
-    chart_title_weekly: '週別給与',
-    chart_sub_daily: '日別',
-    chart_sub_weekly: '週別',
-    chart_title_workplace: '勤務先別給与配分',
-    no_shift_data: 'シフトデータがありません。',
-    no_shifts: 'シフトなし',
-    lbl_total_revenue: '全体比',
-    th_week: '週',
-    th_rate: '時給',
-    th_shifts: 'シフト数',
-    th_hours: '総時間',
-    th_income: '総給与',
-    th_actions: '操作',
-    view_this_week: 'この週を表示',
-    confirm_delete_week: 'この週を削除してもよろしいですか？',
-    alert_cannot_delete_only_week: '残りの1週は削除できません。',
-    btn_export_excel: 'Excel / CSVに出力',
-    empty_month_title: '月別データがありません',
-    empty_month_desc: '各週にシフトを登録すると、月別レポートが自動的に集計されます。',
-    time_unknown: '期間不明',
-
-    settings_title: '設定',
-    setting_default_rate: '基本時給',
-    setting_workplaces: '勤務先',
-    ph_new_workplace: '新しい勤務先',
-    btn_add_workplace: '勤務先を追加',
-    setting_data: 'データ管理',
-    btn_export_json: 'JSON出力',
-    btn_import_json: 'JSON読込',
-    btn_clear_data: '全データを初期化',
-    setting_theme: '外観（テーマ）',
-    setting_language: '言語（Language）',
-    setting_cloud_sync: 'クラウド同期',
-    btn_save_settings: '設定を保存',
-    empty_workplaces_hint: '勤務先はまだ登録されていません。下から追加してください。',
-    custom_wp_rate: '個別時給 (/h)',
-    btn_delete_wp: '勤務先を削除',
-
-    modal_week_title: '週の詳細情報',
-    modal_week_name: '週の名前',
-    ph_week_name: '週の名前',
-    modal_week_start: '週の開始日（月曜）',
-    modal_week_rate: '時給（/h）',
-    btn_update_week: '週の情報を更新',
-
-    slip_modal_title: '給与明細',
-    slip_toggle_wage: '給与額も表示する',
-    btn_download_png: 'PNG画像を保存',
-    btn_copy_slip_img: '画像をクリップボードにコピー',
-    btn_copy_slip_text: 'テキストをコピー',
-    slip_th_shift: 'シフト',
-    slip_th_start: '出勤',
-    slip_th_end: '退勤',
-    slip_th_hours: '時間',
-    slip_th_amount: '金額',
-    slip_total: '合計',
-
-    auth_title: 'アカウント',
-    auth_subtitle: '複数デバイス間のクラウド同期',
-    tab_login: 'ログイン',
-    tab_register: '新規登録',
-    auth_username: 'ユーザー名',
-    ph_username: 'ユーザー名',
-    auth_password: 'パスワード',
-    ph_password: 'パスワード',
-    auth_password_confirm: 'パスワード確認',
-    ph_password_confirm: 'パスワード（確認用）',
-    auth_toggle_pw: 'パスワードの表示切替',
-    auth_remember_data: '現在のデータをこのアカウントに保存',
-    btn_login: 'ログイン',
-    btn_register: 'アカウント作成とログイン',
-
-    profile_title: 'ユーザープロフィール',
-    profile_total_weeks: '累計週数',
-    profile_total_shifts: '累計シフト数',
-    profile_total_hours: '累計勤務時間',
-    profile_change_pw: 'パスワード変更',
-    profile_new_pw: '新しいパスワード',
-    ph_new_pw: '新しいパスワード',
-    profile_confirm_pw: '新しいパスワード（確認）',
-    ph_confirm_pw: '確認用パスワード',
-    btn_update_pw: 'パスワードを更新',
-    btn_logout: 'アカウントからログアウト',
-
-    day_t2: '月曜',
-    day_t3: '火曜',
-    day_t4: '水曜',
-    day_t5: '木曜',
-    day_t6: '金曜',
-    day_t7: '土曜',
-    day_cn: '日曜',
-    confirm_shift_overlap: '時間の重複警告：\nこのシフト（{start} ～ {end}）は、同じ{day}のシフト「{type}」（{oStart} ～ {oEnd}）と重複しています。\n\n本当に保存しますか？',
-    toast_cannot_restore_week: '復元先の週が見つかりません',
-    confirm_delete_week_named: '「{name}」（シフト{count}件）を削除してもよろしいですか？',
-    toast_week_deleted_undo: '「{name}」を削除しました',
-    toast_shift_deleted_undo: 'シフト {day}（{type}）を削除しました',
-    btn_undo: '元に戻す',
-    btn_clear_filters: 'すべてのフィルターを解除',
-    filter_no_match_title: '条件に一致するシフトがありません',
-    filter_no_match_desc: '選択したフィルター条件に一致するシフトがありません。',
-    filter_wp_all: '勤務先: すべて',
-    lbl_month_income: '今月の給与',
-    lbl_month_hours: '総時間',
-    lbl_month_workplaces: '勤務先',
-    unit_workplaces: '箇所',
-    lbl_month_dist: '月間給与の内訳',
-    auth_tab_login: 'ログイン',
-    auth_tab_register: '新規アカウント登録',
-    auth_err_missing_fields: 'ユーザー名とパスワードを両方入力してください。',
-    auth_err_no_email: 'ユーザー名でログインしてください（メールアドレス不可）。',
-    auth_err_supabase: 'Supabaseに接続できません。通信状態を確認するかリロードしてください。',
-    auth_err_invalid_creds: 'ユーザー名またはパスワードが正しくありません。',
-    auth_err_login_prefix: 'ログインエラー: ',
-    auth_err_conn_prefix: '接続エラー: ',
-    auth_login_success: 'ログインしました！ようこそ @{username} さん。',
-    auth_err_all_fields: 'すべての項目を入力してください。',
-    auth_err_at_char: 'ユーザー名に「@」を含めることはできません。',
-    auth_err_min_user: 'ユーザー名は3文字以上必要です。',
-    auth_err_min_pass: 'パスワードは6文字以上必要です。',
-    auth_err_pass_mismatch: 'パスワードが一致しません。',
-    auth_err_user_exists: 'このユーザー名は既に使用されています。別の名前を選んでください。',
-    auth_reg_fail_prefix: '登録に失敗しました: ',
-    confirm_logout: 'ログアウトしてもよろしいですか？',
-    toast_logged_out: 'ログアウトしました。',
-    pwd_hide: 'パスワードを隠す',
-    pwd_show: 'パスワードを表示',
-    profile_pw_updated: 'パスワードを変更しました！',
-    alert_file_read_error: 'ファイルを読み込めません: ',
-    confirm_delete_shift: 'このシフトを削除してもよろしいですか？',
-    toast_data_cleared: 'すべてのデータを初期化しました！',
-    toast_imported_success: 'データを正常に読み込みました！',
-    toast_invalid_json: '無効なJSONファイルまたはデータが不足しています。',
-    toast_slip_downloaded: '給与明細画像をダウンロードしました！',
-    toast_slip_copied: 'クリップボードにコピーしました！Ctrl+Vで貼り付け可能です。',
-    csv_slip_title: '給与明細・勤務実績',
-    csv_default_rate: '基本時給',
-    csv_col_day: '曜日',
-    csv_col_type: 'シフト',
-    csv_col_workplace: '勤務先',
-    csv_col_start: '開始',
-    csv_col_end: '終了',
-    csv_col_break: '休憩 (分)',
-    csv_col_hours: '時間',
-    csv_col_ot: '残業倍率',
-    csv_col_allowance: '手当/ボーナス',
-    csv_col_total: '給与',
-    csv_col_note: 'メモ',
-    csv_grand_total: '合計',
-    csv_all_weeks_title: '全週のシフト・給与集計',
-    csv_col_week: '週',
-    csv_col_date_range: '期間',
-    csv_col_work_date: '勤務日',
-    toast_csv_exported: 'CSVファイルを出力しました：',
-    toast_csv_all_exported: '全週の集計CSVを出力しました',
-    nav_account_user: 'アカウント'
-  }
 };
+const I18N = { vi: I18N_VI };
 
-const getCurrentLang = () => {
-  return localStorage.getItem('salary_tracker_lang') || state.settings?.language || 'vi';
-};
+const getCurrentLang = () => 'vi';
 
 const t = (key, fallback = '') => {
-  const lang = getCurrentLang();
-  return (I18N[lang] && I18N[lang][key]) || (I18N.vi && I18N.vi[key]) || fallback;
+  return I18N_VI[key] || fallback || key;
 };
 
 const getLocalizedWeekName = (name) => {
-  if (!name) return '';
-  const lang = getCurrentLang();
-  if (lang === 'vi') return name;
-  const m = String(name).match(/^(?:Tuần|Tuan)\s+(\d+)$/i);
-  if (m) {
-    const num = m[1];
-    if (lang === 'en') return `Week ${num}`;
-    if (lang === 'ja') return `第${num}週`;
-  }
-  return name;
+  return name || '';
 };
 
 const getLocalizedShiftType = (type) => {
-  const formatted = formatShiftType(type);
-  const lang = getCurrentLang();
-  if (lang === 'vi') return formatted;
-  const lower = formatted.toLowerCase();
-  if (lower === 'sáng') return t('shift_morning', 'Morning');
-  if (lower === 'trưa') return t('shift_noon', 'Noon');
-  if (lower === 'tối') return t('shift_evening', 'Evening');
-  if (lower === 'khác') return t('shift_other', 'Other');
-  return formatted;
+  return formatShiftType(type);
 };
 
 const getLocalizedDayName = (dayCode) => {
-  const lang = getCurrentLang();
-  const dayMaps = {
-    vi: { 'T2': 'T2', 'T3': 'T3', 'T4': 'T4', 'T5': 'T5', 'T6': 'T6', 'T7': 'T7', 'CN': 'CN' },
-    en: { 'T2': 'Mon', 'T3': 'Tue', 'T4': 'Wed', 'T5': 'Thu', 'T6': 'Fri', 'T7': 'Sat', 'CN': 'Sun' },
-    ja: { 'T2': '月曜', 'T3': '火曜', 'T4': '水曜', 'T5': '木曜', 'T6': '金曜', 'T7': '土曜', 'CN': '日曜' }
-  };
-  return (dayMaps[lang] && dayMaps[lang][dayCode]) || dayMaps.vi[dayCode] || dayCode;
+  return dayCode || '';
 };
 
 // ===== THEME & AUTO-SYNC HELPERS =====
@@ -970,98 +378,6 @@ const toggleTheme = () => {
     nextTheme = isDark ? 'light' : 'dark';
   }
   applyTheme(nextTheme, true);
-};
-
-const applyLanguage = (lang, save = true) => {
-  const selectedLang = ['vi', 'en', 'ja'].includes(lang) ? lang : 'vi';
-  document.documentElement.lang = selectedLang;
-
-  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.langVal === selectedLang);
-  });
-
-  if (save) {
-    localStorage.setItem('salary_tracker_lang', selectedLang);
-    if (!state.settings) state.settings = {};
-    state.settings.language = selectedLang;
-    saveSettings();
-  }
-
-  translateUI();
-  renderApp();
-};
-
-const translateUI = () => {
-  const lang = getCurrentLang();
-
-  // 1. All text elements with data-i18n
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (I18N[lang] && I18N[lang][key]) {
-      el.textContent = I18N[lang][key];
-    }
-  });
-
-  // 2. All placeholder attributes with data-i18n-placeholder
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (I18N[lang] && I18N[lang][key]) {
-      el.placeholder = I18N[lang][key];
-    }
-  });
-
-  // 3. All title and aria-label attributes with data-i18n-title
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    const key = el.getAttribute('data-i18n-title');
-    if (I18N[lang] && I18N[lang][key]) {
-      el.setAttribute('title', I18N[lang][key]);
-      el.setAttribute('aria-label', I18N[lang][key]);
-    }
-  });
-
-  // 4. All select options with data-i18n-opt
-  document.querySelectorAll('option[data-i18n-opt]').forEach(opt => {
-    const key = opt.getAttribute('data-i18n-opt');
-    if (I18N[lang] && I18N[lang][key]) {
-      opt.textContent = I18N[lang][key];
-    }
-  });
-
-  // 5. Filter pills row
-  const filterPillMap = {
-    'all': 'filter_all',
-    'Sáng': 'filter_morning',
-    'Trưa': 'filter_noon',
-    'Tối': 'filter_evening'
-  };
-  document.querySelectorAll('.filter-pill[data-filter-type]').forEach(pill => {
-    const fType = pill.getAttribute('data-filter-type');
-    if (filterPillMap[fType]) {
-      pill.textContent = t(filterPillMap[fType], pill.textContent);
-    }
-  });
-
-  // 6. Sync custom select triggers to show newly translated option labels
-  ['shiftDay', 'shiftType', 'shiftOtRate', 'filterWorkplaceSelect', 'analyticsTimeFilter', 'analyticsWorkplaceFilter'].forEach(id => {
-    syncCustomSelect(id);
-  });
-
-  // 7. Update sync status UI text
-  updateSyncStatusUI();
-
-  // 8. Re-render any currently open modals
-  const allWeeksModal = document.getElementById('allWeeksModal');
-  if (allWeeksModal && allWeeksModal.style.display === 'flex') {
-    renderAnalyticsDashboard();
-  }
-  const shareSlipModal = document.getElementById('shareSlipModal');
-  if (shareSlipModal && shareSlipModal.style.display === 'flex') {
-    renderSlipCanvas();
-  }
-  const settingsModal = document.getElementById('settingsModal');
-  if (settingsModal && settingsModal.style.display === 'flex') {
-    renderSettingsWorkplaces();
-  }
 };
 
 const getPendingSyncKey = () => {
@@ -1202,30 +518,19 @@ const getSettingsStorageKey = () => {
 };
 
 const fmtCurrency = (num) => {
-  const lang = getCurrentLang();
   const val = Math.round(num || 0);
-  if (lang === 'en') {
-    return '$' + new Intl.NumberFormat('en-US').format(val);
-  }
-  if (lang === 'ja') {
-    return new Intl.NumberFormat('ja-JP').format(val) + ' 円';
-  }
   return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
 };
 
 const fmtHours = (hours) => {
   const h = Number(hours || 0);
-  return h.toFixed(2) + ' ' + t('unit_hour', 'h');
+  return h.toFixed(2) + ' h';
 };
 
 const hoursToHourMinutes = (hours) => {
   const totalMinutes = Math.round(Number(hours || 0) * 60);
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
-  const lang = getCurrentLang();
-  if (lang === 'ja') {
-    return `${h}時間 ${m < 10 ? '0' : ''}${m}分`;
-  }
   return `${h}h ${m < 10 ? '0' : ''}${m}m`;
 };
 
@@ -1580,24 +885,9 @@ const renderApp = () => {
 
 const renderDateDisplay = () => {
   const now = new Date();
-  const lang = getCurrentLang();
-  const dayIndex = now.getDay();
-  let dayName = '';
-  let dateStr = '';
-
-  if (lang === 'en') {
-    const daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    dayName = daysEn[dayIndex];
-    dateStr = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
-  } else if (lang === 'ja') {
-    const daysJa = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
-    dayName = daysJa[dayIndex];
-    dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
-  } else {
-    const daysVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-    dayName = daysVi[dayIndex];
-    dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-  }
+  const daysVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const dayName = daysVi[now.getDay()];
+  const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
 
   const headerDateEl = document.getElementById('currentDateDisplay');
   if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
@@ -1722,7 +1012,7 @@ const renderWeekDetails = () => {
   const dateRange = getWeekDateRangeDisplay(week);
   const localizedName = getLocalizedWeekName(week.name);
   document.getElementById('currentWeekTitle').textContent = dateRange ? `${localizedName} (${dateRange})` : localizedName;
-  document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat(getCurrentLang() === 'vi' ? 'vi-VN' : 'en-US').format(week.rate)} ${t('rate_unit', 'đ/h')}`;
+  document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h`;
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
@@ -2766,17 +2056,9 @@ const renderMonthlyReport = () => {
       const mKey = dObj ? dObj.monthKey : 'unknown';
       let mLabel = '';
       if (dObj) {
-        const lang = getCurrentLang();
-        if (lang === 'en') {
-          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          mLabel = `${mNames[dObj.month - 1]} ${dObj.year}`;
-        } else if (lang === 'ja') {
-          mLabel = `${dObj.year}年${dObj.month}月`;
-        } else {
-          mLabel = `Tháng ${dObj.month}/${dObj.year}`;
-        }
+        mLabel = `Tháng ${dObj.month}/${dObj.year}`;
       } else {
-        mLabel = t('time_unknown', 'Không rõ thời gian');
+        mLabel = 'Không rõ thời gian';
       }
 
       if (!monthMap[mKey]) {
@@ -3485,11 +2767,6 @@ const openSettingsModal = () => {
   const currentTheme = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
   document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.themeVal === currentTheme);
-  });
-
-  const currentLang = getCurrentLang();
-  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.langVal === currentLang);
   });
 
   updateSyncStatusUI();
@@ -4240,13 +3517,6 @@ const bindEvents = () => {
     });
   });
 
-  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const val = btn.dataset.langVal;
-      applyLanguage(val, true);
-    });
-  });
-
   const btnManualSync = document.getElementById('btnManualCloudSync');
   if (btnManualSync) {
     btnManualSync.addEventListener('click', () => syncPendingToCloud(true));
@@ -4581,7 +3851,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025n').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025o').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
@@ -4665,17 +3935,18 @@ const setupAutoSync = () => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Khởi tạo Theme & Ngôn ngữ trước khi vẽ UI
+  // Khởi tạo Theme trước khi vẽ UI
   const savedTheme = localStorage.getItem('salary_tracker_theme') || 'light';
   applyTheme(savedTheme, false);
 
-  const savedLang = getCurrentLang();
-  applyLanguage(savedLang, false);
+  try {
+    localStorage.removeItem('salary_tracker_lang');
+  } catch (_) {}
 
   await initAuth();
   await loadState();
-  if (state.settings?.language) {
-    applyLanguage(state.settings.language, false);
+  if (state.settings && state.settings.language) {
+    delete state.settings.language;
   }
   bindEvents();
   renderApp();
