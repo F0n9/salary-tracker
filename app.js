@@ -18,7 +18,7 @@ const GUEST_DEFAULT_DATA = [
   {
     "id": "week-1",
     "name": "Tuần 1",
-    "rate": 25000,
+    "rate": 0,
     "shifts": []
   }
 ];
@@ -420,8 +420,8 @@ const state = {
   weeks: [],
   currentWeekId: null,
   settings: {
-    defaultRate: 25000,
-    workplaces: ['Cơm Chin Chin', 'Cafe', 'Gia sư']
+    defaultRate: 0,
+    workplaces: []
   }
 };
 
@@ -436,9 +436,6 @@ const WORKPLACE_PALETTES = [
 
 const getWorkplaceColor = (name) => {
   if (!name) return { bg: 'rgba(100, 116, 139, 0.08)', color: '#475569', border: 'rgba(100, 116, 139, 0.2)', fill: '#64748b' };
-  if (name === 'Cơm Chin Chin') {
-    return { bg: 'rgba(234, 88, 12, 0.1)', color: '#ea580c', border: 'rgba(234, 88, 12, 0.28)', fill: '#ea580c' };
-  }
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = (hash << 5) - hash + name.charCodeAt(i);
@@ -499,7 +496,7 @@ const getShiftRate = (shift, week) => {
     const customRate = Number(state.settings.workplaceRates[shift.workplace]);
     if (customRate > 0) return customRate;
   }
-  return Number(week?.rate || state.settings?.defaultRate || 25000);
+  return Number(week?.rate ?? state.settings?.defaultRate ?? 0);
 };
 
 const getShiftEarnings = (shift, week) => {
@@ -679,7 +676,7 @@ const loadState = async () => {
         if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
           state.weeks = data.weeks;
           if (data.settings) state.settings = { ...state.settings, ...data.settings };
-          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
           localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
           localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
         } else {
@@ -688,10 +685,10 @@ const loadState = async () => {
           if (cachedWeeks) {
             state.weeks = JSON.parse(cachedWeeks);
             if (cachedSettings) state.settings = JSON.parse(cachedSettings);
-            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
           } else {
-            state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
-            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+            state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
+            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
             saveWeeks();
           }
         }
@@ -715,30 +712,16 @@ const loadState = async () => {
           if (parsedSet) state.settings = { ...state.settings, ...parsedSet };
         } catch (_) {}
       }
-      if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+      if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
       saveWeeks();
     }
 
     if (state.weeks.length > 0) {
-      let migrated = false;
       state.weeks.forEach((w, idx) => {
         ensureWeekStartDate(w, idx);
-        (w.shifts || []).forEach(s => {
-          if (!s.workplace || s.workplace === 'Cafe' || s.workplace === 'Gia sư' || s.workplace === 'Chung') {
-            s.workplace = 'Cơm Chin Chin';
-            migrated = true;
-          }
-        });
       });
       if (!Array.isArray(state.settings.workplaces)) {
-        state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
-        migrated = true;
-      } else if (!state.settings.workplaces.includes('Cơm Chin Chin')) {
-        state.settings.workplaces.unshift('Cơm Chin Chin');
-        migrated = true;
-      }
-      if (migrated) {
-        saveWeeks();
+        state.settings.workplaces = [];
       }
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
@@ -1187,7 +1170,7 @@ const updateFilterWorkplaceOptions = () => {
     });
   }
 
-  select.innerHTML = '<option value="">Tất cả nơi làm việc</option>';
+  select.innerHTML = '<option value="">Nơi làm: Tất cả</option>';
   Array.from(set).forEach(wp => {
     const opt = document.createElement('option');
     opt.value = wp;
@@ -1788,7 +1771,7 @@ const createNewWeek = () => {
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
   const newWeekName = `Tuần ${nextNum}`;
-  const newWeekRate = state.settings.defaultRate || 25000;
+  const newWeekRate = Number(state.settings.defaultRate) || 0;
 
   let newStartDate = getMondayDate(new Date());
   if (state.weeks.length > 0) {
@@ -1840,7 +1823,7 @@ const saveWeekMeta = (e) => {
 
   if (newName) week.name = newName;
   if (newStartDate) week.startDate = newStartDate;
-  if (newRate && newRate >= 1000) week.rate = newRate;
+  if (newRate !== undefined && !isNaN(newRate) && newRate >= 0) week.rate = newRate;
 
   saveWeeks();
   closeModal('editWeekModal');
@@ -2525,9 +2508,18 @@ const renderSettingsWorkplaces = () => {
   const container = document.getElementById('settingsWorkplacesList');
   if (!container) return;
   container.innerHTML = '';
-  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
   if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
     state.settings.workplaceRates = {};
+  }
+
+  if (state.settings.workplaces.length === 0) {
+    const emptyRow = document.createElement('div');
+    emptyRow.className = 'empty-wp-hint';
+    emptyRow.style.cssText = 'padding: 0.75rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;';
+    emptyRow.textContent = 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.';
+    container.appendChild(emptyRow);
+    return;
   }
 
   state.settings.workplaces.forEach((wp, idx) => {
@@ -2542,7 +2534,7 @@ const renderSettingsWorkplaces = () => {
       </div>
       <div class="settings-wp-rate-wrap">
         <div class="settings-wp-rate-box">
-          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 25000}" step="1000" min="10000" title="Đơn giá riêng (đ/h)">
+          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 0}" step="1000" min="0" title="Đơn giá riêng (đ/h)">
           <span class="settings-wp-rate-tag font-mono">đ/h</span>
         </div>
         <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}" aria-label="Xóa nơi làm ${escapeHtml(wp)}">
@@ -2565,7 +2557,7 @@ const renderSettingsWorkplaces = () => {
 
     row.querySelector('.settings-wp-rate-input').addEventListener('change', (e) => {
       const val = Number(e.target.value);
-      if (val && val >= 1000) {
+      if (!isNaN(val) && val >= 0) {
         state.settings.workplaceRates[wp] = val;
       } else {
         delete state.settings.workplaceRates[wp];
@@ -2593,7 +2585,7 @@ const addWorkplaceFromSetting = () => {
 };
 
 const openSettingsModal = () => {
-  document.getElementById('settingDefaultRate').value = state.settings.defaultRate;
+  document.getElementById('settingDefaultRate').value = state.settings.defaultRate ? state.settings.defaultRate : '';
   renderSettingsWorkplaces();
 
   const currentTheme = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
@@ -2612,9 +2604,14 @@ const openSettingsModal = () => {
 };
 
 const saveSettingsFromModal = () => {
-  const rate = Number(document.getElementById('settingDefaultRate').value);
-  if (rate && rate >= 1000) {
-    state.settings.defaultRate = rate;
+  const rateInputVal = document.getElementById('settingDefaultRate').value.trim();
+  if (rateInputVal === '') {
+    state.settings.defaultRate = 0;
+  } else {
+    const rate = Number(rateInputVal);
+    if (!isNaN(rate) && rate >= 0) {
+      state.settings.defaultRate = rate;
+    }
   }
   saveSettings();
   closeModal('settingsModal');
@@ -3006,7 +3003,7 @@ const handleRegisterSubmit = async (e) => {
     state.currentUser = { id: u.id, email: u.email, username: rawUsername };
 
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
-    let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+    let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
     if (copyGuest) {
       const guestRaw = localStorage.getItem(GUEST_WEEKS_KEY);
       if (guestRaw) {
@@ -3683,7 +3680,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025d').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025e').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
