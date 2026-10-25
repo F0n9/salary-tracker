@@ -206,7 +206,7 @@ const getLocalizedShiftType = (type) => {
 const getLocalizedDayName = (dayCode) => {
   const lang = getCurrentLang();
   const dayMaps = {
-    vi: { 'T2': 'Thứ 2', 'T3': 'Thứ 3', 'T4': 'Thứ 4', 'T5': 'Thứ 5', 'T6': 'Thứ 6', 'T7': 'Thứ 7', 'CN': 'Chủ Nhật' },
+    vi: { 'T2': 'T2', 'T3': 'T3', 'T4': 'T4', 'T5': 'T5', 'T6': 'T6', 'T7': 'T7', 'CN': 'CN' },
     en: { 'T2': 'Mon', 'T3': 'Tue', 'T4': 'Wed', 'T5': 'Thu', 'T6': 'Fri', 'T7': 'Sat', 'CN': 'Sun' },
     ja: { 'T2': '月曜', 'T3': '火曜', 'T4': '水曜', 'T5': '木曜', 'T6': '金曜', 'T7': '土曜', 'CN': '日曜' }
   };
@@ -1305,16 +1305,6 @@ const renderShiftsList = () => {
     updateFilterActiveState();
     return;
   }
-
-  const dayNames = {
-    'T2': 'Thứ 2',
-    'T3': 'Thứ 3',
-    'T4': 'Thứ 4',
-    'T5': 'Thứ 5',
-    'T6': 'Thứ 6',
-    'T7': 'Thứ 7',
-    'CN': 'Chủ Nhật'
-  };
 
   filteredShifts.forEach((shift) => {
     const card = document.createElement('div');
@@ -3757,7 +3747,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025b').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025c').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
