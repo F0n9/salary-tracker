@@ -1,109 +1,197 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Background Gradient: Deep Slate & Midnight Indigo -->
+    <!-- Background Gradient: Friendly, Warm & Premium Royal Azure to Indigo -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="45%" stop-color="#090d16"/>
-      <stop offset="100%" stop-color="#020617"/>
-    </linearGradient>
-
-    <!-- Ambient Center Glow -->
-    <radialGradient id="centerGlow" cx="50%" cy="45%" r="55%">
-      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.28"/>
-      <stop offset="60%" stop-color="#10b981" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
-    </radialGradient>
-
-    <!-- Shift Arc Gradient: Electric Sky Blue to Emerald Mint -->
-    <linearGradient id="shiftArcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="0%" stop-color="#3b82f6"/>
       <stop offset="40%" stop-color="#2563eb"/>
-      <stop offset="85%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#34d399"/>
+      <stop offset="85%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
     </linearGradient>
 
-    <!-- Cash / Coin Element Gradient -->
-    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399"/>
-      <stop offset="50%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#059669"/>
+    <!-- Top Gloss Glass Reflection -->
+    <linearGradient id="topSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
 
-    <!-- Metallic Platinum Needle -->
-    <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Border Highlight (Even Bevel) -->
+    <linearGradient id="borderGleam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#93c5fd" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.1"/>
+    </linearGradient>
+
+    <!-- Soft Depth Ambient Shadow -->
+    <filter id="softDepth" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0f172a" flood-opacity="0.36"/>
+    </filter>
+
+    <!-- 3D Coin Depth Shadow -->
+    <filter id="coinDepth" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#020617" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#78350f" flood-opacity="0.35"/>
+    </filter>
+
+    <!-- Sparkle Glow -->
+    <filter id="glowGleam" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#fef08a" flood-opacity="0.8"/>
+    </filter>
+
+    <!-- Friendly Pearl Clock Dial Gradient -->
+    <linearGradient id="dialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#cbd5e1"/>
+      <stop offset="65%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
     </linearGradient>
 
-    <!-- Soft Drop Shadow for Depth -->
-    <filter id="softDepth" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.45"/>
-    </filter>
+    <!-- Clock Track Accent Ring (Electric Sky to Mint) -->
+    <linearGradient id="clockRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
 
-    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#38bdf8" flood-opacity="0.35"/>
-    </filter>
+    <!-- Vibrant 3D Golden Salary Coin Gradient -->
+    <linearGradient id="goldCoinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="15%" stop-color="#fde047"/>
+      <stop offset="55%" stop-color="#eab308"/>
+      <stop offset="90%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#a16207"/>
+    </linearGradient>
+
+    <linearGradient id="goldInnerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Needle / Hands Gradient -->
+    <linearGradient id="handGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
   </defs>
 
-  <!-- Base Squircle (iOS / Modern Android App Icon standard) -->
-  <rect x="18" y="18" width="476" height="476" rx="116" fill="url(#bgGrad)"/>
-  <rect x="18" y="18" width="476" height="476" rx="116" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2.5"/>
-  <circle cx="256" cy="240" r="210" fill="url(#centerGlow)"/>
+  <!-- ================= BASE SQUIRCLE: Bo tròn đều hoàn hảo (Apple/Android Squircle) ================= -->
+  <rect x="18" y="18" width="476" height="476" rx="116" ry="116" fill="url(#bgGrad)"/>
+  
+  <!-- Smooth Inner Border Reflection -->
+  <rect x="18" y="18" width="476" height="476" rx="116" ry="116" fill="none" stroke="url(#borderGleam)" stroke-width="3.5"/>
 
-  <!-- Core Icon Group with Shadow -->
+  <!-- Top Glass Sheen for 3D Feel -->
+  <path d="M 134 20 
+           Q 256 46 378 20 
+           Q 460 20 472 90 
+           C 420 180 320 220 180 200 
+           C 90 186 42 120 40 90 
+           Q 52 20 134 20 Z" 
+        fill="url(#topSheen)" opacity="0.6"/>
+
+  <!-- Background Soft Ambient Radiance -->
+  <circle cx="210" cy="220" r="160" fill="#60a5fa" opacity="0.18"/>
+  <circle cx="360" cy="350" r="140" fill="#facc15" opacity="0.22"/>
+
+  <!-- ================= ELEMENT 1: Friendly 3D Shift Clock (Thời gian làm việc vui vẻ) ================= -->
   <g filter="url(#softDepth)">
+    <!-- Outer Track / Halo Ring -->
+    <circle cx="216" cy="228" r="134" fill="none" stroke="url(#clockRingGrad)" stroke-width="12" opacity="0.85"/>
     
-    <!-- Outer Shift Dial Ring (Background Track) -->
-    <circle cx="256" cy="256" r="148" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="28"/>
+    <!-- Clock Main Body: Friendly White Pearl Face -->
+    <circle cx="216" cy="228" r="126" fill="url(#dialGrad)"/>
+    <circle cx="216" cy="228" r="126" fill="none" stroke="#ffffff" stroke-width="4"/>
 
-    <!-- Dynamic Work Shift Arc: Sweeping 270 degrees (Productivity & Hours) -->
-    <!-- Arc starting at 135deg (bottom-left) to 45deg (top-right) -->
-    <path d="M 151.3 360.7 
-             A 148 148 0 1 1 360.7 151.3" 
+    <!-- Subtle Dial Hour Markers (12, 3, 6, 9) -->
+    <circle cx="216" cy="120" r="4.5" fill="#0284c7"/>
+    <circle cx="324" cy="228" r="4.5" fill="#0284c7"/>
+    <circle cx="216" cy="336" r="4.5" fill="#94a3b8"/>
+    <circle cx="108" cy="228" r="4.5" fill="#0284c7"/>
+
+    <!-- Cheerful Eyes (Thân thiện, dễ thương, dễ tiếp cận) -->
+    <circle cx="178" cy="196" r="8.5" fill="#0f172a"/>
+    <circle cx="181" cy="193" r="3" fill="#ffffff"/>
+    
+    <circle cx="254" cy="196" r="8.5" fill="#0f172a"/>
+    <circle cx="257" cy="193" r="3" fill="#ffffff"/>
+
+    <!-- Cute Friendly Cheeks (Má hồng dịu dàng) -->
+    <circle cx="160" cy="216" r="11" fill="#f43f5e" opacity="0.22"/>
+    <circle cx="272" cy="216" r="11" fill="#f43f5e" opacity="0.22"/>
+
+    <!-- Cheerful Smile Arc (Nụ cười rạng rỡ chào đón) -->
+    <path d="M 188 232 Q 216 264 244 232" 
           fill="none" 
-          stroke="url(#shiftArcGrad)" 
-          stroke-width="28" 
-          stroke-linecap="round"
-          filter="url(#glowEffect)"/>
+          stroke="#0f172a" 
+          stroke-width="7" 
+          stroke-linecap="round"/>
 
-    <!-- Subtle Dial Hour Markers (12, 3, 6, 9 o'clock) -->
-    <circle cx="256" cy="108" r="5" fill="#38bdf8" opacity="0.9"/>
-    <circle cx="404" cy="256" r="5" fill="#10b981" opacity="0.9"/>
-    <circle cx="256" cy="404" r="5" fill="rgba(255,255,255,0.25)"/>
-    <circle cx="108" cy="256" r="5" fill="rgba(255,255,255,0.25)"/>
+    <!-- Happy Clock Hands at 10:10 (Universal positive posture) -->
+    <!-- Hour Hand (pointing upper-left to 10:00) -->
+    <line x1="216" y1="184" x2="164" y2="148" stroke="url(#handGrad)" stroke-width="13" stroke-linecap="round"/>
+    
+    <!-- Minute Hand (pointing upper-right to 2:00) -->
+    <line x1="216" y1="184" x2="268" y2="142" stroke="url(#handGrad)" stroke-width="13" stroke-linecap="round"/>
 
-    <!-- Clock Center Hub: Modern Double Ring -->
-    <circle cx="256" cy="256" r="28" fill="#0f172a" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
-    <circle cx="256" cy="256" r="14" fill="url(#needleGrad)"/>
-
-    <!-- Clock Hour Hand (Pointing left-down towards 8:00, Shift Start) -->
-    <line x1="256" y1="256" x2="190" y2="295" stroke="url(#needleGrad)" stroke-width="16" stroke-linecap="round"/>
-
-    <!-- Clock Minute / Growth Hand (Pointing up-right towards 2:00, Peak Earnings & Shift End) -->
-    <line x1="256" y1="256" x2="334" y2="178" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-
-    <!-- The "Salary / Earnings Token" (Bottom Right Intersection) -->
-    <!-- Floating Emerald Cash Node with Stylized Currency Mark -->
-    <g transform="translate(320, 320)">
-      <!-- Outer Pulsing Glow -->
-      <circle cx="44" cy="44" r="52" fill="#10b981" opacity="0.18"/>
-      <!-- Solid Badge -->
-      <circle cx="44" cy="44" r="42" fill="url(#coinGrad)" stroke="#ffffff" stroke-width="5"/>
-      <circle cx="44" cy="44" r="34" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-      
-      <!-- Modern Currency / Growth Symbol: Minimalist 'S' (Salary / Shift) -->
-      <path d="M 52 30 
-               C 52 26, 36 26, 36 34 
-               C 36 42, 52 44, 52 54 
-               C 52 62, 34 62, 34 57" 
-            fill="none" 
-            stroke="#ffffff" 
-            stroke-width="5" 
-            stroke-linecap="round" 
-            stroke-linejoin="round"/>
-      <line x1="44" y1="23" x2="44" y2="28" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-      <line x1="44" y1="59" x2="44" y2="64" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-    </g>
-
+    <!-- Cute Center Pin -->
+    <circle cx="216" cy="184" r="9" fill="#0284c7" stroke="#ffffff" stroke-width="3"/>
   </g>
+
+  <!-- ================= ELEMENT 2: 3D Glossy Golden Salary Coin (Tiền lương thành quả rực rỡ) ================= -->
+  <g filter="url(#coinDepth)">
+    <!-- Base Outer Coin -->
+    <circle cx="344" cy="338" r="92" fill="url(#goldCoinGrad)"/>
+    <circle cx="344" cy="338" r="92" fill="none" stroke="#ffffff" stroke-width="4.5"/>
+
+    <!-- Embossed Inner Coin Ridge -->
+    <circle cx="344" cy="338" r="76" fill="url(#goldInnerGrad)"/>
+    <circle cx="344" cy="338" r="76" fill="none" stroke="#fef08a" stroke-width="3" stroke-opacity="0.8"/>
+    <circle cx="344" cy="338" r="68" fill="none" stroke="#b45309" stroke-width="2" stroke-opacity="0.3"/>
+
+    <!-- Top Highlight Glint on Coin -->
+    <path d="M 284 310 C 310 270, 378 270, 404 310 C 374 290, 314 290, 284 310 Z" 
+          fill="#ffffff" opacity="0.55"/>
+
+    <!-- Iconic Currency & Growth Symbol: Stylized ₫ / Salary Spark -->
+    <!-- Centered, bold and rounded -->
+    <g transform="translate(344, 338)">
+      <!-- Star / Diamond Sparkle Center -->
+      <path d="M 0 -38 
+               C 5 -12, 12 -5, 38 0 
+               C 12 5, 5 12, 0 38 
+               C -5 12, -12 5, -38 0 
+               C -12 -5, -5 -12, 0 -38 Z" 
+            fill="#ffffff" 
+            opacity="0.95"/>
+      <circle cx="0" cy="0" r="14" fill="#ca8a04"/>
+      <circle cx="0" cy="0" r="8" fill="#fef08a"/>
+    </g>
+  </g>
+
+  <!-- ================= ELEMENT 3: Sparkling Stars (Thành quả & Tài lộc) ================= -->
+  <!-- Top Right Big Star -->
+  <g filter="url(#glowGleam)" transform="translate(408, 118)">
+    <path d="M 0 -26 
+             C 4 -7, 7 -4, 26 0 
+             C 7 4, 4 7, 0 26 
+             C -4 7, -7 4, -26 0 
+             C -7 -4, -4 -7, 0 -26 Z" 
+          fill="#ffffff"/>
+    <circle cx="0" cy="0" r="6" fill="#fef08a"/>
+  </g>
+
+  <!-- Left Bottom Playful Star -->
+  <g filter="url(#glowGleam)" transform="translate(86, 362)">
+    <path d="M 0 -17 
+             C 3 -5, 5 -3, 17 0 
+             C 5 3, 3 5, 0 17 
+             C -3 5, -5 3, -17 0 
+             C -5 -3, -3 -5, 0 -17 Z" 
+          fill="#ffffff" opacity="0.9"/>
+    <circle cx="0" cy="0" r="4" fill="#38bdf8"/>
+  </g>
+
+  <!-- Upper Center Tiny Star -->
+  <circle cx="340" cy="80" r="5" fill="#fef08a" opacity="0.85"/>
+  <circle cx="430" cy="220" r="4" fill="#ffffff" opacity="0.7"/>
 </svg>
