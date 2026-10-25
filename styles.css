@@ -248,12 +248,15 @@ body.dark-mode .btn-morphic {
 }
 
 .btn-morphic svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
   stroke-width: 2;
   pointer-events: none;
   transition: transform 0.12s ease;
+  flex-shrink: 0;
+  min-width: 17px;
+  min-height: 17px;
 }
 
 .btn-morphic:hover {
@@ -408,8 +411,11 @@ body.dark-mode .btn-morphic-danger:hover {
 }
 
 .btn-morphic-sm svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  min-width: 15px;
+  min-height: 15px;
 }
 
 .modal-close.btn-morphic {
@@ -761,8 +767,8 @@ body.dark-mode .btn-morphic-danger:hover {
 .filter-icon {
   color: var(--text-muted);
   flex-shrink: 0;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 .filter-select,
@@ -2267,10 +2273,81 @@ body.dark-mode .btn-submit-action:hover {
   }
 
   .shift-card-actions .btn-morphic-sm {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    min-height: 34px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .shift-card-actions .btn-morphic-sm svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .header-nav {
+    gap: 0.45rem;
+  }
+
+  .header-nav .btn-morphic {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .header-nav .btn-morphic svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .week-actions-group {
+    gap: 0.45rem;
+  }
+
+  .week-actions-group .btn-morphic {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .week-actions-group .btn-morphic svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .floating-dock {
+    gap: 0.45rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .floating-dock .btn-morphic {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .floating-dock .btn-morphic svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .floating-dock .btn-morphic-lg {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+  }
+
+  .floating-dock .btn-morphic-lg svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
 
   .week-nav-bar {
@@ -3242,4 +3319,113 @@ body.dark-mode .cloud-sync-status-box {
   background: #ef4444;
   box-shadow: 0 0 6px #ef4444;
 }
+
+/* ==========================================================================
+   100% DARK MODE SYNCHRONIZATION OVERRIDES
+   ========================================================================== */
+body.dark-mode select option,
+body.dark-mode .form-select option {
+  background-color: #111827;
+  color: #f8fafc;
+}
+
+body.dark-mode .preset-tile:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #60a5fa;
+}
+
+body.dark-mode .empty-state {
+  background: #152035;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+body.dark-mode .empty-state-icon {
+  background: #1c273e;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #60a5fa;
+}
+
+body.dark-mode .empty-state-title {
+  color: #f8fafc;
+}
+
+body.dark-mode .empty-state-desc {
+  color: #94a3b8;
+}
+
+body.dark-mode .stat-cell {
+  background: #0d1322;
+  border-color: #1f2d47;
+}
+
+body.dark-mode .table-container {
+  border-color: #1f2d47;
+}
+
+body.dark-mode .minimal-table th {
+  background: #131b2e;
+  color: #94a3b8;
+  border-bottom-color: #1f2d47;
+}
+
+body.dark-mode .minimal-table td {
+  border-bottom-color: #1a2438;
+  color: #f8fafc;
+}
+
+body.dark-mode .minimal-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+body.dark-mode .chart-card-section {
+  background: #131b2e;
+  border-color: #1f2d47;
+}
+
+body.dark-mode .analytics-kpi-card {
+  background: #0d1322;
+  border-color: #1f2d47;
+}
+
+body.dark-mode .filter-pill-btn {
+  background: #0d1322;
+  border-color: #1f2d47;
+  color: #94a3b8;
+}
+
+body.dark-mode .filter-pill-btn:hover {
+  background: #19243a;
+  color: #f8fafc;
+}
+
+body.dark-mode .filter-pill-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+body.dark-mode .wb-bar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .settings-workplace-row {
+  background: #0d1322;
+  border-color: #1f2d47;
+}
+
+body.dark-mode .settings-wp-rate-input:focus {
+  background: #131b2e;
+  border-color: #60a5fa;
+}
+
+body.dark-mode .input-with-tag .tag {
+  color: #94a3b8;
+}
+
+body.dark-mode .auth-header-icon {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #93c5fd;
+}
+
 

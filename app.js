@@ -240,6 +240,11 @@ const applyTheme = (theme, save = true) => {
     state.settings.theme = theme;
     saveSettings();
   }
+
+  const allWeeksModal = document.getElementById('allWeeksModal');
+  if (allWeeksModal && allWeeksModal.style.display === 'flex') {
+    renderAnalyticsDashboard();
+  }
 };
 
 const toggleTheme = () => {
@@ -1330,13 +1335,13 @@ const renderShiftsList = () => {
         <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
           <button class="btn-morphic btn-morphic-sm" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
           <button class="btn-morphic btn-morphic-sm btn-morphic-danger" title="Xóa ca" data-delete-shift="${shift.id}" aria-label="Xóa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -2286,12 +2291,18 @@ const drawTimelineChart = (data) => {
   const maxVal = Math.max(...points.map(p => p.salary), 100000);
   const roundedMax = Math.ceil(maxVal / 100000) * 100000;
 
-  ctx.strokeStyle = '#e2e8f0';
+  const isDark = document.body.classList.contains('dark-mode');
+  const textColor = isDark ? '#f8fafc' : '#0f172a';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
+  const subtextColor = isDark ? '#94a3b8' : '#64748b';
+  const emptyBarColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0';
+
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 4]);
 
   const steps = 3;
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = subtextColor;
   ctx.font = '500 10px "JetBrains Mono", monospace';
   ctx.textAlign = 'right';
 
@@ -2332,22 +2343,22 @@ const drawTimelineChart = (data) => {
       ctx.fillStyle = grad;
       drawRoundedBar(ctx, barX, barY, barWidth, barHeight, 5);
 
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = textColor;
       ctx.font = 'bold 10px "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(compactCurrency(p.salary), cx, barY - 6);
     } else {
-      ctx.fillStyle = '#e2e8f0';
+      ctx.fillStyle = emptyBarColor;
       drawRoundedBar(ctx, barX, padTop + chartH - 3, barWidth, 3, 2);
     }
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = textColor;
     ctx.font = '600 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText(p.label, cx, padTop + chartH + 16);
 
     if (p.subLabel) {
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = subtextColor;
       ctx.font = '500 9px "JetBrains Mono", monospace';
       ctx.fillText(p.subLabel, cx, padTop + chartH + 28);
     }
@@ -2373,14 +2384,19 @@ const drawDonutChart = (data) => {
   const outerR = 76;
   const innerR = 52;
 
+  const isDark = document.body.classList.contains('dark-mode');
+  const textColor = isDark ? '#f8fafc' : '#0f172a';
+  const subtextColor = isDark ? '#94a3b8' : '#64748b';
+  const emptyCircleColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
+
   if (data.totalSalary <= 0 || data.workplaceList.length === 0) {
     ctx.beginPath();
     ctx.arc(cx, cy, (outerR + innerR) / 2, 0, 2 * Math.PI);
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = emptyCircleColor;
     ctx.lineWidth = outerR - innerR;
     ctx.stroke();
 
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = subtextColor;
     ctx.font = '500 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Chưa có ca', cx, cy + 4);
@@ -2406,12 +2422,12 @@ const drawDonutChart = (data) => {
     startAngle = endAngle;
   });
 
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = textColor;
   ctx.font = 'bold 15px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(compactCurrency(data.totalSalary), cx, cy + 1);
 
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = subtextColor;
   ctx.font = '500 9px "Outfit", sans-serif';
   ctx.fillText('Tổng thu', cx, cy + 15);
 };
@@ -3426,8 +3442,12 @@ const bindEvents = () => {
   });
 
  
-  document.getElementById('editWeekForm').addEventListener('submit', saveWeekMeta);
-  document.getElementById('btnDeleteCurrentWeek').addEventListener('click', deleteCurrentWeek);
+  const editWeekForm = document.getElementById('editWeekForm');
+  if (editWeekForm) editWeekForm.addEventListener('submit', saveWeekMeta);
+  const btnDeleteCurrentWeek = document.getElementById('btnDeleteCurrentWeek');
+  if (btnDeleteCurrentWeek) btnDeleteCurrentWeek.addEventListener('click', deleteCurrentWeek);
+  const btnDeleteCurrentWeekBar = document.getElementById('btnDeleteCurrentWeekBar');
+  if (btnDeleteCurrentWeekBar) btnDeleteCurrentWeekBar.addEventListener('click', deleteCurrentWeek);
 
  
   const btnUserAuth = document.getElementById('btnUserAuth');
@@ -3680,7 +3700,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025f').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025g').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
