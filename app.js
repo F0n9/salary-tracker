@@ -189,10 +189,14 @@ const I18N_VI = {
     setting_language: 'Ngôn ngữ (Language)',
     setting_cloud_sync: 'Đồng bộ đám mây (Cloud Sync)',
     btn_save_settings: 'Lưu cài đặt',
-    empty_workplaces_hint: 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.',
+    empty_workplaces_hint: 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới để có thể thêm ca và tạo tuần.',
     custom_wp_rate: 'Đơn giá (đ/h)',
     btn_delete_wp: 'Xóa nơi làm',
     tag_default_workplace: 'Mặc định',
+    warn_no_workplace: 'Vui lòng thêm nơi làm việc trong Cài đặt trước khi tiếp tục!',
+    warn_no_workplace_action: 'Cần thêm nơi làm việc để tiếp tục',
+    no_workplaces_title: 'Chưa có nơi làm việc',
+    no_workplaces_desc: 'Bạn cần thêm ít nhất một nơi làm việc để bắt đầu thêm ca và tính lương.',
 
     modal_week_title: 'Thông tin tuần',
     modal_week_name: 'Tên tuần',
@@ -483,11 +487,15 @@ const state = {
   }
 };
 
+const hasWorkplaces = () => {
+  return Array.isArray(state.settings?.workplaces) && state.settings.workplaces.length > 0;
+};
+
 const getDefaultWorkplace = () => {
-  if (Array.isArray(state.settings?.workplaces) && state.settings.workplaces.length > 0) {
+  if (hasWorkplaces()) {
     return state.settings.workplaces[0];
   }
-  return 'Chính';
+  return '';
 };
 
 const normalizeWorkplacesAndRates = () => {
@@ -496,11 +504,8 @@ const normalizeWorkplacesAndRates = () => {
   if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
     state.settings.workplaceRates = {};
   }
-  if (state.settings.workplaces.length === 0) {
-    state.settings.workplaces.push('Chính');
-  }
-  const defWp = state.settings.workplaces[0] || 'Chính';
-  if (state.settings.workplaceRates[defWp] === undefined || state.settings.workplaceRates[defWp] === null) {
+  const defWp = getDefaultWorkplace();
+  if (defWp && (state.settings.workplaceRates[defWp] === undefined || state.settings.workplaceRates[defWp] === null)) {
     const fallbackRate = Number(state.settings.defaultRate) || (state.weeks[0]?.rate) || 0;
     state.settings.workplaceRates[defWp] = fallbackRate;
   }
@@ -908,6 +913,18 @@ const renderApp = () => {
   renderWeekPills();
   renderWeekDetails();
   renderShiftsList();
+
+  const canAct = hasWorkplaces();
+  const btnNewWeek = document.getElementById('btnNewWeek');
+  if (btnNewWeek) {
+    btnNewWeek.classList.toggle('disabled-state', !canAct);
+    btnNewWeek.title = canAct ? t('btn_add_week', 'Tạo tuần mới') : t('warn_no_workplace_action', 'Cần thêm nơi làm việc để tiếp tục');
+  }
+  const dockAddShift = document.getElementById('dockAddShift');
+  if (dockAddShift) {
+    dockAddShift.classList.toggle('disabled-state', !canAct);
+    dockAddShift.title = canAct ? t('dock_add', 'Thêm ca làm việc mới') : t('warn_no_workplace_action', 'Cần thêm nơi làm việc để tiếp tục');
+  }
 };
 
 const renderDateDisplay = () => {
@@ -1266,6 +1283,37 @@ const renderShiftsList = () => {
   const week = getCurrentWeek();
 
   updateFilterWorkplaceOptions();
+
+  if (!hasWorkplaces()) {
+    const shiftsCountBadge = document.getElementById('shiftsCountBadge');
+    if (shiftsCountBadge) shiftsCountBadge.textContent = '0 ca';
+
+    listContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon" style="color: #f59e0b;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <div class="empty-state-title">${t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
+        <p class="empty-state-desc">${t('no_workplaces_desc', 'Bạn cần thêm ít nhất một nơi làm việc để bắt đầu thêm ca và tính lương.')}</p>
+        <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
+          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span style="font-size: 0.8rem; font-weight: 600; margin-left: 0.35rem;">Thêm nơi làm việc</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const btnWp = document.getElementById('btnEmptyAddWp');
+    if (btnWp) btnWp.addEventListener('click', openSettingsModal);
+    return;
+  }
 
   if (!week || !Array.isArray(week.shifts) || week.shifts.length === 0) {
     const shiftsCountBadge = document.getElementById('shiftsCountBadge');
@@ -1706,6 +1754,12 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
 };
 
 const openAddShiftModal = (prefill = null) => {
+  if (!hasWorkplaces()) {
+    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
+    openSettingsModal();
+    return;
+  }
+
   const modal = document.getElementById('shiftModal');
   const form = document.getElementById('shiftForm');
   form.reset();
@@ -1809,6 +1863,12 @@ const updateModalComputedPreview = () => {
 
 const saveShiftFromModal = (e) => {
   e.preventDefault();
+  if (!hasWorkplaces()) {
+    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
+    openSettingsModal();
+    return;
+  }
+
   const editId = document.getElementById('editShiftId').value;
   const day = document.getElementById('shiftDay').value;
   const type = formatShiftType(document.getElementById('shiftType').value);
@@ -1941,6 +2001,11 @@ const undoLastDeleteShift = () => {
 };
 
 const createNewWeek = () => {
+  if (!hasWorkplaces()) {
+    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
+    openSettingsModal();
+    return;
+  }
 
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
@@ -2742,34 +2807,26 @@ const renderSettingsWorkplaces = () => {
           <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="0" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá (đ/h)')}">
           <span class="settings-wp-rate-tag font-mono">${t('rate_unit', 'đ/h')}</span>
         </div>
-        ${(!isDefault || state.settings.workplaces.length > 1) ? `
-          <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        ` : `
-          <div style="width: 28px; height: 28px; flex-shrink: 0;"></div>
-        `}
+        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
     `;
 
     const delBtn = row.querySelector('[data-del-wp]');
     if (delBtn) {
       delBtn.addEventListener('click', () => {
-        if (state.settings.workplaces.length <= 1) {
-          alert('Cần ít nhất một nơi làm việc.');
-          return;
-        }
         const removed = state.settings.workplaces.splice(idx, 1)[0];
         if (removed && state.settings.workplaceRates) {
           delete state.settings.workplaceRates[removed];
         }
-        normalizeWorkplacesAndRates();
         saveSettings();
         renderSettingsWorkplaces();
         renderApp();
+        showToast(`Đã xóa nơi làm: ${removed}`);
       });
     }
 
@@ -3909,7 +3966,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025q').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025r').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;

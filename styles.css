@@ -283,6 +283,11 @@ body.dark-mode .btn-morphic:hover {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
+.btn-morphic.disabled-state {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+}
+
 body.dark-mode .btn-morphic:active,
 body.dark-mode .btn-morphic-primary:active,
 body.dark-mode .btn-morphic-danger:active {
