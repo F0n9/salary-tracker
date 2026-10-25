@@ -67,7 +67,7 @@ const I18N = {
     modal_start: 'Giờ bắt đầu',
     modal_end: 'Giờ kết thúc',
     modal_break: 'Nghỉ (phút)',
-    modal_ot: 'Hệ số tăng ca (OT)',
+    modal_ot: 'Hệ số tăng ca',
     modal_allowance: 'Thưởng / Phụ cấp',
     modal_note: 'Ghi chú ca làm',
     modal_prev_dur: 'Thời gian làm dự kiến',
@@ -117,7 +117,7 @@ const I18N = {
     modal_start: 'Start Time',
     modal_end: 'End Time',
     modal_break: 'Break (mins)',
-    modal_ot: 'Overtime Rate (OT)',
+    modal_ot: 'Overtime Rate',
     modal_allowance: 'Bonus / Allowance',
     modal_note: 'Shift Note',
     modal_prev_dur: 'Estimated Duration',
@@ -167,7 +167,7 @@ const I18N = {
     modal_start: '開始時間',
     modal_end: '終了時間',
     modal_break: '休憩（分）',
-    modal_ot: '残業割増率（OT）',
+    modal_ot: '残業割増率',
     modal_allowance: '手当・ボーナス',
     modal_note: 'メモ',
     modal_prev_dur: '予定勤務時間',
@@ -1305,7 +1305,7 @@ const renderShiftsList = () => {
     const breakTag = shift.breakMinutes ? ` • nghỉ ${shift.breakMinutes}m` : '';
 
     const otRateVal = Number(shift.otRate) || 1.0;
-    const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">OT ${otRateVal}x</span>` : '';
+    const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">x${otRateVal}</span>` : '';
     const allowanceVal = Number(shift.allowance) || 0;
     const allowanceBadge = allowanceVal > 0 ? `<span class="shift-allowance-badge font-mono">+${fmtCurrency(allowanceVal)}</span>` : '';
 
@@ -1376,8 +1376,8 @@ const detectShiftType = (startTimeStr) => {
   const parts = startTimeStr.split(':');
   const h = parseInt(parts[0], 10);
   if (isNaN(h)) return 'Tối';
-  if (h >= 10 && h < 15) return 'Trưa';
-  if (h >= 15 && h < 24) return 'Tối';
+  if (h >= 11 && h < 16) return 'Trưa';
+  if (h >= 16 || h < 5) return 'Tối';
   return 'Sáng';
 };
 
@@ -1544,24 +1544,22 @@ const openAddShiftModal = (prefill = null) => {
   updateWorkplaceInputOptions(defaultWp);
 
   const now = new Date();
-  const currentHour = now.getHours();
-  let defaultType = 'Tối';
-  let defaultStart = '17:00';
-  let defaultEnd = '20:30';
 
-  if (currentHour >= 0 && currentHour < 10) {
-    defaultType = 'Sáng';
-    defaultStart = '08:00';
-    defaultEnd = '12:00';
-  } else if (currentHour >= 10 && currentHour < 15) {
-    defaultType = 'Trưa';
-    defaultStart = '10:00';
-    defaultEnd = '13:30';
-  } else {
-    defaultType = 'Tối';
-    defaultStart = '17:00';
-    defaultEnd = '20:30';
+  // Tính toán thời gian bắt đầu và kết thúc dựa trên thời điểm bấm vào hộp thoại để thêm (làm tròn 15 phút gần nhất)
+  let startMin = Math.round(now.getMinutes() / 15) * 15;
+  let startHour = now.getHours();
+  if (startMin === 60) {
+    startHour = (startHour + 1) % 24;
+    startMin = 0;
   }
+
+  // Ca làm việc chuẩn 4 tiếng
+  let endHour = (startHour + 4) % 24;
+  let endMin = startMin;
+
+  let defaultStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+  let defaultEnd = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+  let defaultType = detectShiftType(defaultStart);
 
   const defaultDay = prefill ? prefill.day : getVietnameseDayOfWeek(now);
   if (prefill) {
@@ -1575,6 +1573,7 @@ const openAddShiftModal = (prefill = null) => {
   document.getElementById('shiftType').value = defaultType;
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
+  setupCustomSelect('shiftOtRate');
   syncCustomSelect('shiftDay');
   syncCustomSelect('shiftType');
 
@@ -1584,6 +1583,7 @@ const openAddShiftModal = (prefill = null) => {
   if (breakInput) breakInput.value = '0';
   const otInput = document.getElementById('shiftOtRate');
   if (otInput) otInput.value = '1.0';
+  syncCustomSelect('shiftOtRate');
   const allowanceInput = document.getElementById('shiftAllowance');
   if (allowanceInput) allowanceInput.value = '0';
   document.getElementById('shiftNote').value = defaultNote;
@@ -1611,6 +1611,7 @@ const openEditShiftModal = (shift) => {
   document.getElementById('shiftType').value = shift.type;
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
+  setupCustomSelect('shiftOtRate');
   syncCustomSelect('shiftDay');
   syncCustomSelect('shiftType');
 
@@ -1620,6 +1621,7 @@ const openEditShiftModal = (shift) => {
   if (breakInput) breakInput.value = shift.breakMinutes || 0;
   const otInput = document.getElementById('shiftOtRate');
   if (otInput) otInput.value = String(shift.otRate || '1.0');
+  syncCustomSelect('shiftOtRate');
   const allowanceInput = document.getElementById('shiftAllowance');
   if (allowanceInput) allowanceInput.value = String(shift.allowance || '0');
   document.getElementById('shiftNote').value = shift.note || '';
@@ -1643,7 +1645,7 @@ const updateModalComputedPreview = () => {
   const wage = Math.round(hours * rate * otRate + allowance);
 
   const breakLabel = breakMins > 0 ? ` (nghỉ ${breakMins}m)` : '';
-  const otLabel = otRate > 1 ? ` • OT ${otRate}x` : '';
+  const otLabel = otRate > 1 ? ` • x${otRate}` : '';
   document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}${otLabel}`;
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
 };
@@ -2740,7 +2742,7 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    const otExtra = (s.otRate && Number(s.otRate) > 1) ? ` (OT ${s.otRate}x)` : '';
+    const otExtra = (s.otRate && Number(s.otRate) > 1) ? ` (x${s.otRate})` : '';
     const shiftLabel = `${s.day} ${formatShiftType(s.type)}${otExtra}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
@@ -3639,6 +3641,7 @@ const bindEvents = () => {
   // Khởi tạo các Custom Dropdowns đồng bộ giao diện
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
+  setupCustomSelect('shiftOtRate');
   setupCustomSelect('filterWorkplaceSelect');
 
   const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
@@ -3700,7 +3703,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025g').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025h').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;

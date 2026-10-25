@@ -10,15 +10,15 @@
 
   
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/svg+xml" href="./icon.svg?v=20261025g">
-  <link rel="apple-touch-icon" href="./icon.svg?v=20261025g">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg?v=20261025h">
+  <link rel="apple-touch-icon" href="./icon.svg?v=20261025h">
 
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261025g">
+  <link rel="stylesheet" href="./styles.css?v=20261025h">
 </head>
 <body>
   
@@ -276,13 +276,13 @@
             <input type="number" id="shiftBreak" class="form-input font-mono" value="0" min="0" step="5" placeholder="Phút nghỉ">
           </div>
           <div class="form-item">
-            <label class="form-label font-mono" for="shiftOtRate">Hệ số tăng ca (OT)</label>
+            <label class="form-label font-mono" for="shiftOtRate" data-i18n="modal_ot">Hệ số tăng ca</label>
             <select id="shiftOtRate" class="form-select font-mono">
-              <option value="1.0">1.0x (Chuẩn)</option>
-              <option value="1.2">1.2x (+20%)</option>
-              <option value="1.5">1.5x (Tăng ca)</option>
-              <option value="2.0">2.0x (Ngày nghỉ)</option>
-              <option value="3.0">3.0x (Ngày lễ)</option>
+              <option value="1.0">1.0x</option>
+              <option value="1.2">1.2x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2.0">2.0x</option>
+              <option value="3.0">3.0x</option>
             </select>
           </div>
         </div>
@@ -992,6 +992,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261025g"></script>
+  <script src="./app.js?v=20261025h"></script>
 </body>
 </html>
