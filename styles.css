@@ -240,11 +240,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 }
 
 body.dark-mode .btn-morphic {
-  background: linear-gradient(180deg, #223049 0%, #151e30 100%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-bottom: 2px solid #0a0f1d;
+  background: linear-gradient(180deg, #25344f 0%, #172235 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   color: #cbd5e1;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .btn-morphic svg {
@@ -265,8 +265,9 @@ body.dark-mode .btn-morphic {
 }
 
 body.dark-mode .btn-morphic:hover {
-  background: linear-gradient(180deg, #2e4060 0%, #1c273e 100%);
+  background: linear-gradient(180deg, #2e4163 0%, #1c2942 100%);
   border-color: rgba(96, 165, 250, 0.6);
+  border-bottom-color: rgba(96, 165, 250, 0.5);
   color: #93c5fd;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 12px rgba(59, 130, 246, 0.35);
 }
@@ -275,6 +276,14 @@ body.dark-mode .btn-morphic:hover {
   transform: translateY(1px);
   border-bottom-width: 1px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-mode .btn-morphic:active,
+body.dark-mode .btn-morphic-primary:active,
+body.dark-mode .btn-morphic-danger:active {
+  transform: translateY(1px);
+  border-bottom-width: 1px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
 }
 
 .btn-morphic.is-logged-in {
@@ -286,9 +295,10 @@ body.dark-mode .btn-morphic:hover {
 
 body.dark-mode .btn-morphic.is-logged-in {
   background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
-  border-color: #3b82f6;
-  border-bottom: 2px solid #1e40af;
+  border: 1px solid #60a5fa;
+  border-bottom: 1px solid #3b82f6;
   color: #93c5fd;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
 .user-morphic-initial {
@@ -342,29 +352,31 @@ body.dark-mode .btn-morphic.is-logged-in {
 body.dark-mode .btn-morphic-primary {
   background: linear-gradient(180deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%) !important;
   border: 1px solid #60a5fa !important;
-  border-bottom: 2px solid #1e3a8a !important;
+  border-bottom: 1px solid #3b82f6 !important;
   color: #ffffff !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 12px rgba(59, 130, 246, 0.35), 0 3px 6px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(96, 165, 250, 0.3), 0 2px 8px rgba(37, 99, 235, 0.35) !important;
 }
 
 body.dark-mode .btn-morphic-primary:hover {
   background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%) !important;
   border-color: #93c5fd !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 20px rgba(59, 130, 246, 0.55), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+  border-bottom-color: #60a5fa !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 18px rgba(59, 130, 246, 0.55) !important;
 }
 
 body.dark-mode .btn-morphic-danger {
   background: linear-gradient(180deg, #f87171 0%, #ef4444 50%, #dc2626 100%) !important;
   border: 1px solid #fca5a5 !important;
-  border-bottom: 2px solid #991b1b !important;
+  border-bottom: 1px solid #ef4444 !important;
   color: #ffffff !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 12px rgba(239, 68, 68, 0.3), 0 3px 6px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(248, 113, 113, 0.3), 0 2px 8px rgba(239, 68, 68, 0.35) !important;
 }
 
 body.dark-mode .btn-morphic-danger:hover {
   background: linear-gradient(180deg, #fca5a5 0%, #f87171 50%, #ef4444 100%) !important;
   border-color: #fecaca !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 20px rgba(239, 68, 68, 0.5), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+  border-bottom-color: #fca5a5 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 18px rgba(239, 68, 68, 0.5) !important;
 }
 
 .btn-morphic-lg {
@@ -1955,6 +1967,19 @@ input[type="number"] {
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
+body.dark-mode .btn-submit-action {
+  border: 1px solid #60a5fa;
+  border-bottom: 1px solid #3b82f6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 10px rgba(59, 130, 246, 0.35);
+}
+
+body.dark-mode .btn-submit-action:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #93c5fd;
+  border-bottom-color: #60a5fa;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 16px rgba(59, 130, 246, 0.5);
+}
+
 .btn-submit-action svg {
   pointer-events: none;
 }
@@ -2917,6 +2942,20 @@ body.dark-mode .floating-dock {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
+body.dark-mode .floating-dock .btn-morphic {
+  background: linear-gradient(180deg, #273754 0%, #172338 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .floating-dock .btn-morphic:hover {
+  background: linear-gradient(180deg, #32466a 0%, #1f2d47 100%);
+  border-color: rgba(96, 165, 250, 0.6);
+  border-bottom-color: rgba(96, 165, 250, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 12px rgba(59, 130, 246, 0.35);
+}
+
 /* Week Wheel in Dark Mode */
 body.dark-mode .week-wheel-container {
   background: linear-gradient(180deg, #131b2e 0%, #0d1322 100%);
@@ -3144,6 +3183,13 @@ body.dark-mode .shift-allowance-badge {
   border-bottom: 2px solid #1e3a8a !important;
   color: #ffffff !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 5px rgba(37, 99, 235, 0.3) !important;
+}
+
+body.dark-mode .segmented-btn-3d.active {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+  border: 1px solid #60a5fa !important;
+  border-bottom: 1px solid #3b82f6 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 10px rgba(59, 130, 246, 0.35) !important;
 }
 
 .lang-flag-svg {
