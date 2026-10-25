@@ -33,153 +33,850 @@ const PENDING_SYNC_KEY = 'salary_tracker_pending_sync';
 const I18N = {
   vi: {
     app_title: 'Salary Tracker',
+    nav_account: 'Tài khoản & Đăng nhập',
+    nav_settings: 'Cài đặt & Dữ liệu',
+    btn_edit_week_meta: 'Chỉnh sửa đơn giá tuần này',
+    btn_add_week: 'Tạo tuần mới',
+    btn_delete_week: 'Xóa tuần này',
+    week_prefix: 'Tuần',
+    rate_unit: 'đ/h',
+    currency_unit: 'đ',
+
     theme_light: 'Sáng',
     theme_dark: 'Tối',
     theme_auto: 'Tự động',
+
     cloud_synced: 'Đã đồng bộ đám mây',
     cloud_pending: 'Chờ kết nối mạng để đồng bộ',
     cloud_offline: 'Đang ngoại tuyến (Offline)',
     cloud_syncing: 'Đang đồng bộ...',
     cloud_btn_sync: 'Đồng bộ ngay',
+    cloud_online_status: 'Trực tuyến (Đã đồng bộ)',
+    cloud_guest_status: 'Chế độ khách: Dữ liệu được lưu an toàn trên trình duyệt.',
+
     toast_online_syncing: 'Đã có kết nối mạng. Đang tự động đồng bộ lên đám mây...',
     toast_synced_success: 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây!',
     toast_offline_mode: 'Bạn đang ngoại tuyến. Dữ liệu sẽ lưu cục bộ và tự động đồng bộ khi online.',
     toast_sync_manual_done: 'Đã đồng bộ thành công dữ liệu đám mây!',
     toast_sync_manual_fail: 'Không thể kết nối máy chủ để đồng bộ.',
+    toast_shift_added: 'Đã thêm ca làm việc mới',
+    toast_shift_updated: 'Đã cập nhật ca làm',
+    toast_shift_deleted: 'Đã xóa ca',
+    toast_shift_restored: 'Đã khôi phục ca làm việc!',
+    toast_week_created: 'Đã tạo tuần mới',
+    toast_week_updated: 'Đã cập nhật thông tin tuần',
+    toast_week_deleted: 'Đã xóa tuần',
+    toast_week_restored: 'Đã khôi phục tuần!',
+    toast_settings_saved: 'Đã lưu cài đặt',
+    toast_wp_added: 'Đã thêm nơi làm việc mới',
+    toast_backup_exported: 'Đã xuất file sao lưu JSON',
+    toast_restore_success: 'Khôi phục dữ liệu thành công!',
+    toast_csv_week: 'Đã xuất file CSV cho tuần',
+    toast_csv_all: 'Đã xuất tổng hợp toàn bộ các tuần',
+    toast_slip_downloaded: 'Đã tải ảnh bảng chấm công!',
+    toast_slip_copied: 'Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.',
+    toast_logged_out: 'Đã đăng xuất tài khoản.',
+    toast_login_success: 'Đăng nhập thành công!',
+    toast_register_success: 'Tạo tài khoản thành công!',
+    toast_password_changed: 'Đổi mật khẩu thành công!',
+
     kpi_salary: 'Thu nhập tuần',
     kpi_hours: 'Tổng thời gian',
     kpi_shifts: 'Số ca làm việc',
+    unit_shift: 'ca',
+    unit_per_shift: 'h/ca',
+    unit_hour: 'h',
+    unit_min: 'm',
+
     shifts_title: 'Danh sách ca làm việc',
     filter_all: 'Tất cả',
     filter_morning: 'Sáng',
     filter_noon: 'Trưa',
     filter_evening: 'Tối',
-    dock_prev: 'Tuần trước',
-    dock_add: 'Thêm ca',
-    dock_next: 'Tuần sau',
-    dock_reports: 'Báo cáo',
-    dock_slip: 'Phiếu',
-    modal_add_shift: 'Thêm ca làm việc mới',
-    modal_edit_shift: 'Chỉnh sửa ca làm việc',
-    modal_day: 'Thứ',
-    modal_type: 'Ca làm',
-    modal_workplace: 'Nơi làm việc',
-    modal_start: 'Giờ bắt đầu',
-    modal_end: 'Giờ kết thúc',
-    modal_break: 'Nghỉ (phút)',
-    modal_ot: 'Hệ số tăng ca',
-    modal_allowance: 'Thưởng / Phụ cấp',
-    modal_note: 'Ghi chú ca làm',
-    modal_prev_dur: 'Thời gian làm dự kiến',
-    modal_prev_sal: 'Thành tiền dự kiến',
-    modal_btn_cancel: 'Hủy',
-    modal_btn_save: 'Lưu ca làm',
-    modal_btn_delete: 'Xóa ca',
+    filter_all_workplaces: 'Nơi làm: Tất cả',
+    filter_toggle: 'Tìm kiếm & Lọc ca làm việc',
+    filter_wp_title: 'Lọc theo nơi làm việc',
+    filter_date_title: 'Lọc theo ngày cụ thể',
+    filter_clear_all: 'Xóa toàn bộ bộ lọc',
+    filter_no_match_title: 'Không tìm thấy ca làm việc phù hợp',
+    filter_no_match_desc: 'Không có ca nào khớp với bộ lọc bạn đã chọn.',
+    empty_shifts_title: 'Chưa có ca làm việc nào trong tuần này',
+    empty_shifts_desc: 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.',
+
     shift_morning: 'Sáng',
     shift_noon: 'Trưa',
     shift_evening: 'Tối',
-    unit_shift: 'ca',
-    unit_per_shift: 'h/ca'
+    shift_other: 'Khác',
+    break_tag: 'nghỉ',
+    ot_prefix: 'Tăng ca',
+    btn_edit_shift: 'Sửa ca',
+    btn_delete_shift: 'Xóa ca',
+    confirm_delete_shift: 'Bạn có chắc chắn muốn xóa ca làm này không?',
+
+    dock_prev: 'Tuần trước',
+    dock_slip: 'Ảnh phiếu chấm công',
+    dock_add: 'Thêm ca làm việc mới',
+    dock_reports: 'Tổng kết tất cả các tuần',
+    dock_next: 'Tuần sau',
+
+    modal_add_shift: 'Thêm ca làm việc',
+    modal_edit_shift: 'Chỉnh sửa ca làm việc',
+    modal_day: 'Thứ',
+    modal_type: 'Buổi ca',
+    modal_start: 'Giờ vào',
+    modal_end: 'Giờ ra',
+    modal_break: 'Nghỉ giữa ca (phút)',
+    modal_ot: 'Hệ số tăng ca',
+    modal_allowance: 'Phụ cấp / Thưởng (VNĐ)',
+    modal_workplace: 'Nơi làm việc',
+    modal_note: 'Ghi chú',
+    modal_preview_est: 'Dự tính',
+    modal_prev_dur: 'Thời gian làm dự kiến',
+    modal_prev_sal: 'Thành tiền dự kiến',
+    modal_btn_cancel: 'Hủy',
+    modal_btn_save: 'Lưu ca làm việc',
+    modal_btn_delete: 'Xóa ca làm việc này',
+    modal_btn_close: 'Đóng',
+    ph_break: 'Phút nghỉ',
+    ph_workplace: 'Nơi làm việc',
+    ph_note: 'Ghi chú',
+    title_workplace_list: 'Danh sách nơi làm việc',
+
+    analytics_title: 'Tổng kết & Thống kê',
+    tab_charts: 'Biểu đồ thống kê',
+    tab_weeks: 'Danh sách các tuần',
+    tab_months: 'Báo cáo theo tháng',
+    lbl_time_range: 'Thời gian',
+    time_this_week: 'Tuần này',
+    time_4_weeks: '4 tuần gần nhất',
+    time_all_weeks: 'Tất cả các tuần',
+    lbl_workplace: 'Nơi làm',
+    kpi_total_income: 'Tổng thu nhập',
+    kpi_total_hours: 'Tổng số giờ',
+    kpi_total_shifts: 'Tổng số ca',
+    kpi_top_workplace: 'Nơi làm cao nhất',
+    kpi_avg_week: 'TB / Tuần',
+    chart_title_daily: 'Thu nhập theo ngày làm việc',
+    chart_title_weekly: 'Thu nhập theo từng tuần',
+    chart_sub_daily: 'Theo ngày (VNĐ)',
+    chart_sub_weekly: 'Theo tuần (VNĐ)',
+    chart_title_workplace: 'Phân bổ thu nhập theo nơi làm việc',
+    no_shift_data: 'Chưa có dữ liệu ca làm việc.',
+    no_shifts: 'Chưa có ca',
+    lbl_total_revenue: 'tổng thu',
+    th_week: 'Tuần',
+    th_rate: 'Đơn giá',
+    th_shifts: 'Số ca',
+    th_hours: 'Tổng giờ',
+    th_income: 'Tổng thu',
+    th_actions: 'Thao tác',
+    view_this_week: 'Xem tuần này',
+    confirm_delete_week: 'Bạn có chắc chắn muốn xóa tuần này không?',
+    alert_cannot_delete_only_week: 'Không thể xóa tuần duy nhất còn lại.',
+    btn_export_excel: 'Xuất tất cả ra Excel',
+    empty_month_title: 'Chưa có dữ liệu theo tháng',
+    empty_month_desc: 'Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.',
+    time_unknown: 'Không rõ thời gian',
+
+    settings_title: 'Cài đặt',
+    setting_default_rate: 'Đơn giá mặc định',
+    setting_workplaces: 'Nơi làm việc',
+    ph_new_workplace: 'Nơi làm mới',
+    btn_add_workplace: 'Thêm nơi làm',
+    setting_data: 'Dữ liệu',
+    btn_export_json: 'Xuất file JSON',
+    btn_import_json: 'Nhập file JSON',
+    btn_clear_data: 'Xóa toàn bộ dữ liệu',
+    setting_theme: 'Giao diện (Theme)',
+    setting_language: 'Ngôn ngữ (Language)',
+    setting_cloud_sync: 'Đồng bộ đám mây (Cloud Sync)',
+    btn_save_settings: 'Lưu cài đặt',
+    empty_workplaces_hint: 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.',
+    custom_wp_rate: 'Đơn giá riêng (đ/h)',
+    btn_delete_wp: 'Xóa nơi làm',
+
+    modal_week_title: 'Thông tin tuần',
+    modal_week_name: 'Tên tuần',
+    ph_week_name: 'Tên tuần',
+    modal_week_start: 'Ngày bắt đầu tuần (T2)',
+    modal_week_rate: 'Đơn giá (VNĐ/giờ)',
+    btn_update_week: 'Cập nhật thông tin tuần',
+
+    slip_modal_title: 'Phiếu chấm công',
+    slip_toggle_wage: 'Hiển thị cả tiền lương',
+    btn_download_png: 'Tải ảnh PNG về máy',
+    btn_copy_slip_img: 'Sao chép ảnh vào Zalo (Ctrl+V)',
+    btn_copy_slip_text: 'Sao chép văn bản',
+    slip_th_shift: 'Ca',
+    slip_th_start: 'Giờ vào',
+    slip_th_end: 'Giờ ra',
+    slip_th_hours: 'Số giờ',
+    slip_th_amount: 'Thành tiền',
+    slip_total: 'Tổng',
+
+    auth_title: 'Tài khoản',
+    auth_subtitle: 'Đồng bộ đám mây đa thiết bị',
+    tab_login: 'Đăng nhập',
+    tab_register: 'Đăng ký mới',
+    auth_username: 'Tên đăng nhập',
+    ph_username: 'Tên tài khoản',
+    auth_password: 'Mật khẩu',
+    ph_password: 'Mật khẩu',
+    auth_password_confirm: 'Xác nhận mật khẩu',
+    ph_password_confirm: 'Xác nhận mật khẩu',
+    auth_toggle_pw: 'Hiện/ẩn mật khẩu',
+    auth_remember_data: 'Lưu dữ liệu hiện tại vào tài khoản',
+    btn_login: 'Đăng nhập',
+    btn_register: 'Tạo tài khoản & Đăng nhập',
+
+    profile_title: 'Hồ sơ người dùng',
+    profile_total_weeks: 'Tổng tuần',
+    profile_total_shifts: 'Tổng ca',
+    profile_total_hours: 'Tổng giờ',
+    profile_change_pw: 'Đổi mật khẩu',
+    profile_new_pw: 'Mật khẩu mới',
+    ph_new_pw: 'Mật khẩu mới',
+    profile_confirm_pw: 'Xác nhận mật khẩu mới',
+    ph_confirm_pw: 'Xác nhận mật khẩu mới',
+    btn_update_pw: 'Cập nhật mật khẩu',
+    btn_logout: 'Đăng xuất khỏi tài khoản',
+
+    day_t2: 'T2',
+    day_t3: 'T3',
+    day_t4: 'T4',
+    day_t5: 'T5',
+    day_t6: 'T6',
+    day_t7: 'T7',
+    day_cn: 'CN',
+    confirm_shift_overlap: 'CẢNH BÁO TRÙNG GIỜ:\nCa làm này ({start} – {end}) bị đè thời gian lên ca "{type}" ({oStart} – {oEnd}) của cùng ngày {day}.\n\nBạn có chắc chắn vẫn muốn lưu không?',
+    toast_cannot_restore_week: 'Không tìm thấy tuần để khôi phục',
+    confirm_delete_week_named: 'Bạn có chắc chắn muốn xóa "{name}" bao gồm {count} ca làm việc không?',
+    toast_week_deleted_undo: 'Đã xóa {name}',
+    toast_shift_deleted_undo: 'Đã xóa ca {day} ({type})',
+    btn_undo: 'Hoàn tác',
+    btn_clear_filters: 'Xóa toàn bộ bộ lọc',
+    filter_no_match_title: 'Không tìm thấy ca làm việc phù hợp',
+    filter_no_match_desc: 'Không có ca nào khớp với bộ lọc bạn đã chọn.',
+    filter_wp_all: 'Nơi làm: Tất cả',
+    lbl_month_income: 'Thu nhập tháng',
+    lbl_month_hours: 'Tổng thời gian',
+    lbl_month_workplaces: 'Nơi làm việc',
+    unit_workplaces: 'nơi',
+    lbl_month_dist: 'Phân bổ thu nhập trong tháng',
+    auth_tab_login: 'Đăng nhập tài khoản',
+    auth_tab_register: 'Đăng ký tài khoản mới',
+    auth_err_missing_fields: 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.',
+    auth_err_no_email: 'Chỉ cho phép đăng nhập bằng tên tài khoản (không dùng email).',
+    auth_err_supabase: 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.',
+    auth_err_invalid_creds: 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.',
+    auth_err_login_prefix: 'Lỗi đăng nhập: ',
+    auth_err_conn_prefix: 'Lỗi kết nối: ',
+    auth_login_success: 'Đăng nhập thành công! Chào @{username}.',
+    auth_err_all_fields: 'Vui lòng điền đầy đủ tất cả các trường.',
+    auth_err_at_char: 'Tên tài khoản không được chứa ký tự @.',
+    auth_err_min_user: 'Tên đăng nhập phải có ít nhất 3 ký tự.',
+    auth_err_min_pass: 'Mật khẩu phải có ít nhất 6 ký tự.',
+    auth_err_pass_mismatch: 'Xác nhận mật khẩu không khớp.',
+    auth_err_user_exists: 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.',
+    auth_reg_fail_prefix: 'Đăng ký thất bại: ',
+    confirm_logout: 'Bạn có chắc chắn muốn đăng xuất không?',
+    toast_logged_out: 'Đã đăng xuất tài khoản.',
+    pwd_hide: 'Ẩn mật khẩu',
+    pwd_show: 'Hiện mật khẩu',
+    profile_pw_updated: 'Đã đổi mật khẩu thành công!',
+    alert_file_read_error: 'Không thể đọc file: ',
+    confirm_delete_shift: 'Bạn có chắc chắn muốn xóa ca làm việc này không?',
+    toast_data_cleared: 'Đã xóa toàn bộ dữ liệu!',
+    toast_imported_success: 'Đã nhập dữ liệu thành công!',
+    toast_invalid_json: 'File JSON không hợp lệ hoặc thiếu dữ liệu.',
+    toast_slip_downloaded: 'Đã tải ảnh bảng chấm công!',
+    toast_slip_copied: 'Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.',
+    csv_slip_title: 'BẢNG CHẤM CÔNG VÀ LƯƠNG',
+    csv_default_rate: 'Đơn giá mặc định',
+    csv_col_day: 'Thứ',
+    csv_col_type: 'Ca',
+    csv_col_workplace: 'Nơi làm việc',
+    csv_col_start: 'Giờ bắt đầu',
+    csv_col_end: 'Giờ kết thúc',
+    csv_col_break: 'Nghỉ (phút)',
+    csv_col_hours: 'Số giờ',
+    csv_col_ot: 'Hệ số OT',
+    csv_col_allowance: 'Thưởng/Phụ cấp',
+    csv_col_total: 'Thành tiền',
+    csv_col_note: 'Ghi chú',
+    csv_grand_total: 'TỔNG CỘNG',
+    csv_all_weeks_title: 'TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN',
+    csv_col_week: 'Tuần',
+    csv_col_date_range: 'Khoảng ngày',
+    csv_col_work_date: 'Ngày làm',
+    toast_csv_exported: 'Đã xuất file CSV cho',
+    toast_csv_all_exported: 'Đã xuất tổng hợp toàn bộ các tuần',
+    nav_account_user: 'Tài khoản'
   },
   en: {
     app_title: 'Salary Tracker',
+    nav_account: 'Account & Login',
+    nav_settings: 'Settings & Data',
+    btn_edit_week_meta: 'Edit this week rate',
+    btn_add_week: 'Create new week',
+    btn_delete_week: 'Delete this week',
+    week_prefix: 'Week',
+    rate_unit: '$/h',
+    currency_unit: '$',
+
     theme_light: 'Light',
     theme_dark: 'Dark',
     theme_auto: 'Auto',
+
     cloud_synced: 'Cloud Synced',
     cloud_pending: 'Waiting for network to sync',
     cloud_offline: 'Offline Mode',
     cloud_syncing: 'Syncing...',
     cloud_btn_sync: 'Sync Now',
+    cloud_online_status: 'Online (Synced)',
+    cloud_guest_status: 'Guest mode: Data is saved safely in your browser.',
+
     toast_online_syncing: 'Back online. Auto-syncing to cloud...',
     toast_synced_success: 'All data successfully auto-synced to cloud!',
     toast_offline_mode: 'You are offline. Data is saved locally and will auto-sync when online.',
     toast_sync_manual_done: 'Cloud sync completed successfully!',
     toast_sync_manual_fail: 'Could not connect to server to sync.',
+    toast_shift_added: 'New shift added successfully',
+    toast_shift_updated: 'Shift updated successfully',
+    toast_shift_deleted: 'Shift deleted',
+    toast_shift_restored: 'Shift restored successfully!',
+    toast_week_created: 'New week created',
+    toast_week_updated: 'Week details updated',
+    toast_week_deleted: 'Week deleted',
+    toast_week_restored: 'Week restored!',
+    toast_settings_saved: 'Settings saved',
+    toast_wp_added: 'New workplace added',
+    toast_backup_exported: 'JSON backup exported',
+    toast_restore_success: 'Data restored successfully!',
+    toast_csv_week: 'CSV exported for week',
+    toast_csv_all: 'All weeks summary exported',
+    toast_slip_downloaded: 'Timesheet image downloaded!',
+    toast_slip_copied: 'Image copied to clipboard! Press Ctrl+V to paste.',
+    toast_logged_out: 'Logged out successfully.',
+    toast_login_success: 'Logged in successfully!',
+    toast_register_success: 'Account created successfully!',
+    toast_password_changed: 'Password changed successfully!',
+
     kpi_salary: 'Week Earnings',
     kpi_hours: 'Total Hours',
     kpi_shifts: 'Total Shifts',
+    unit_shift: 'shifts',
+    unit_per_shift: 'h/shift',
+    unit_hour: 'h',
+    unit_min: 'm',
+
     shifts_title: 'Shifts List',
     filter_all: 'All',
     filter_morning: 'Morning',
     filter_noon: 'Noon',
     filter_evening: 'Evening',
-    dock_prev: 'Prev Week',
-    dock_add: 'Add Shift',
-    dock_next: 'Next Week',
-    dock_reports: 'Reports',
-    dock_slip: 'Slip',
-    modal_add_shift: 'Add New Shift',
+    filter_all_workplaces: 'Workplace: All',
+    filter_toggle: 'Search & filter shifts',
+    filter_wp_title: 'Filter by workplace',
+    filter_date_title: 'Filter by specific date',
+    filter_clear_all: 'Clear all filters',
+    filter_no_match_title: 'No matching shifts found',
+    filter_no_match_desc: 'No shifts match your selected filter.',
+    empty_shifts_title: 'No shifts in this week',
+    empty_shifts_desc: 'Add a new shift or delete this week if created by mistake.',
+
+    shift_morning: 'Morning',
+    shift_noon: 'Noon',
+    shift_evening: 'Evening',
+    shift_other: 'Other',
+    break_tag: 'break',
+    ot_prefix: 'OT',
+    btn_edit_shift: 'Edit shift',
+    btn_delete_shift: 'Delete shift',
+    confirm_delete_shift: 'Are you sure you want to delete this shift?',
+
+    dock_prev: 'Previous week',
+    dock_slip: 'Pay slip image',
+    dock_add: 'Add new shift',
+    dock_reports: 'All weeks report',
+    dock_next: 'Next week',
+
+    modal_add_shift: 'Add Shift',
     modal_edit_shift: 'Edit Shift',
     modal_day: 'Day',
     modal_type: 'Shift Type',
-    modal_workplace: 'Workplace',
     modal_start: 'Start Time',
     modal_end: 'End Time',
-    modal_break: 'Break (mins)',
+    modal_break: 'Break (minutes)',
     modal_ot: 'Overtime Rate',
     modal_allowance: 'Bonus / Allowance',
-    modal_note: 'Shift Note',
+    modal_workplace: 'Workplace',
+    modal_note: 'Note',
+    modal_preview_est: 'Est.',
     modal_prev_dur: 'Estimated Duration',
     modal_prev_sal: 'Estimated Earnings',
     modal_btn_cancel: 'Cancel',
     modal_btn_save: 'Save Shift',
-    modal_btn_delete: 'Delete',
-    shift_morning: 'Morning',
-    shift_noon: 'Noon',
-    shift_evening: 'Evening',
-    unit_shift: 'shifts',
-    unit_per_shift: 'h/shift'
+    modal_btn_delete: 'Delete Shift',
+    modal_btn_close: 'Close',
+    ph_break: 'Break mins',
+    ph_workplace: 'Workplace',
+    ph_note: 'Note',
+    title_workplace_list: 'Workplaces list',
+
+    analytics_title: 'Summary & Analytics',
+    tab_charts: 'Charts',
+    tab_weeks: 'Weeks List',
+    tab_months: 'Monthly Report',
+    lbl_time_range: 'Period',
+    time_this_week: 'This Week',
+    time_4_weeks: 'Last 4 Weeks',
+    time_all_weeks: 'All Weeks',
+    lbl_workplace: 'Workplace',
+    kpi_total_income: 'Total Earnings',
+    kpi_total_hours: 'Total Hours',
+    kpi_total_shifts: 'Total Shifts',
+    kpi_top_workplace: 'Top Workplace',
+    kpi_avg_week: 'Avg / Week',
+    chart_title_daily: 'Daily Earnings',
+    chart_title_weekly: 'Weekly Earnings',
+    chart_sub_daily: 'By Day',
+    chart_sub_weekly: 'By Week',
+    chart_title_workplace: 'Earnings by Workplace',
+    no_shift_data: 'No shift data recorded.',
+    no_shifts: 'No shifts',
+    lbl_total_revenue: 'of total',
+    th_week: 'Week',
+    th_rate: 'Rate',
+    th_shifts: 'Shifts',
+    th_hours: 'Hours',
+    th_income: 'Earnings',
+    th_actions: 'Actions',
+    view_this_week: 'View this week',
+    confirm_delete_week: 'Are you sure you want to delete this week?',
+    alert_cannot_delete_only_week: 'Cannot delete the only remaining week.',
+    btn_export_excel: 'Export to Excel / CSV',
+    empty_month_title: 'No monthly data',
+    empty_month_desc: 'Add shifts to weeks to automatically generate monthly reports.',
+    time_unknown: 'Unknown period',
+
+    settings_title: 'Settings',
+    setting_default_rate: 'Default Hourly Rate',
+    setting_workplaces: 'Workplaces',
+    ph_new_workplace: 'New workplace',
+    btn_add_workplace: 'Add workplace',
+    setting_data: 'Data',
+    btn_export_json: 'Export JSON',
+    btn_import_json: 'Import JSON',
+    btn_clear_data: 'Clear all data',
+    setting_theme: 'Appearance (Theme)',
+    setting_language: 'Language',
+    setting_cloud_sync: 'Cloud Sync',
+    btn_save_settings: 'Save Settings',
+    empty_workplaces_hint: 'No workplaces added yet. Add a new workplace below.',
+    custom_wp_rate: 'Custom rate (/h)',
+    btn_delete_wp: 'Delete workplace',
+
+    modal_week_title: 'Week Details',
+    modal_week_name: 'Week Name',
+    ph_week_name: 'Week name',
+    modal_week_start: 'Week Start Date (Mon)',
+    modal_week_rate: 'Hourly Rate (/hr)',
+    btn_update_week: 'Update week details',
+
+    slip_modal_title: 'Pay Slip',
+    slip_toggle_wage: 'Show earnings amount',
+    btn_download_png: 'Download PNG Image',
+    btn_copy_slip_img: 'Copy Image to Clipboard',
+    btn_copy_slip_text: 'Copy Text',
+    slip_th_shift: 'Shift',
+    slip_th_start: 'Start',
+    slip_th_end: 'End',
+    slip_th_hours: 'Hours',
+    slip_th_amount: 'Amount',
+    slip_total: 'Total',
+
+    auth_title: 'Account',
+    auth_subtitle: 'Multi-device Cloud Sync',
+    tab_login: 'Login',
+    tab_register: 'Register',
+    auth_username: 'Username',
+    ph_username: 'Username',
+    auth_password: 'Password',
+    ph_password: 'Password',
+    auth_password_confirm: 'Confirm Password',
+    ph_password_confirm: 'Confirm password',
+    auth_toggle_pw: 'Toggle password visibility',
+    auth_remember_data: 'Save current data into this account',
+    btn_login: 'Login',
+    btn_register: 'Create Account & Login',
+
+    profile_title: 'User Profile',
+    profile_total_weeks: 'Total Weeks',
+    profile_total_shifts: 'Total Shifts',
+    profile_total_hours: 'Total Hours',
+    profile_change_pw: 'Change Password',
+    profile_new_pw: 'New Password',
+    ph_new_pw: 'New password',
+    profile_confirm_pw: 'Confirm New Password',
+    ph_confirm_pw: 'Confirm new password',
+    btn_update_pw: 'Update Password',
+    btn_logout: 'Log out of account',
+
+    day_t2: 'Mon',
+    day_t3: 'Tue',
+    day_t4: 'Wed',
+    day_t5: 'Thu',
+    day_t6: 'Fri',
+    day_t7: 'Sat',
+    day_cn: 'Sun',
+    confirm_shift_overlap: 'OVERLAPPING TIME WARNING:\nThis shift ({start} – {end}) overlaps with shift "{type}" ({oStart} – {oEnd}) on {day}.\n\nAre you sure you want to save anyway?',
+    toast_cannot_restore_week: 'Target week not found for restoration',
+    confirm_delete_week_named: 'Are you sure you want to delete "{name}" containing {count} shifts?',
+    toast_week_deleted_undo: 'Deleted {name}',
+    toast_shift_deleted_undo: 'Deleted shift {day} ({type})',
+    btn_undo: 'Undo',
+    btn_clear_filters: 'Clear all filters',
+    filter_no_match_title: 'No matching shifts found',
+    filter_no_match_desc: 'No shifts match your selected filters.',
+    filter_wp_all: 'Workplace: All',
+    lbl_month_income: 'Monthly Income',
+    lbl_month_hours: 'Total Hours',
+    lbl_month_workplaces: 'Workplaces',
+    unit_workplaces: 'places',
+    lbl_month_dist: 'Monthly Income Distribution',
+    auth_tab_login: 'Account Login',
+    auth_tab_register: 'Create New Account',
+    auth_err_missing_fields: 'Please enter both username and password.',
+    auth_err_no_email: 'Please log in with username only (not email).',
+    auth_err_supabase: 'Cannot connect to Supabase. Check your network or reload.',
+    auth_err_invalid_creds: 'Invalid username or password. Please try again.',
+    auth_err_login_prefix: 'Login error: ',
+    auth_err_conn_prefix: 'Connection error: ',
+    auth_login_success: 'Logged in successfully! Welcome @{username}.',
+    auth_err_all_fields: 'Please fill in all fields.',
+    auth_err_at_char: 'Username cannot contain "@".',
+    auth_err_min_user: 'Username must be at least 3 characters.',
+    auth_err_min_pass: 'Password must be at least 6 characters.',
+    auth_err_pass_mismatch: 'Passwords do not match.',
+    auth_err_user_exists: 'This username is already taken. Please choose another.',
+    auth_reg_fail_prefix: 'Registration failed: ',
+    confirm_logout: 'Are you sure you want to log out?',
+    toast_logged_out: 'Logged out successfully.',
+    pwd_hide: 'Hide password',
+    pwd_show: 'Show password',
+    profile_pw_updated: 'Password updated successfully!',
+    alert_file_read_error: 'Unable to read file: ',
+    confirm_delete_shift: 'Are you sure you want to delete this shift?',
+    toast_data_cleared: 'All data cleared!',
+    toast_imported_success: 'Data imported successfully!',
+    toast_invalid_json: 'Invalid JSON file or missing data.',
+    toast_slip_downloaded: 'Pay slip image downloaded!',
+    toast_slip_copied: 'Slip copied to clipboard! Paste with Ctrl+V.',
+    csv_slip_title: 'PAY SLIP & WORK HOURS',
+    csv_default_rate: 'Default Hourly Rate',
+    csv_col_day: 'Day',
+    csv_col_type: 'Shift',
+    csv_col_workplace: 'Workplace',
+    csv_col_start: 'Start Time',
+    csv_col_end: 'End Time',
+    csv_col_break: 'Break (min)',
+    csv_col_hours: 'Hours',
+    csv_col_ot: 'OT Multiplier',
+    csv_col_allowance: 'Allowance/Bonus',
+    csv_col_total: 'Amount',
+    csv_col_note: 'Note',
+    csv_grand_total: 'TOTAL',
+    csv_all_weeks_title: 'ALL WEEKS SUMMARY OF SHIFTS & SALARY',
+    csv_col_week: 'Week',
+    csv_col_date_range: 'Date Range',
+    csv_col_work_date: 'Work Date',
+    toast_csv_exported: 'CSV file exported for',
+    toast_csv_all_exported: 'Summary CSV exported for all weeks',
+    nav_account_user: 'Account'
   },
   ja: {
     app_title: 'Salary Tracker',
+    nav_account: 'アカウントとログイン',
+    nav_settings: '設定とデータ',
+    btn_edit_week_meta: '今週の時給を編集',
+    btn_add_week: '新しい週を作成',
+    btn_delete_week: 'この週を削除',
+    week_prefix: '第',
+    week_suffix: '週',
+    rate_unit: '円/h',
+    currency_unit: '円',
+
     theme_light: 'ライト',
     theme_dark: 'ダーク',
     theme_auto: '自動',
+
     cloud_synced: 'クラウド同期完了',
     cloud_pending: '接続待機中（未同期）',
     cloud_offline: 'オフラインモード',
     cloud_syncing: '同期中...',
     cloud_btn_sync: '今すぐ同期',
+    cloud_online_status: 'オンライン（同期済み）',
+    cloud_guest_status: 'ゲストモード: データはブラウザ内に安全に保存されています。',
+
     toast_online_syncing: 'オンラインに復帰しました。自動同期中...',
     toast_synced_success: 'クラウドへの自動同期が完了しました！',
     toast_offline_mode: 'オフラインです。データは端末に保存され、接続時に自動同期されます。',
     toast_sync_manual_done: 'クラウドとの同期が完了しました！',
     toast_sync_manual_fail: 'サーバーに接続できませんでした。',
+    toast_shift_added: '新しいシフトを追加しました',
+    toast_shift_updated: 'シフトを更新しました',
+    toast_shift_deleted: 'シフトを削除しました',
+    toast_shift_restored: 'シフトを復元しました！',
+    toast_week_created: '新しい週を作成しました',
+    toast_week_updated: '週の情報を更新しました',
+    toast_week_deleted: '週を削除しました',
+    toast_week_restored: '週を復元しました！',
+    toast_settings_saved: '設定を保存しました',
+    toast_wp_added: '新しい勤務先を追加しました',
+    toast_backup_exported: 'JSONバックアップを出力しました',
+    toast_restore_success: 'データの復元に成功しました！',
+    toast_csv_week: '週のCSVを出力しました',
+    toast_csv_all: '全週の集計CSVを出力しました',
+    toast_slip_downloaded: '勤務明細画像を保存しました！',
+    toast_slip_copied: '画像をクリップボードにコピーしました！Ctrl+Vで貼り付けできます。',
+    toast_logged_out: 'ログアウトしました。',
+    toast_login_success: 'ログインに成功しました！',
+    toast_register_success: 'アカウントを作成しました！',
+    toast_password_changed: 'パスワードを変更しました！',
+
     kpi_salary: '週間給与',
     kpi_hours: '総勤務時間',
     kpi_shifts: 'シフト数',
+    unit_shift: '回',
+    unit_per_shift: 'h/回',
+    unit_hour: 'h',
+    unit_min: '分',
+
     shifts_title: 'シフト一覧',
     filter_all: 'すべて',
     filter_morning: '朝',
     filter_noon: '昼',
     filter_evening: '夜',
+    filter_all_workplaces: '勤務先: すべて',
+    filter_toggle: 'シフトの検索と絞り込み',
+    filter_wp_title: '勤務先で絞り込み',
+    filter_date_title: '特定の日付で絞り込み',
+    filter_clear_all: 'すべてのフィルターを解除',
+    filter_no_match_title: '一致するシフトがありません',
+    filter_no_match_desc: '選択したフィルター条件に合うシフトはありません。',
+    empty_shifts_title: '今週のシフトはまだありません',
+    empty_shifts_desc: 'シフトを追加するか、誤って作成した場合はこの週を削除してください。',
+
+    shift_morning: '朝',
+    shift_noon: '昼',
+    shift_evening: '夜',
+    shift_other: 'その他',
+    break_tag: '休憩',
+    ot_prefix: '残業',
+    btn_edit_shift: 'シフト編集',
+    btn_delete_shift: 'シフト削除',
+    confirm_delete_shift: 'このシフトを削除してもよろしいですか？',
+
     dock_prev: '前週',
-    dock_add: '追加',
+    dock_slip: '明細画像',
+    dock_add: 'シフト追加',
+    dock_reports: '全週レポート',
     dock_next: '次週',
-    dock_reports: 'レポート',
-    dock_slip: '明細',
-    modal_add_shift: '新しいシフトを追加',
-    modal_edit_shift: 'シフトを編集',
+
+    modal_add_shift: 'シフト追加',
+    modal_edit_shift: 'シフト編集',
     modal_day: '曜日',
     modal_type: '時間帯',
-    modal_workplace: '勤務先',
     modal_start: '開始時間',
     modal_end: '終了時間',
     modal_break: '休憩（分）',
     modal_ot: '残業割増率',
     modal_allowance: '手当・ボーナス',
+    modal_workplace: '勤務先',
     modal_note: 'メモ',
+    modal_preview_est: '予定',
     modal_prev_dur: '予定勤務時間',
     modal_prev_sal: '概算給与',
     modal_btn_cancel: 'キャンセル',
     modal_btn_save: 'シフトを保存',
-    modal_btn_delete: '削除',
-    shift_morning: '朝',
-    shift_noon: '昼',
-    shift_evening: '夜',
-    unit_shift: '回',
-    unit_per_shift: 'h/回'
+    modal_btn_delete: 'このシフトを削除',
+    modal_btn_close: '閉じる',
+    ph_break: '休憩（分）',
+    ph_workplace: '勤務先',
+    ph_note: 'メモ',
+    title_workplace_list: '勤務先一覧',
+
+    analytics_title: '集計と統計',
+    tab_charts: '統計グラフ',
+    tab_weeks: '週一覧',
+    tab_months: '月別レポート',
+    lbl_time_range: '期間',
+    time_this_week: '今週',
+    time_4_weeks: '直近4週間',
+    time_all_weeks: 'すべての週',
+    lbl_workplace: '勤務先',
+    kpi_total_income: '総給与',
+    kpi_total_hours: '総時間',
+    kpi_total_shifts: '総シフト数',
+    kpi_top_workplace: '最多勤務先',
+    kpi_avg_week: '平均 / 週',
+    chart_title_daily: '日別給与',
+    chart_title_weekly: '週別給与',
+    chart_sub_daily: '日別',
+    chart_sub_weekly: '週別',
+    chart_title_workplace: '勤務先別給与配分',
+    no_shift_data: 'シフトデータがありません。',
+    no_shifts: 'シフトなし',
+    lbl_total_revenue: '全体比',
+    th_week: '週',
+    th_rate: '時給',
+    th_shifts: 'シフト数',
+    th_hours: '総時間',
+    th_income: '総給与',
+    th_actions: '操作',
+    view_this_week: 'この週を表示',
+    confirm_delete_week: 'この週を削除してもよろしいですか？',
+    alert_cannot_delete_only_week: '残りの1週は削除できません。',
+    btn_export_excel: 'Excel / CSVに出力',
+    empty_month_title: '月別データがありません',
+    empty_month_desc: '各週にシフトを登録すると、月別レポートが自動的に集計されます。',
+    time_unknown: '期間不明',
+
+    settings_title: '設定',
+    setting_default_rate: '基本時給',
+    setting_workplaces: '勤務先',
+    ph_new_workplace: '新しい勤務先',
+    btn_add_workplace: '勤務先を追加',
+    setting_data: 'データ管理',
+    btn_export_json: 'JSON出力',
+    btn_import_json: 'JSON読込',
+    btn_clear_data: '全データを初期化',
+    setting_theme: '外観（テーマ）',
+    setting_language: '言語（Language）',
+    setting_cloud_sync: 'クラウド同期',
+    btn_save_settings: '設定を保存',
+    empty_workplaces_hint: '勤務先はまだ登録されていません。下から追加してください。',
+    custom_wp_rate: '個別時給 (/h)',
+    btn_delete_wp: '勤務先を削除',
+
+    modal_week_title: '週の詳細情報',
+    modal_week_name: '週の名前',
+    ph_week_name: '週の名前',
+    modal_week_start: '週の開始日（月曜）',
+    modal_week_rate: '時給（/h）',
+    btn_update_week: '週の情報を更新',
+
+    slip_modal_title: '給与明細',
+    slip_toggle_wage: '給与額も表示する',
+    btn_download_png: 'PNG画像を保存',
+    btn_copy_slip_img: '画像をクリップボードにコピー',
+    btn_copy_slip_text: 'テキストをコピー',
+    slip_th_shift: 'シフト',
+    slip_th_start: '出勤',
+    slip_th_end: '退勤',
+    slip_th_hours: '時間',
+    slip_th_amount: '金額',
+    slip_total: '合計',
+
+    auth_title: 'アカウント',
+    auth_subtitle: '複数デバイス間のクラウド同期',
+    tab_login: 'ログイン',
+    tab_register: '新規登録',
+    auth_username: 'ユーザー名',
+    ph_username: 'ユーザー名',
+    auth_password: 'パスワード',
+    ph_password: 'パスワード',
+    auth_password_confirm: 'パスワード確認',
+    ph_password_confirm: 'パスワード（確認用）',
+    auth_toggle_pw: 'パスワードの表示切替',
+    auth_remember_data: '現在のデータをこのアカウントに保存',
+    btn_login: 'ログイン',
+    btn_register: 'アカウント作成とログイン',
+
+    profile_title: 'ユーザープロフィール',
+    profile_total_weeks: '累計週数',
+    profile_total_shifts: '累計シフト数',
+    profile_total_hours: '累計勤務時間',
+    profile_change_pw: 'パスワード変更',
+    profile_new_pw: '新しいパスワード',
+    ph_new_pw: '新しいパスワード',
+    profile_confirm_pw: '新しいパスワード（確認）',
+    ph_confirm_pw: '確認用パスワード',
+    btn_update_pw: 'パスワードを更新',
+    btn_logout: 'アカウントからログアウト',
+
+    day_t2: '月曜',
+    day_t3: '火曜',
+    day_t4: '水曜',
+    day_t5: '木曜',
+    day_t6: '金曜',
+    day_t7: '土曜',
+    day_cn: '日曜',
+    confirm_shift_overlap: '時間の重複警告：\nこのシフト（{start} ～ {end}）は、同じ{day}のシフト「{type}」（{oStart} ～ {oEnd}）と重複しています。\n\n本当に保存しますか？',
+    toast_cannot_restore_week: '復元先の週が見つかりません',
+    confirm_delete_week_named: '「{name}」（シフト{count}件）を削除してもよろしいですか？',
+    toast_week_deleted_undo: '「{name}」を削除しました',
+    toast_shift_deleted_undo: 'シフト {day}（{type}）を削除しました',
+    btn_undo: '元に戻す',
+    btn_clear_filters: 'すべてのフィルターを解除',
+    filter_no_match_title: '条件に一致するシフトがありません',
+    filter_no_match_desc: '選択したフィルター条件に一致するシフトがありません。',
+    filter_wp_all: '勤務先: すべて',
+    lbl_month_income: '今月の給与',
+    lbl_month_hours: '総時間',
+    lbl_month_workplaces: '勤務先',
+    unit_workplaces: '箇所',
+    lbl_month_dist: '月間給与の内訳',
+    auth_tab_login: 'ログイン',
+    auth_tab_register: '新規アカウント登録',
+    auth_err_missing_fields: 'ユーザー名とパスワードを両方入力してください。',
+    auth_err_no_email: 'ユーザー名でログインしてください（メールアドレス不可）。',
+    auth_err_supabase: 'Supabaseに接続できません。通信状態を確認するかリロードしてください。',
+    auth_err_invalid_creds: 'ユーザー名またはパスワードが正しくありません。',
+    auth_err_login_prefix: 'ログインエラー: ',
+    auth_err_conn_prefix: '接続エラー: ',
+    auth_login_success: 'ログインしました！ようこそ @{username} さん。',
+    auth_err_all_fields: 'すべての項目を入力してください。',
+    auth_err_at_char: 'ユーザー名に「@」を含めることはできません。',
+    auth_err_min_user: 'ユーザー名は3文字以上必要です。',
+    auth_err_min_pass: 'パスワードは6文字以上必要です。',
+    auth_err_pass_mismatch: 'パスワードが一致しません。',
+    auth_err_user_exists: 'このユーザー名は既に使用されています。別の名前を選んでください。',
+    auth_reg_fail_prefix: '登録に失敗しました: ',
+    confirm_logout: 'ログアウトしてもよろしいですか？',
+    toast_logged_out: 'ログアウトしました。',
+    pwd_hide: 'パスワードを隠す',
+    pwd_show: 'パスワードを表示',
+    profile_pw_updated: 'パスワードを変更しました！',
+    alert_file_read_error: 'ファイルを読み込めません: ',
+    confirm_delete_shift: 'このシフトを削除してもよろしいですか？',
+    toast_data_cleared: 'すべてのデータを初期化しました！',
+    toast_imported_success: 'データを正常に読み込みました！',
+    toast_invalid_json: '無効なJSONファイルまたはデータが不足しています。',
+    toast_slip_downloaded: '給与明細画像をダウンロードしました！',
+    toast_slip_copied: 'クリップボードにコピーしました！Ctrl+Vで貼り付け可能です。',
+    csv_slip_title: '給与明細・勤務実績',
+    csv_default_rate: '基本時給',
+    csv_col_day: '曜日',
+    csv_col_type: 'シフト',
+    csv_col_workplace: '勤務先',
+    csv_col_start: '開始',
+    csv_col_end: '終了',
+    csv_col_break: '休憩 (分)',
+    csv_col_hours: '時間',
+    csv_col_ot: '残業倍率',
+    csv_col_allowance: '手当/ボーナス',
+    csv_col_total: '給与',
+    csv_col_note: 'メモ',
+    csv_grand_total: '合計',
+    csv_all_weeks_title: '全週のシフト・給与集計',
+    csv_col_week: '週',
+    csv_col_date_range: '期間',
+    csv_col_work_date: '勤務日',
+    toast_csv_exported: 'CSVファイルを出力しました：',
+    toast_csv_all_exported: '全週の集計CSVを出力しました',
+    nav_account_user: 'アカウント'
   }
 };
 
@@ -192,6 +889,19 @@ const t = (key, fallback = '') => {
   return (I18N[lang] && I18N[lang][key]) || (I18N.vi && I18N.vi[key]) || fallback;
 };
 
+const getLocalizedWeekName = (name) => {
+  if (!name) return '';
+  const lang = getCurrentLang();
+  if (lang === 'vi') return name;
+  const m = String(name).match(/^(?:Tuần|Tuan)\s+(\d+)$/i);
+  if (m) {
+    const num = m[1];
+    if (lang === 'en') return `Week ${num}`;
+    if (lang === 'ja') return `第${num}週`;
+  }
+  return name;
+};
+
 const getLocalizedShiftType = (type) => {
   const formatted = formatShiftType(type);
   const lang = getCurrentLang();
@@ -200,6 +910,7 @@ const getLocalizedShiftType = (type) => {
   if (lower === 'sáng') return t('shift_morning', 'Morning');
   if (lower === 'trưa') return t('shift_noon', 'Noon');
   if (lower === 'tối') return t('shift_evening', 'Evening');
+  if (lower === 'khác') return t('shift_other', 'Other');
   return formatted;
 };
 
@@ -282,6 +993,8 @@ const applyLanguage = (lang, save = true) => {
 
 const translateUI = () => {
   const lang = getCurrentLang();
+
+  // 1. All text elements with data-i18n
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (I18N[lang] && I18N[lang][key]) {
@@ -289,28 +1002,32 @@ const translateUI = () => {
     }
   });
 
-  const kpiSalLabel = document.querySelector('#ledgerCardSummary .ledger-cell.primary .cell-label');
-  if (kpiSalLabel) kpiSalLabel.textContent = t('kpi_salary', 'Thu nhập tuần');
-  const kpiCells = document.querySelectorAll('#ledgerCardSummary .ledger-cell .cell-label');
-  if (kpiCells[1]) kpiCells[1].textContent = t('kpi_hours', 'Tổng thời gian');
-  if (kpiCells[2]) kpiCells[2].textContent = t('kpi_shifts', 'Số ca làm việc');
-
-  const shiftsTitleEl = document.querySelector('.shifts-title');
-  if (shiftsTitleEl) shiftsTitleEl.textContent = t('shifts_title', 'Danh sách ca làm việc');
-
-  const dockLabels = {
-    'dockPrevWeek': 'dock_prev',
-    'dockAddShift': 'dock_add',
-    'dockNextWeek': 'dock_next',
-    'dockAnalytics': 'dock_reports',
-    'dockShareSlip': 'dock_slip'
-  };
-  Object.entries(dockLabels).forEach(([id, k]) => {
-    const btn = document.getElementById(id);
-    const labelSpan = btn?.querySelector('.dock-label');
-    if (labelSpan) labelSpan.textContent = t(k, labelSpan.textContent);
+  // 2. All placeholder attributes with data-i18n-placeholder
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (I18N[lang] && I18N[lang][key]) {
+      el.placeholder = I18N[lang][key];
+    }
   });
 
+  // 3. All title and aria-label attributes with data-i18n-title
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (I18N[lang] && I18N[lang][key]) {
+      el.setAttribute('title', I18N[lang][key]);
+      el.setAttribute('aria-label', I18N[lang][key]);
+    }
+  });
+
+  // 4. All select options with data-i18n-opt
+  document.querySelectorAll('option[data-i18n-opt]').forEach(opt => {
+    const key = opt.getAttribute('data-i18n-opt');
+    if (I18N[lang] && I18N[lang][key]) {
+      opt.textContent = I18N[lang][key];
+    }
+  });
+
+  // 5. Filter pills row
   const filterPillMap = {
     'all': 'filter_all',
     'Sáng': 'filter_morning',
@@ -324,7 +1041,27 @@ const translateUI = () => {
     }
   });
 
+  // 6. Sync custom select triggers to show newly translated option labels
+  ['shiftDay', 'shiftType', 'shiftOtRate', 'filterWorkplaceSelect', 'analyticsTimeFilter', 'analyticsWorkplaceFilter'].forEach(id => {
+    syncCustomSelect(id);
+  });
+
+  // 7. Update sync status UI text
   updateSyncStatusUI();
+
+  // 8. Re-render any currently open modals
+  const allWeeksModal = document.getElementById('allWeeksModal');
+  if (allWeeksModal && allWeeksModal.style.display === 'flex') {
+    renderAnalyticsDashboard();
+  }
+  const shareSlipModal = document.getElementById('shareSlipModal');
+  if (shareSlipModal && shareSlipModal.style.display === 'flex') {
+    renderSlipCanvas();
+  }
+  const settingsModal = document.getElementById('settingsModal');
+  if (settingsModal && settingsModal.style.display === 'flex') {
+    renderSettingsWorkplaces();
+  }
 };
 
 const getPendingSyncKey = () => {
@@ -465,18 +1202,30 @@ const getSettingsStorageKey = () => {
 };
 
 const fmtCurrency = (num) => {
-  return new Intl.NumberFormat('vi-VN').format(Math.round(num || 0)) + ' đ';
+  const lang = getCurrentLang();
+  const val = Math.round(num || 0);
+  if (lang === 'en') {
+    return '$' + new Intl.NumberFormat('en-US').format(val);
+  }
+  if (lang === 'ja') {
+    return new Intl.NumberFormat('ja-JP').format(val) + ' 円';
+  }
+  return new Intl.NumberFormat('vi-VN').format(val) + ' đ';
 };
 
 const fmtHours = (hours) => {
   const h = Number(hours || 0);
-  return h.toFixed(2) + ' h';
+  return h.toFixed(2) + ' ' + t('unit_hour', 'h');
 };
 
 const hoursToHourMinutes = (hours) => {
   const totalMinutes = Math.round(Number(hours || 0) * 60);
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
+  const lang = getCurrentLang();
+  if (lang === 'ja') {
+    return `${h}時間 ${m < 10 ? '0' : ''}${m}分`;
+  }
   return `${h}h ${m < 10 ? '0' : ''}${m}m`;
 };
 
@@ -633,7 +1382,7 @@ const showToastWithAction = (message, actionText, actionCallback, duration = 800
   const toast = document.getElementById('toast');
   toast.innerHTML = `
     <span>${message}</span>
-    <button type="button" class="toast-action-btn" id="btnToastAction" title="${escapeHtml(actionText || 'Hoàn tác')}" aria-label="${escapeHtml(actionText || 'Hoàn tác')}">
+    <button type="button" class="toast-action-btn" id="btnToastAction" title="${escapeHtml(actionText || t('btn_undo', 'Hoàn tác'))}" aria-label="${escapeHtml(actionText || t('btn_undo', 'Hoàn tác'))}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14">
         <polyline points="1 4 1 10 7 10"></polyline>
         <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
@@ -807,7 +1556,8 @@ const updateHeaderAuthUI = () => {
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
     `;
-    btn.title = `Tài khoản: @${state.currentUser.username}`;
+    btn.title = `${t('nav_account_user', 'Tài khoản')}: @${state.currentUser.username}`;
+    btn.setAttribute('aria-label', btn.title);
   } else {
     btn.className = 'btn-morphic';
     btn.innerHTML = `
@@ -816,7 +1566,8 @@ const updateHeaderAuthUI = () => {
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
     `;
-    btn.title = 'Đăng nhập / Đăng ký tài khoản';
+    btn.title = t('nav_account', 'Đăng nhập / Đăng ký tài khoản');
+    btn.setAttribute('aria-label', btn.title);
   }
 };
 
@@ -945,7 +1696,7 @@ const renderWeekPills = () => {
     const totalWage = calculateWeekTotalSalary(week);
 
     item.innerHTML = `
-      <span class="wheel-item-name font-mono">${week.name}</span>
+      <span class="wheel-item-name font-mono">${getLocalizedWeekName(week.name)}</span>
       <span class="wheel-item-sub font-mono">${fmtCurrency(totalWage)}</span>
     `;
 
@@ -969,8 +1720,9 @@ const renderWeekDetails = () => {
   if (!week) return;
 
   const dateRange = getWeekDateRangeDisplay(week);
-  document.getElementById('currentWeekTitle').textContent = dateRange ? `${week.name} (${dateRange})` : week.name;
-  document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h`;
+  const localizedName = getLocalizedWeekName(week.name);
+  document.getElementById('currentWeekTitle').textContent = dateRange ? `${localizedName} (${dateRange})` : localizedName;
+  document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat(getCurrentLang() === 'vi' ? 'vi-VN' : 'en-US').format(week.rate)} ${t('rate_unit', 'đ/h')}`;
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
@@ -1175,7 +1927,7 @@ const updateFilterWorkplaceOptions = () => {
     });
   }
 
-  select.innerHTML = '<option value="">Nơi làm: Tất cả</option>';
+  select.innerHTML = `<option value="">${t('filter_wp_all', 'Nơi làm: Tất cả')}</option>`;
   Array.from(set).forEach(wp => {
     const opt = document.createElement('option');
     opt.value = wp;
@@ -1211,16 +1963,16 @@ const renderShiftsList = () => {
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
-        <div class="empty-state-title">Chưa có ca làm việc nào trong ${escapeHtml(week ? week.name : 'tuần này')}</div>
-        <p class="empty-state-desc">Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.</p>
+        <div class="empty-state-title">${t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này')}</div>
+        <p class="empty-state-desc">${t('empty_shifts_desc', 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.')}</p>
         <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
-          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
+          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>
-          <button class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="Xóa tuần này" aria-label="Xóa tuần này">
+          <button class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1255,18 +2007,18 @@ const renderShiftsList = () => {
 
   const shiftsCountBadge = document.getElementById('shiftsCountBadge');
   if (shiftsFilterState.workplace || shiftsFilterState.date) {
-    if (shiftsCountBadge) shiftsCountBadge.textContent = `${filteredShifts.length} / ${allShifts.length} ca`;
+    if (shiftsCountBadge) shiftsCountBadge.textContent = `${filteredShifts.length} / ${allShifts.length} ${t('unit_shift', 'ca')}`;
   } else {
-    if (shiftsCountBadge) shiftsCountBadge.textContent = `${allShifts.length} ca`;
+    if (shiftsCountBadge) shiftsCountBadge.textContent = `${allShifts.length} ${t('unit_shift', 'ca')}`;
   }
 
   if (allShifts.length > 0 && filteredShifts.length === 0) {
     listContainer.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-title">Không tìm thấy ca làm việc phù hợp</div>
-        <p class="empty-state-desc">Không có ca nào khớp với bộ lọc bạn đã chọn.</p>
+        <div class="empty-state-title">${t('filter_no_match_title', 'Không tìm thấy ca làm việc phù hợp')}</div>
+        <p class="empty-state-desc">${t('filter_no_match_desc', 'Không có ca nào khớp với bộ lọc bạn đã chọn.')}</p>
         <div style="margin-top: 0.85rem; display: flex; justify-content: center;">
-          <button class="btn-morphic btn-morphic-danger" id="btnResetShiftsFilter" title="Xóa toàn bộ bộ lọc" aria-label="Xóa bộ lọc">
+          <button class="btn-morphic btn-morphic-danger" id="btnResetShiftsFilter" title="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}" aria-label="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1302,7 +2054,7 @@ const renderShiftsList = () => {
     const typeClass = normType === 'trưa' ? 'type-trua' : (normType === 'tối' ? 'type-toi' : (normType === 'sáng' ? 'type-sang' : ''));
     const dayLabel = getLocalizedDayName(shift.day);
     const shiftDateStr = getShiftDateShort(week, shift.day);
-    const breakTag = shift.breakMinutes ? ` • nghỉ ${shift.breakMinutes}m` : '';
+    const breakTag = shift.breakMinutes ? ` • ${t('break_tag', 'nghỉ')} ${shift.breakMinutes}${t('unit_min', 'm')}` : '';
 
     const otRateVal = Number(shift.otRate) || 1.0;
     const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">x${otRateVal}</span>` : '';
@@ -1334,13 +2086,13 @@ const renderShiftsList = () => {
       <div class="shift-right">
         <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
-          <button class="btn-morphic btn-morphic-sm" title="Chỉnh sửa ca" data-edit-shift="${shift.id}" aria-label="Sửa">
+          <button class="btn-morphic btn-morphic-sm" title="${t('btn_edit_shift', 'Sửa ca')}" data-edit-shift="${shift.id}" aria-label="${t('btn_edit_shift', 'Sửa')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
-          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" title="Xóa ca" data-delete-shift="${shift.id}" aria-label="Xóa">
+          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" title="${t('btn_delete_shift', 'Xóa ca')}" data-delete-shift="${shift.id}" aria-label="${t('btn_delete_shift', 'Xóa')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1355,7 +2107,7 @@ const renderShiftsList = () => {
     });
 
     card.querySelector(`[data-delete-shift="${shift.id}"]`).addEventListener('click', () => {
-      if (confirm(`Bạn có chắc muốn xóa ca ${shift.day} (${shift.type} ${shift.start}-${shift.end}) không?`)) {
+      if (confirm(`${t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm này không?')} (${getLocalizedDayName(shift.day)} ${getLocalizedShiftType(shift.type)} ${shift.start}-${shift.end})`)) {
         deleteShift(shift.id);
       }
     });
@@ -1391,7 +2143,7 @@ const updateShiftDayOptions = (week) => {
     const opt = document.createElement('option');
     opt.value = day;
     const dateStr = getShiftDateShort(week, day);
-    opt.textContent = dateStr ? `${day} (${dateStr})` : day;
+    opt.textContent = dateStr ? `${getLocalizedDayName(day)} (${dateStr})` : getLocalizedDayName(day);
     select.appendChild(opt);
   });
   if (days.includes(currentVal)) {
@@ -1732,7 +2484,7 @@ const updateModalComputedPreview = () => {
   const rate = getShiftRate({ workplace }, week);
   const wage = Math.round(hours * rate * otRate + allowance);
 
-  const breakLabel = breakMins > 0 ? ` (nghỉ ${breakMins}m)` : '';
+  const breakLabel = breakMins > 0 ? ` (${t('break_tag', 'nghỉ')} ${breakMins}${t('unit_min', 'm')})` : '';
   const otLabel = otRate > 1 ? ` • x${otRate}` : '';
   document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}${otLabel}`;
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
@@ -1770,7 +2522,16 @@ const saveShiftFromModal = (e) => {
   });
 
   if (overlappingShift) {
-    const confirmSave = confirm(`CẢNH BÁO TRÙNG GIỜ:\nCa làm này (${start} – ${end}) bị đè thời gian lên ca "${overlappingShift.type}" (${overlappingShift.start} – ${overlappingShift.end}) của cùng ngày ${day}.\n\nBạn có chắc chắn vẫn muốn lưu không?`);
+    const overlapPattern = t('confirm_shift_overlap');
+    const confirmMsg = overlapPattern
+      ? overlapPattern.replace('{start}', start)
+          .replace('{end}', end)
+          .replace('{type}', getLocalizedShiftType(overlappingShift.type))
+          .replace('{oStart}', overlappingShift.start)
+          .replace('{oEnd}', overlappingShift.end)
+          .replace('{day}', getLocalizedDayName(day))
+      : `CẢNH BÁO TRÙNG GIỜ:\nCa làm này (${start} – ${end}) bị đè thời gian lên ca "${overlappingShift.type}" (${overlappingShift.start} – ${overlappingShift.end}) của cùng ngày ${day}.\n\nBạn có chắc chắn vẫn muốn lưu không?`;
+    const confirmSave = confirm(confirmMsg);
     if (!confirmSave) return;
   }
 
@@ -1786,7 +2547,7 @@ const saveShiftFromModal = (e) => {
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
       week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, otRate, allowance, hours, workplace, note };
-      showToast('Đã cập nhật ca làm');
+      showToast(t('toast_shift_updated', 'Đã cập nhật ca làm'));
     }
   } else {
     const newShift = {
@@ -1835,7 +2596,8 @@ const deleteShift = (shiftId) => {
     index: shiftIndex
   };
 
-  showToastWithAction(`Đã xóa ca ${removedShift.day} (${removedShift.type})`, 'Hoàn tác', () => {
+  const delMsg = `${t('toast_shift_deleted', 'Đã xóa ca')} ${getLocalizedDayName(removedShift.day)} (${getLocalizedShiftType(removedShift.type)})`;
+  showToastWithAction(delMsg, t('btn_undo', 'Hoàn tác'), () => {
     undoLastDeleteShift();
   }, 8000);
 };
@@ -1845,7 +2607,7 @@ const undoLastDeleteShift = () => {
   const { weekId, shift, index } = lastDeletedShiftRecord;
   const targetWeek = state.weeks.find(w => w.id === weekId);
   if (!targetWeek) {
-    showToast('Không tìm thấy tuần để khôi phục');
+    showToast(t('toast_cannot_restore_week', 'Không tìm thấy tuần để khôi phục'));
     return;
   }
   if (typeof index === 'number' && index >= 0 && index <= targetWeek.shifts.length) {
@@ -1858,7 +2620,7 @@ const undoLastDeleteShift = () => {
   renderWeekPills();
   renderWeekDetails();
   renderShiftsList();
-  showToast(`Đã khôi phục ca ${shift.day} (${shift.type})!`);
+  showToast(`${t('toast_shift_restored', 'Đã khôi phục ca làm việc!')} ${getLocalizedDayName(shift.day)} (${getLocalizedShiftType(shift.type)})`);
 };
 
 const createNewWeek = () => {
@@ -1934,11 +2696,14 @@ const deleteCurrentWeek = () => {
   if (!week) return;
 
   if (state.weeks.length <= 1) {
-    alert('Không thể xóa tuần duy nhất còn lại.');
+    alert(t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'));
     return;
   }
 
-  if (confirm(`Bạn có chắc chắn muốn xóa "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
+  const delWeekMsg = t('confirm_delete_week_named')
+    ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
+    : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
+  if (confirm(delWeekMsg)) {
     const weekIndex = state.weeks.findIndex(w => w.id === week.id);
     const removedWeek = { ...week, shifts: [...week.shifts] };
 
@@ -1953,7 +2718,7 @@ const deleteCurrentWeek = () => {
       index: weekIndex
     };
 
-    showToastWithAction(`Đã xóa ${removedWeek.name}`, 'Hoàn tác', () => {
+    showToastWithAction(`${t('toast_week_deleted', 'Đã xóa')} ${getLocalizedWeekName(removedWeek.name)}`, t('btn_undo', 'Hoàn tác'), () => {
       undoLastDeleteWeek();
     }, 8000);
   }
@@ -1999,7 +2764,20 @@ const renderMonthlyReport = () => {
     (week.shifts || []).forEach(shift => {
       const dObj = getShiftDateObj(week, shift.day);
       const mKey = dObj ? dObj.monthKey : 'unknown';
-      const mLabel = dObj ? `Tháng ${dObj.month}/${dObj.year}` : 'Không rõ thời gian';
+      let mLabel = '';
+      if (dObj) {
+        const lang = getCurrentLang();
+        if (lang === 'en') {
+          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          mLabel = `${mNames[dObj.month - 1]} ${dObj.year}`;
+        } else if (lang === 'ja') {
+          mLabel = `${dObj.year}年${dObj.month}月`;
+        } else {
+          mLabel = `Tháng ${dObj.month}/${dObj.year}`;
+        }
+      } else {
+        mLabel = t('time_unknown', 'Không rõ thời gian');
+      }
 
       if (!monthMap[mKey]) {
         monthMap[mKey] = {
@@ -2039,8 +2817,8 @@ const renderMonthlyReport = () => {
   if (monthKeys.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="padding: 2.5rem 1rem;">
-        <div class="empty-state-title">Chưa có dữ liệu theo tháng</div>
-        <p class="empty-state-desc">Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.</p>
+        <div class="empty-state-title">${t('empty_month_title', 'Chưa có dữ liệu theo tháng')}</div>
+        <p class="empty-state-desc">${t('empty_month_desc', 'Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.')}</p>
       </div>
     `;
     return;
@@ -2086,26 +2864,26 @@ const renderMonthlyReport = () => {
           </svg>
           <span class="font-mono" style="font-size:1.05rem; font-weight:700;">${data.label}</span>
         </div>
-        <span class="badge-count font-mono">${data.shiftCount} ca</span>
+        <span class="badge-count font-mono">${data.shiftCount} ${t('unit_shift', 'ca')}</span>
       </div>
 
       <div class="monthly-kpi-row">
         <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">Thu nhập tháng</span>
+          <span class="cell-label font-mono">${t('lbl_month_income', 'Thu nhập tháng')}</span>
           <span class="cell-number font-mono text-bold-dark" style="color:var(--primary); font-size:1.15rem;">${fmtCurrency(data.totalEarnings)}</span>
         </div>
         <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">Tổng thời gian</span>
+          <span class="cell-label font-mono">${t('lbl_month_hours', 'Tổng thời gian')}</span>
           <span class="cell-number font-mono">${fmtHours(data.totalHours)}</span>
         </div>
         <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">Nơi làm việc</span>
-          <span class="cell-number font-mono">${wpList.length} nơi</span>
+          <span class="cell-label font-mono">${t('lbl_month_workplaces', 'Nơi làm việc')}</span>
+          <span class="cell-number font-mono">${wpList.length} ${t('unit_workplaces', 'nơi')}</span>
         </div>
       </div>
 
       <div class="monthly-workplaces-section">
-        <span class="field-hint font-mono" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">Phân bổ thu nhập trong tháng</span>
+        <span class="field-hint font-mono" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">${t('lbl_month_dist', 'Phân bổ thu nhập trong tháng')}</span>
         ${wpBreakdownHtml}
       </div>
     `;
@@ -2166,12 +2944,12 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
       <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
       <td>
         <div class="table-actions">
-          <button class="btn-morphic btn-morphic-sm" data-jump-week="${week.id}" title="Xem tuần này" aria-label="Xem tuần này">
+          <button class="btn-morphic btn-morphic-sm" data-jump-week="${week.id}" title="${t('view_this_week', 'Xem tuần này')}" aria-label="${t('view_this_week', 'Xem tuần này')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
-          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" data-delete-week="${week.id}" title="Xóa ${escapeHtml(week.name)}" aria-label="Xóa ${escapeHtml(week.name)}">
+          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" data-delete-week="${week.id}" title="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}" aria-label="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2189,10 +2967,13 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
 
     tr.querySelector(`[data-delete-week="${week.id}"]`).addEventListener('click', () => {
       if (state.weeks.length <= 1) {
-        alert('Không thể xóa tuần duy nhất còn lại.');
+        alert(t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'));
         return;
       }
-      if (confirm(`Bạn có chắc chắn muốn xóa "${week.name}" bao gồm ${week.shifts.length} ca làm việc không?`)) {
+      const delWeekMsg = t('confirm_delete_week_named')
+    ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
+    : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
+  if (confirm(delWeekMsg)) {
         state.weeks = state.weeks.filter(w => w.id !== week.id);
         if (state.currentWeekId === week.id) {
           state.currentWeekId = state.weeks[state.weeks.length - 1].id;
@@ -2211,7 +2992,7 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
 
   document.getElementById('allTimeTotalEarnings').textContent = fmtCurrency(totalEarnings);
   document.getElementById('allTimeTotalHours').textContent = fmtHours(totalHours);
-  document.getElementById('allTimeTotalShifts').textContent = `${totalShifts} ca`;
+  document.getElementById('allTimeTotalShifts').textContent = `${totalShifts} ${t('unit_shift', 'ca')}`;
   document.getElementById('allTimeAvgWeekEarnings').textContent = fmtCurrency(avgWeekEarnings);
 
   document.getElementById('allWeeksModal').style.display = 'flex';
@@ -2351,7 +3132,7 @@ const drawTimelineChart = (data) => {
       }
       const dateStr = curWeek ? getShiftDateShort(curWeek, d) : '';
       return {
-        label: d,
+        label: getLocalizedDayName(d),
         subLabel: dateStr,
         salary,
         hours
@@ -2370,7 +3151,7 @@ const drawTimelineChart = (data) => {
       });
       const range = getWeekDateRangeDisplay(w);
       return {
-        label: w.name,
+        label: getLocalizedWeekName(w.name),
         subLabel: range ? range.split('–')[0].trim() : '',
         salary,
         hours
@@ -2489,7 +3270,7 @@ const drawDonutChart = (data) => {
     ctx.fillStyle = subtextColor;
     ctx.font = '500 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Chưa có ca', cx, cy + 4);
+    ctx.fillText(t('no_shifts', 'Chưa có ca'), cx, cy + 4);
     return;
   }
 
@@ -2519,7 +3300,7 @@ const drawDonutChart = (data) => {
 
   ctx.fillStyle = subtextColor;
   ctx.font = '500 9px "Outfit", sans-serif';
-  ctx.fillText('Tổng thu', cx, cy + 15);
+  ctx.fillText(t('lbl_total_revenue', 'Tổng thu'), cx, cy + 15);
 };
 
 const renderAnalyticsDashboard = () => {
@@ -2527,24 +3308,31 @@ const renderAnalyticsDashboard = () => {
 
   document.getElementById('akTotalSalary').textContent = fmtCurrency(data.totalSalary);
   document.getElementById('akTotalHours').textContent = fmtHours(data.totalHours);
-  document.getElementById('akTotalShifts').textContent = `${data.totalShifts} ca`;
+  document.getElementById('akTotalShifts').textContent = `${data.totalShifts} ${t('unit_shift', 'ca')}`;
   document.getElementById('akTopWorkplace').textContent = data.topWp;
-  document.getElementById('akTopWorkplaceShare').textContent = `${data.topShare} tổng thu`;
+  document.getElementById('akTopWorkplaceShare').textContent = `${data.topShare} ${t('lbl_total_revenue', 'tổng thu')}`;
+
+  const avgH = data.totalShifts > 0 ? (data.totalHours / data.totalShifts).toFixed(1) : '0.0';
+  const avgEl = document.getElementById('akAvgHoursPerShift');
+  if (avgEl) avgEl.textContent = `${avgH}${t('unit_hour', 'h')} / ${t('unit_shift', 'ca')}`;
+
+  const wpCountEl = document.getElementById('akWorkplaceCount');
+  if (wpCountEl) wpCountEl.textContent = `${data.workplaceList.length} ${t('unit_workplaces', 'nơi làm')}`;
 
   const periodNames = {
-    'current': 'Tuần này',
-    'recent': '4 tuần gần nhất',
-    'all': 'Tất cả các tuần'
+    'current': t('time_this_week', 'Tuần này'),
+    'recent': t('time_4_weeks', '4 tuần gần nhất'),
+    'all': t('time_all_weeks', 'Tất cả các tuần')
   };
   document.getElementById('akSalaryPeriod').textContent = periodNames[analyticsState.timeFilter] || '';
 
   const subtitle = document.getElementById('timelineChartSubtitle');
   if (subtitle) {
-    subtitle.textContent = analyticsState.timeFilter === 'current' ? 'Theo ngày (VNĐ)' : 'Theo tuần (VNĐ)';
+    subtitle.textContent = analyticsState.timeFilter === 'current' ? t('chart_sub_daily', 'Theo ngày (VNĐ)') : t('chart_sub_weekly', 'Theo tuần (VNĐ)');
   }
   const title = document.getElementById('timelineChartTitle');
   if (title) {
-    title.textContent = analyticsState.timeFilter === 'current' ? 'Thu nhập theo ngày làm việc' : 'Thu nhập theo từng tuần';
+    title.textContent = analyticsState.timeFilter === 'current' ? t('chart_title_daily', 'Thu nhập theo ngày làm việc') : t('chart_title_weekly', 'Thu nhập theo từng tuần');
   }
 
   const pillsContainer = document.getElementById('analyticsWorkplaceFilterPills');
@@ -2552,7 +3340,7 @@ const renderAnalyticsDashboard = () => {
     pillsContainer.innerHTML = '';
     const allPill = document.createElement('span');
     allPill.className = `workplace-chip font-mono ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
-    allPill.textContent = 'Tất cả';
+    allPill.textContent = t('filter_all', 'Tất cả');
     allPill.addEventListener('click', () => {
       analyticsState.workplaceFilter = 'all';
       renderAnalyticsDashboard();
@@ -2579,7 +3367,7 @@ const renderAnalyticsDashboard = () => {
   if (breakdownContainer) {
     breakdownContainer.innerHTML = '';
     if (data.workplaceList.length === 0) {
-      breakdownContainer.innerHTML = `<span class="field-hint" style="font-size:0.8rem;">Chưa có dữ liệu ca làm việc.</span>`;
+      breakdownContainer.innerHTML = `<span class="field-hint" style="font-size:0.8rem;">${t('no_shift_data', 'Chưa có dữ liệu ca làm việc.')}</span>`;
     } else {
       data.workplaceList.forEach(wp => {
         const percent = data.totalSalary > 0 ? Math.round((wp.salary / data.totalSalary) * 100) : 0;
@@ -2623,7 +3411,7 @@ const renderSettingsWorkplaces = () => {
     const emptyRow = document.createElement('div');
     emptyRow.className = 'empty-wp-hint';
     emptyRow.style.cssText = 'padding: 0.75rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;';
-    emptyRow.textContent = 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.';
+    emptyRow.textContent = t('empty_workplaces_hint', 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.');
     container.appendChild(emptyRow);
     return;
   }
@@ -2640,10 +3428,10 @@ const renderSettingsWorkplaces = () => {
       </div>
       <div class="settings-wp-rate-wrap">
         <div class="settings-wp-rate-box">
-          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 0}" step="1000" min="0" title="Đơn giá riêng (đ/h)">
-          <span class="settings-wp-rate-tag font-mono">đ/h</span>
+          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 0}" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá riêng (đ/h)')}">
+          <span class="settings-wp-rate-tag font-mono">${t('rate_unit', 'đ/h')}</span>
         </div>
-        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="Xóa nơi làm ${escapeHtml(wp)}" aria-label="Xóa nơi làm ${escapeHtml(wp)}">
+        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -2770,7 +3558,7 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 15px "Outfit", system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText((week.name || 'Tuần').toUpperCase(), totalWidth / 2, padTop + 21);
+  ctx.fillText((getLocalizedWeekName(week.name) || t('week_prefix', 'Tuần')).toUpperCase(), totalWidth / 2, padTop + 21);
 
  
   const tableY = padTop + headerHeight;
@@ -2779,10 +3567,10 @@ const renderSlipCanvas = () => {
 
   if (includeMoney) {
     colWidths = [104, 85, 85, 90, 110];
-    thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ', 'Thành tiền'];
+    thTitles = [t('slip_th_shift', 'Ca'), t('slip_th_start', 'Giờ vào'), t('slip_th_end', 'Giờ ra'), t('slip_th_hours', 'Số giờ'), t('slip_th_amount', 'Thành tiền')];
   } else {
     colWidths = [134, 110, 110, 120];
-    thTitles = ['Ca', 'Giờ vào', 'Giờ ra', 'Số giờ'];
+    thTitles = [t('slip_th_shift', 'Ca'), t('slip_th_start', 'Giờ vào'), t('slip_th_end', 'Giờ ra'), t('slip_th_hours', 'Số giờ')];
   }
 
   const colX = [padX];
@@ -2831,7 +3619,7 @@ const renderSlipCanvas = () => {
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
     const otExtra = (s.otRate && Number(s.otRate) > 1) ? ` (x${s.otRate})` : '';
-    const shiftLabel = `${s.day} ${formatShiftType(s.type)}${otExtra}`;
+    const shiftLabel = `${getLocalizedDayName(s.day)} ${getLocalizedShiftType(s.type)}${otExtra}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -2867,7 +3655,7 @@ const renderSlipCanvas = () => {
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 13px "Outfit", sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('Tổng', colX[0] + 10, curY + 23);
+  ctx.fillText(t('slip_total', 'Tổng'), colX[0] + 10, curY + 23);
 
  
   ctx.font = 'bold 13px "JetBrains Mono", monospace';
@@ -2910,13 +3698,13 @@ const switchAuthTab = (tab) => {
     btnRegister.classList.remove('active');
     formLogin.style.display = 'flex';
     formRegister.style.display = 'none';
-    if (title) title.textContent = 'Đăng nhập tài khoản';
+    if (title) title.textContent = t('auth_tab_login', 'Đăng nhập tài khoản');
   } else {
     btnRegister.classList.add('active');
     btnLogin.classList.remove('active');
     formRegister.style.display = 'flex';
     formLogin.style.display = 'none';
-    if (title) title.textContent = 'Đăng ký tài khoản mới';
+    if (title) title.textContent = t('auth_tab_register', 'Đăng ký tài khoản mới');
   }
   clearAuthErrors();
 };
@@ -2972,13 +3760,13 @@ const handleLoginSubmit = async (e) => {
   const errorEl = document.getElementById('loginError');
 
   if (!rawInput || !password) {
-    errorEl.textContent = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
+    errorEl.textContent = t('auth_err_missing_fields', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (rawInput.includes('@')) {
-    errorEl.textContent = 'Chỉ cho phép đăng nhập bằng tên tài khoản (không dùng email).';
+    errorEl.textContent = t('auth_err_no_email', 'Chỉ cho phép đăng nhập bằng tên tài khoản (không dùng email).');
     errorEl.style.display = 'block';
     return;
   }
@@ -2986,7 +3774,7 @@ const handleLoginSubmit = async (e) => {
   errorEl.style.display = 'none';
 
   if (!supabaseClient) {
-    errorEl.textContent = 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.';
+    errorEl.textContent = t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.');
     errorEl.style.display = 'block';
     return;
   }
@@ -3003,8 +3791,8 @@ const handleLoginSubmit = async (e) => {
 
     if (error) {
       errorEl.textContent = error.message === 'Invalid login credentials'
-        ? 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.'
-        : `Lỗi đăng nhập: ${error.message}`;
+        ? t('auth_err_invalid_creds', 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.')
+        : `${t('auth_err_login_prefix', 'Lỗi đăng nhập: ')}${error.message}`;
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
@@ -3020,9 +3808,9 @@ const handleLoginSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formLogin').reset();
-    showToast(`Đăng nhập thành công! Chào @${username}.`);
+    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
   } catch (err) {
-    errorEl.textContent = `Lỗi kết nối: ${err.message}`;
+    errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi kết nối: ')}${err.message}`;
     errorEl.style.display = 'block';
   } finally {
     if (submitBtn) submitBtn.disabled = false;
@@ -3037,37 +3825,37 @@ const handleRegisterSubmit = async (e) => {
   const errorEl = document.getElementById('regError');
 
   if (!rawUsername || !password || !passwordConfirm) {
-    errorEl.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
+    errorEl.textContent = t('auth_err_all_fields', 'Vui lòng điền đầy đủ tất cả các trường.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (rawUsername.includes('@')) {
-    errorEl.textContent = 'Tên tài khoản không được chứa ký tự @.';
+    errorEl.textContent = t('auth_err_at_char', 'Tên tài khoản không được chứa ký tự @.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (rawUsername.length < 3) {
-    errorEl.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
+    errorEl.textContent = t('auth_err_min_user', 'Tên đăng nhập phải có ít nhất 3 ký tự.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (password.length < 6) {
-    errorEl.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.';
+    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu phải có ít nhất 6 ký tự.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (password !== passwordConfirm) {
-    errorEl.textContent = 'Xác nhận mật khẩu không khớp.';
+    errorEl.textContent = t('auth_err_pass_mismatch', 'Xác nhận mật khẩu không khớp.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (!supabaseClient) {
-    errorEl.textContent = 'Chưa kết nối được với Supabase. Vui lòng tải lại trang.';
+    errorEl.textContent = t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng tải lại trang.');
     errorEl.style.display = 'block';
     return;
   }
@@ -3088,9 +3876,9 @@ const handleRegisterSubmit = async (e) => {
     if (error) {
       let msg = error.message;
       if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-        msg = 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.';
+        msg = t('auth_err_user_exists', 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.');
       } else {
-        msg = `Đăng ký thất bại: ${msg}`;
+        msg = `${t('auth_reg_fail_prefix', 'Đăng ký thất bại: ')}${msg}`;
       }
       errorEl.textContent = msg;
       errorEl.style.display = 'block';
@@ -3099,7 +3887,7 @@ const handleRegisterSubmit = async (e) => {
     }
 
     if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
-      errorEl.textContent = 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.';
+      errorEl.textContent = t('auth_err_user_exists', 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.');
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
@@ -3137,9 +3925,9 @@ const handleRegisterSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formRegister').reset();
-    showToast(`Tạo tài khoản thành công! Chào @${rawUsername}.`);
+    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', rawUsername));
   } catch (err) {
-    errorEl.textContent = `Lỗi: ${err.message}`;
+    errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message}`;
     errorEl.style.display = 'block';
   } finally {
     if (submitBtn) submitBtn.disabled = false;
@@ -3147,7 +3935,7 @@ const handleRegisterSubmit = async (e) => {
 };
 
 const handleLogout = async () => {
-  if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+  if (confirm(t('confirm_logout', 'Bạn có chắc chắn muốn đăng xuất không?'))) {
     if (supabaseClient) {
       await supabaseClient.auth.signOut();
     }
@@ -3156,7 +3944,7 @@ const handleLogout = async () => {
     await loadState();
     renderApp();
     document.getElementById('userProfileModal').style.display = 'none';
-    showToast('Đã đăng xuất tài khoản.');
+    showToast(t('toast_logged_out', 'Đã đăng xuất tài khoản.'));
   }
 };
 
@@ -3186,13 +3974,13 @@ const setupPasswordToggles = () => {
       if (input.type === 'password') {
         input.type = 'text';
         btn.innerHTML = EYE_OFF_SVG;
-        btn.setAttribute('title', 'Ẩn mật khẩu');
-        btn.setAttribute('aria-label', 'Ẩn mật khẩu');
+        btn.setAttribute('title', t('pwd_hide', 'Ẩn mật khẩu'));
+        btn.setAttribute('aria-label', t('pwd_hide', 'Ẩn mật khẩu'));
       } else {
         input.type = 'password';
         btn.innerHTML = EYE_OPEN_SVG;
-        btn.setAttribute('title', 'Hiện mật khẩu');
-        btn.setAttribute('aria-label', 'Hiện mật khẩu');
+        btn.setAttribute('title', t('pwd_show', 'Hiện mật khẩu'));
+        btn.setAttribute('aria-label', t('pwd_show', 'Hiện mật khẩu'));
       }
     });
   });
@@ -3206,13 +3994,13 @@ const handleChangePasswordSubmit = async (e) => {
   const submitBtn = document.getElementById('btnSubmitChangePassword');
 
   if (!newPassword || newPassword.length < 6) {
-    errorEl.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
+    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (newPassword !== confirmPassword) {
-    errorEl.textContent = 'Mật khẩu xác nhận không khớp.';
+    errorEl.textContent = t('auth_err_pass_mismatch', 'Mật khẩu xác nhận không khớp.');
     errorEl.style.display = 'block';
     return;
   }
@@ -3226,7 +4014,7 @@ const handleChangePasswordSubmit = async (e) => {
 
   try {
     if (!supabaseClient) {
-      throw new Error('Chưa kết nối tới cơ sở dữ liệu đám mây.');
+      throw new Error(t('auth_err_supabase', 'Chưa kết nối tới cơ sở dữ liệu đám mây.'));
     }
 
     const { data, error } = await supabaseClient.auth.updateUser({
@@ -3235,13 +4023,13 @@ const handleChangePasswordSubmit = async (e) => {
 
     if (error) throw error;
 
-    showToast('Đổi mật khẩu thành công!');
+    showToast(t('profile_pw_updated', 'Đổi mật khẩu thành công!'));
     document.getElementById('formChangePassword').reset();
     document.getElementById('formChangePassword').style.display = 'none';
     const chevron = document.getElementById('iconChangePwdChevron');
     if (chevron) chevron.style.transform = 'rotate(0deg)';
   } catch (err) {
-    errorEl.textContent = `Lỗi: ${err.message || 'Không thể đổi mật khẩu.'}`;
+    errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
     errorEl.style.display = 'block';
   } finally {
     if (submitBtn) {
@@ -3258,7 +4046,7 @@ const openShareSlipModal = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  document.getElementById('shareSlipModalTitle').textContent = 'Phiếu chấm công';
+  document.getElementById('shareSlipModalTitle').textContent = t('slip_modal_title', 'Phiếu chấm công');
   renderSlipCanvas();
   document.getElementById('shareSlipModal').style.display = 'flex';
 };
@@ -3272,7 +4060,7 @@ const downloadSlipImage = () => {
   a.download = `bang_cham_cong_${slugify(week.name)}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
-  showToast('Đã tải ảnh bảng chấm công!');
+  showToast(t('toast_slip_downloaded', 'Đã tải ảnh bảng chấm công!'));
 };
 
 const copySlipImageToClipboard = async () => {
@@ -3286,7 +4074,7 @@ const copySlipImageToClipboard = async () => {
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': blob })
         ]);
-        showToast('Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.');
+        showToast(t('toast_slip_copied', 'Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.'));
       } else {
         downloadSlipImage();
       }
@@ -3302,29 +4090,31 @@ const exportCurrentWeekCSV = () => {
   if (!week) return;
 
   let csvContent = '\uFEFF';
-  csvContent += `BẢNG CHẤM CÔNG VÀ LƯƠNG — ${week.name}\r\n`;
-  csvContent += `Đơn giá mặc định: ${week.rate} VNĐ/h\r\n\r\n`;
-  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Nghỉ (phút),Số giờ,Hệ số OT,Thưởng/Phụ cấp (VNĐ),Thành tiền (VNĐ),Ghi chú\r\n`;
+  const unit = t('rate_unit', 'đ/h');
+  csvContent += `${t('csv_slip_title', 'BẢNG CHẤM CÔNG VÀ LƯƠNG')} — ${getLocalizedWeekName(week.name)}\r\n`;
+  csvContent += `${t('csv_default_rate', 'Đơn giá mặc định')}: ${week.rate} ${unit}\r\n\r\n`;
+  csvContent += `"${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Giờ bắt đầu')}","${t('csv_col_end', 'Giờ kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   week.shifts.forEach(s => {
     const salary = getShiftEarnings(s, week);
     const ot = Number(s.otRate) || 1.0;
     const allowance = Number(s.allowance) || 0;
-    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    csvContent += `"${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
-  csvContent += `\r\nTỔNG CỘNG,,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
+  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
 
   downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
-  showToast(`Đã xuất file CSV cho ${week.name}`);
+  showToast(`${t('toast_csv_exported', 'Đã xuất file CSV cho')} ${getLocalizedWeekName(week.name)}`);
 };
 
 const exportAllWeeksCSV = () => {
   let csvContent = '\uFEFF';
-  csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
-  csvContent += `Tuần,Khoảng ngày,Đơn giá mặc định (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Nghỉ (phút),Số giờ,Hệ số OT,Thưởng/Phụ cấp (VNĐ),Thành tiền (VNĐ),Ghi chú\r\n`;
+  const unit = t('rate_unit', 'đ/h');
+  csvContent += `${t('csv_all_weeks_title', 'TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN')}\r\n\r\n`;
+  csvContent += `"${t('csv_col_week', 'Tuần')}","${t('csv_col_date_range', 'Khoảng ngày')}","${t('csv_default_rate', 'Đơn giá mặc định')} (${unit})","${t('csv_col_work_date', 'Ngày làm')}","${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Bắt đầu')}","${t('csv_col_end', 'Kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -3338,14 +4128,14 @@ const exportAllWeeksCSV = () => {
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${getLocalizedWeekName(w.name)}","${weekRange}",${w.rate},"${shiftFullDate}","${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
 
   downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
-  showToast('Đã xuất tổng hợp toàn bộ các tuần');
+  showToast(t('toast_csv_all_exported', 'Đã xuất tổng hợp toàn bộ các tuần'));
 };
 
 const backupJSON = () => {
@@ -3383,12 +4173,12 @@ const restoreJSON = (e) => {
         saveSettings();
         closeModal('settingsModal');
         renderApp();
-        showToast('Khôi phục dữ liệu thành công!');
+        showToast(t('toast_imported_success', 'Đã nhập dữ liệu thành công!'));
       } else {
-        alert('File JSON không hợp lệ hoặc thiếu dữ liệu.');
+        alert(t('toast_invalid_json', 'File JSON không hợp lệ hoặc thiếu dữ liệu.'));
       }
     } catch (err) {
-      alert('Không thể đọc file: ' + err.message);
+      alert(t('alert_file_read_error', 'Không thể đọc file: ') + err.message);
     }
   };
   reader.readAsText(file);
@@ -3502,7 +4292,7 @@ const bindEvents = () => {
     btnDeleteShiftModal.addEventListener('click', () => {
       const editId = document.getElementById('editShiftId').value;
       if (editId) {
-        if (confirm('Bạn có chắc chắn muốn xóa ca làm việc này không?')) {
+        if (confirm(t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm việc này không?'))) {
           deleteShift(editId);
           closeModal('shiftModal');
         }
@@ -3791,7 +4581,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025l').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025m').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
@@ -3884,6 +4674,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await initAuth();
   await loadState();
+  if (state.settings?.language) {
+    applyLanguage(state.settings.language, false);
+  }
   bindEvents();
   renderApp();
   setupRealtimeSync();
