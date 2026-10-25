@@ -27,6 +27,393 @@ const GUEST_WEEKS_KEY = 'shift_tracker_weeks_v2';
 const GUEST_SETTINGS_KEY = 'shift_tracker_settings_v2';
 const LOCAL_CACHE_WEEKS_KEY = 'salary_cloud_cache_weeks';
 const LOCAL_CACHE_SETTINGS_KEY = 'salary_cloud_cache_settings';
+const PENDING_SYNC_KEY = 'salary_tracker_pending_sync';
+
+// ===== I18N TRANSLATIONS (VI, EN, JA) =====
+const I18N = {
+  vi: {
+    app_title: 'Salary Tracker',
+    theme_light: 'Sáng',
+    theme_dark: 'Tối',
+    theme_auto: 'Tự động',
+    cloud_synced: 'Đã đồng bộ đám mây',
+    cloud_pending: 'Chờ kết nối mạng để đồng bộ',
+    cloud_offline: 'Đang ngoại tuyến (Offline)',
+    cloud_syncing: 'Đang đồng bộ...',
+    cloud_btn_sync: 'Đồng bộ ngay',
+    toast_online_syncing: 'Đã có kết nối mạng. Đang tự động đồng bộ lên đám mây...',
+    toast_synced_success: 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây!',
+    toast_offline_mode: 'Bạn đang ngoại tuyến. Dữ liệu sẽ lưu cục bộ và tự động đồng bộ khi online.',
+    toast_sync_manual_done: 'Đã đồng bộ thành công dữ liệu đám mây!',
+    toast_sync_manual_fail: 'Không thể kết nối máy chủ để đồng bộ.',
+    kpi_salary: 'Thu nhập tuần',
+    kpi_hours: 'Tổng thời gian',
+    kpi_shifts: 'Số ca làm việc',
+    shifts_title: 'Danh sách ca làm việc',
+    filter_all: 'Tất cả',
+    filter_morning: 'Sáng',
+    filter_noon: 'Trưa',
+    filter_evening: 'Tối',
+    dock_prev: 'Tuần trước',
+    dock_add: 'Thêm ca',
+    dock_next: 'Tuần sau',
+    dock_reports: 'Báo cáo',
+    dock_slip: 'Phiếu',
+    modal_add_shift: 'Thêm ca làm việc mới',
+    modal_edit_shift: 'Chỉnh sửa ca làm việc',
+    modal_day: 'Thứ',
+    modal_type: 'Ca làm',
+    modal_workplace: 'Nơi làm việc',
+    modal_start: 'Giờ bắt đầu',
+    modal_end: 'Giờ kết thúc',
+    modal_break: 'Nghỉ (phút)',
+    modal_ot: 'Hệ số tăng ca (OT)',
+    modal_allowance: 'Thưởng / Phụ cấp',
+    modal_note: 'Ghi chú ca làm',
+    modal_prev_dur: 'Thời gian làm dự kiến',
+    modal_prev_sal: 'Thành tiền dự kiến',
+    modal_btn_cancel: 'Hủy',
+    modal_btn_save: 'Lưu ca làm',
+    modal_btn_delete: 'Xóa ca',
+    shift_morning: 'Sáng',
+    shift_noon: 'Trưa',
+    shift_evening: 'Tối',
+    unit_shift: 'ca',
+    unit_per_shift: 'h/ca'
+  },
+  en: {
+    app_title: 'Salary Tracker',
+    theme_light: 'Light',
+    theme_dark: 'Dark',
+    theme_auto: 'Auto',
+    cloud_synced: 'Cloud Synced',
+    cloud_pending: 'Waiting for network to sync',
+    cloud_offline: 'Offline Mode',
+    cloud_syncing: 'Syncing...',
+    cloud_btn_sync: 'Sync Now',
+    toast_online_syncing: 'Back online. Auto-syncing to cloud...',
+    toast_synced_success: 'All data successfully auto-synced to cloud!',
+    toast_offline_mode: 'You are offline. Data is saved locally and will auto-sync when online.',
+    toast_sync_manual_done: 'Cloud sync completed successfully!',
+    toast_sync_manual_fail: 'Could not connect to server to sync.',
+    kpi_salary: 'Week Earnings',
+    kpi_hours: 'Total Hours',
+    kpi_shifts: 'Total Shifts',
+    shifts_title: 'Shifts List',
+    filter_all: 'All',
+    filter_morning: 'Morning',
+    filter_noon: 'Noon',
+    filter_evening: 'Evening',
+    dock_prev: 'Prev Week',
+    dock_add: 'Add Shift',
+    dock_next: 'Next Week',
+    dock_reports: 'Reports',
+    dock_slip: 'Slip',
+    modal_add_shift: 'Add New Shift',
+    modal_edit_shift: 'Edit Shift',
+    modal_day: 'Day',
+    modal_type: 'Shift Type',
+    modal_workplace: 'Workplace',
+    modal_start: 'Start Time',
+    modal_end: 'End Time',
+    modal_break: 'Break (mins)',
+    modal_ot: 'Overtime Rate (OT)',
+    modal_allowance: 'Bonus / Allowance',
+    modal_note: 'Shift Note',
+    modal_prev_dur: 'Estimated Duration',
+    modal_prev_sal: 'Estimated Earnings',
+    modal_btn_cancel: 'Cancel',
+    modal_btn_save: 'Save Shift',
+    modal_btn_delete: 'Delete',
+    shift_morning: 'Morning',
+    shift_noon: 'Noon',
+    shift_evening: 'Evening',
+    unit_shift: 'shifts',
+    unit_per_shift: 'h/shift'
+  },
+  ja: {
+    app_title: 'Salary Tracker',
+    theme_light: 'ライト',
+    theme_dark: 'ダーク',
+    theme_auto: '自動',
+    cloud_synced: 'クラウド同期完了',
+    cloud_pending: '接続待機中（未同期）',
+    cloud_offline: 'オフラインモード',
+    cloud_syncing: '同期中...',
+    cloud_btn_sync: '今すぐ同期',
+    toast_online_syncing: 'オンラインに復帰しました。自動同期中...',
+    toast_synced_success: 'クラウドへの自動同期が完了しました！',
+    toast_offline_mode: 'オフラインです。データは端末に保存され、接続時に自動同期されます。',
+    toast_sync_manual_done: 'クラウドとの同期が完了しました！',
+    toast_sync_manual_fail: 'サーバーに接続できませんでした。',
+    kpi_salary: '週間給与',
+    kpi_hours: '総勤務時間',
+    kpi_shifts: 'シフト数',
+    shifts_title: 'シフト一覧',
+    filter_all: 'すべて',
+    filter_morning: '朝',
+    filter_noon: '昼',
+    filter_evening: '夜',
+    dock_prev: '前週',
+    dock_add: '追加',
+    dock_next: '次週',
+    dock_reports: 'レポート',
+    dock_slip: '明細',
+    modal_add_shift: '新しいシフトを追加',
+    modal_edit_shift: 'シフトを編集',
+    modal_day: '曜日',
+    modal_type: '時間帯',
+    modal_workplace: '勤務先',
+    modal_start: '開始時間',
+    modal_end: '終了時間',
+    modal_break: '休憩（分）',
+    modal_ot: '残業割増率（OT）',
+    modal_allowance: '手当・ボーナス',
+    modal_note: 'メモ',
+    modal_prev_dur: '予定勤務時間',
+    modal_prev_sal: '概算給与',
+    modal_btn_cancel: 'キャンセル',
+    modal_btn_save: 'シフトを保存',
+    modal_btn_delete: '削除',
+    shift_morning: '朝',
+    shift_noon: '昼',
+    shift_evening: '夜',
+    unit_shift: '回',
+    unit_per_shift: 'h/回'
+  }
+};
+
+const getCurrentLang = () => {
+  return localStorage.getItem('salary_tracker_lang') || state.settings?.language || 'vi';
+};
+
+const t = (key, fallback = '') => {
+  const lang = getCurrentLang();
+  return (I18N[lang] && I18N[lang][key]) || (I18N.vi && I18N.vi[key]) || fallback;
+};
+
+const getLocalizedShiftType = (type) => {
+  const formatted = formatShiftType(type);
+  const lang = getCurrentLang();
+  if (lang === 'vi') return formatted;
+  const lower = formatted.toLowerCase();
+  if (lower === 'sáng') return t('shift_morning', 'Morning');
+  if (lower === 'trưa') return t('shift_noon', 'Noon');
+  if (lower === 'tối') return t('shift_evening', 'Evening');
+  return formatted;
+};
+
+const getLocalizedDayName = (dayCode) => {
+  const lang = getCurrentLang();
+  const dayMaps = {
+    vi: { 'T2': 'Thứ 2', 'T3': 'Thứ 3', 'T4': 'Thứ 4', 'T5': 'Thứ 5', 'T6': 'Thứ 6', 'T7': 'Thứ 7', 'CN': 'Chủ Nhật' },
+    en: { 'T2': 'Mon', 'T3': 'Tue', 'T4': 'Wed', 'T5': 'Thu', 'T6': 'Fri', 'T7': 'Sat', 'CN': 'Sun' },
+    ja: { 'T2': '月曜', 'T3': '火曜', 'T4': '水曜', 'T5': '木曜', 'T6': '金曜', 'T7': '土曜', 'CN': '日曜' }
+  };
+  return (dayMaps[lang] && dayMaps[lang][dayCode]) || dayMaps.vi[dayCode] || dayCode;
+};
+
+// ===== THEME & AUTO-SYNC HELPERS =====
+const applyTheme = (theme, save = true) => {
+  let effectiveTheme = theme;
+  if (theme === 'auto') {
+    effectiveTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  const isDark = effectiveTheme === 'dark';
+  document.body.classList.toggle('dark-mode', isDark);
+
+  const sunIcon = document.getElementById('iconThemeSun');
+  const moonIcon = document.getElementById('iconThemeMoon');
+  if (sunIcon && moonIcon) {
+    sunIcon.style.display = isDark ? 'block' : 'none';
+    moonIcon.style.display = isDark ? 'none' : 'block';
+  }
+
+  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.themeVal === theme);
+  });
+
+  if (save) {
+    localStorage.setItem('salary_tracker_theme', theme);
+    if (!state.settings) state.settings = {};
+    state.settings.theme = theme;
+    saveSettings();
+  }
+};
+
+const toggleTheme = () => {
+  const currentSaved = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
+  let nextTheme = 'dark';
+  if (currentSaved === 'dark') {
+    nextTheme = 'light';
+  } else if (currentSaved === 'light') {
+    nextTheme = 'dark';
+  } else {
+    const isDark = document.body.classList.contains('dark-mode');
+    nextTheme = isDark ? 'light' : 'dark';
+  }
+  applyTheme(nextTheme, true);
+};
+
+const applyLanguage = (lang, save = true) => {
+  const selectedLang = ['vi', 'en', 'ja'].includes(lang) ? lang : 'vi';
+  document.documentElement.lang = selectedLang;
+
+  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.langVal === selectedLang);
+  });
+
+  if (save) {
+    localStorage.setItem('salary_tracker_lang', selectedLang);
+    if (!state.settings) state.settings = {};
+    state.settings.language = selectedLang;
+    saveSettings();
+  }
+
+  translateUI();
+  renderApp();
+};
+
+const translateUI = () => {
+  const lang = getCurrentLang();
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang] && I18N[lang][key]) {
+      el.textContent = I18N[lang][key];
+    }
+  });
+
+  const kpiSalLabel = document.querySelector('#ledgerCardSummary .ledger-cell.primary .cell-label');
+  if (kpiSalLabel) kpiSalLabel.textContent = t('kpi_salary', 'Thu nhập tuần');
+  const kpiCells = document.querySelectorAll('#ledgerCardSummary .ledger-cell .cell-label');
+  if (kpiCells[1]) kpiCells[1].textContent = t('kpi_hours', 'Tổng thời gian');
+  if (kpiCells[2]) kpiCells[2].textContent = t('kpi_shifts', 'Số ca làm việc');
+
+  const shiftsTitleEl = document.querySelector('.shifts-title');
+  if (shiftsTitleEl) shiftsTitleEl.textContent = t('shifts_title', 'Danh sách ca làm việc');
+
+  const dockLabels = {
+    'dockPrevWeek': 'dock_prev',
+    'dockAddShift': 'dock_add',
+    'dockNextWeek': 'dock_next',
+    'dockAnalytics': 'dock_reports',
+    'dockShareSlip': 'dock_slip'
+  };
+  Object.entries(dockLabels).forEach(([id, k]) => {
+    const btn = document.getElementById(id);
+    const labelSpan = btn?.querySelector('.dock-label');
+    if (labelSpan) labelSpan.textContent = t(k, labelSpan.textContent);
+  });
+
+  const filterPillMap = {
+    'all': 'filter_all',
+    'Sáng': 'filter_morning',
+    'Trưa': 'filter_noon',
+    'Tối': 'filter_evening'
+  };
+  document.querySelectorAll('.filter-pill[data-filter-type]').forEach(pill => {
+    const fType = pill.getAttribute('data-filter-type');
+    if (filterPillMap[fType]) {
+      pill.textContent = t(filterPillMap[fType], pill.textContent);
+    }
+  });
+
+  updateSyncStatusUI();
+};
+
+const getPendingSyncKey = () => {
+  return `${PENDING_SYNC_KEY}_${state.currentUser?.id || 'guest'}`;
+};
+
+const hasPendingSync = () => {
+  try {
+    return localStorage.getItem(getPendingSyncKey()) === '1';
+  } catch (_) {
+    return false;
+  }
+};
+
+const markPendingSync = () => {
+  try {
+    localStorage.setItem(getPendingSyncKey(), '1');
+    updateSyncStatusUI();
+  } catch (_) {}
+};
+
+const clearPendingSync = () => {
+  try {
+    localStorage.removeItem(getPendingSyncKey());
+    updateSyncStatusUI();
+  } catch (_) {}
+};
+
+const updateSyncStatusUI = (forcedState) => {
+  const dot = document.getElementById('cloudSyncStatusDot');
+  const text = document.getElementById('cloudSyncStatusText');
+  if (!dot || !text) return;
+
+  const isOnline = navigator.onLine;
+  const isPending = hasPendingSync();
+
+  if (forcedState === 'syncing') {
+    dot.className = 'sync-status-dot syncing';
+    text.textContent = t('cloud_syncing', 'Đang đồng bộ...');
+  } else if (!isOnline) {
+    dot.className = 'sync-status-dot offline';
+    text.textContent = t('cloud_offline', 'Đang ngoại tuyến (Offline)');
+  } else if (isPending) {
+    dot.className = 'sync-status-dot pending';
+    text.textContent = t('cloud_pending', 'Chờ kết nối mạng để đồng bộ');
+  } else {
+    dot.className = 'sync-status-dot synced';
+    text.textContent = t('cloud_synced', 'Đã đồng bộ đám mây');
+  }
+};
+
+const syncPendingToCloud = async (isManual = false) => {
+  if (!navigator.onLine) {
+    updateSyncStatusUI();
+    if (isManual) showToast(t('cloud_offline', 'Đang ngoại tuyến. Dữ liệu đã được lưu trữ an toàn cục bộ.'));
+    return false;
+  }
+
+  if (!state.currentUser || !supabaseClient) {
+    clearPendingSync();
+    updateSyncStatusUI();
+    if (isManual) showToast('Chế độ khách: Dữ liệu được lưu an toàn trên trình duyệt.');
+    return true;
+  }
+
+  updateSyncStatusUI('syncing');
+
+  try {
+    const { error } = await supabaseClient.from('user_salary_data').upsert({
+      user_id: state.currentUser.id,
+      username: state.currentUser.username,
+      weeks: state.weeks,
+      settings: state.settings,
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) throw error;
+
+    clearPendingSync();
+    updateSyncStatusUI();
+    if (isManual) {
+      showToast(t('toast_sync_manual_done', 'Đã đồng bộ thành công dữ liệu đám mây!'));
+    }
+    return true;
+  } catch (err) {
+    console.warn('Sync pending to cloud failed:', err);
+    markPendingSync();
+    updateSyncStatusUI();
+    if (isManual) {
+      showToast(t('toast_sync_manual_fail', 'Không thể kết nối máy chủ để đồng bộ. Vui lòng thử lại.'));
+    }
+    return false;
+  }
+};
 
 const state = {
   currentUser: null,
@@ -115,10 +502,19 @@ const getShiftRate = (shift, week) => {
   return Number(week?.rate || state.settings?.defaultRate || 25000);
 };
 
+const getShiftEarnings = (shift, week) => {
+  if (!shift) return 0;
+  const hours = Number(shift.hours || 0);
+  const rate = getShiftRate(shift, week);
+  const ot = Number(shift.otRate) || 1.0;
+  const allowance = Number(shift.allowance) || 0;
+  return Math.round(hours * rate * ot + allowance);
+};
+
 const calculateWeekTotalSalary = (week) => {
   if (!week || !Array.isArray(week.shifts)) return 0;
   return week.shifts.reduce((acc, s) => {
-    return acc + Number(s.hours || 0) * getShiftRate(s, week);
+    return acc + getShiftEarnings(s, week);
   }, 0);
 };
 
@@ -260,31 +656,44 @@ const showToastWithAction = (message, actionText, actionCallback, duration = 800
 
 const loadState = async () => {
   try {
+    const isPending = hasPendingSync();
     if (state.currentUser && supabaseClient) {
-     
-      const { data, error } = await supabaseClient
-        .from('user_salary_data')
-        .select('*')
-        .eq('user_id', state.currentUser.id)
-        .maybeSingle();
-
-      if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
-        state.weeks = data.weeks;
-        if (data.settings) state.settings = { ...state.settings, ...data.settings };
-        if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
-        localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
-        localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
-      } else {
+      if (isPending) {
+        // Có dữ liệu chỉnh sửa offline chưa đồng bộ, ưu tiên cache local để không bị ghi đè dữ liệu cũ
         const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
         const cachedSettings = localStorage.getItem(getSettingsStorageKey());
         if (cachedWeeks) {
           state.weeks = JSON.parse(cachedWeeks);
           if (cachedSettings) state.settings = JSON.parse(cachedSettings);
+        }
+        if (navigator.onLine) {
+          syncPendingToCloud(false);
+        }
+      } else {
+        const { data, error } = await supabaseClient
+          .from('user_salary_data')
+          .select('*')
+          .eq('user_id', state.currentUser.id)
+          .maybeSingle();
+
+        if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
+          state.weeks = data.weeks;
+          if (data.settings) state.settings = { ...state.settings, ...data.settings };
           if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+          localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
+          localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
         } else {
-          state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
-          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
-          saveWeeks();
+          const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
+          const cachedSettings = localStorage.getItem(getSettingsStorageKey());
+          if (cachedWeeks) {
+            state.weeks = JSON.parse(cachedWeeks);
+            if (cachedSettings) state.settings = JSON.parse(cachedSettings);
+            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+          } else {
+            state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 40000, shifts: [] }];
+            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = ['Cơm Chin Chin', 'Cafe', 'Gia sư'];
+            saveWeeks();
+          }
         }
       }
     } else {
@@ -347,20 +756,17 @@ const saveWeeks = () => {
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
 
   if (state.currentUser && supabaseClient) {
+    markPendingSync();
     clearTimeout(cloudSyncTimer);
     cloudSyncTimer = setTimeout(async () => {
-      try {
-        await supabaseClient.from('user_salary_data').upsert({
-          user_id: state.currentUser.id,
-          username: state.currentUser.username,
-          weeks: state.weeks,
-          settings: state.settings,
-          updated_at: new Date().toISOString()
-        });
-      } catch (err) {
-        console.warn('Supabase cloud sync error:', err);
+      if (navigator.onLine) {
+        await syncPendingToCloud(false);
+      } else {
+        markPendingSync();
       }
     }, 500);
+  } else {
+    clearPendingSync();
   }
 };
 
@@ -435,9 +841,25 @@ const renderApp = () => {
 
 const renderDateDisplay = () => {
   const now = new Date();
-  const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  const dayName = days[now.getDay()];
-  const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+  const lang = getCurrentLang();
+  const dayIndex = now.getDay();
+  let dayName = '';
+  let dateStr = '';
+
+  if (lang === 'en') {
+    const daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    dayName = daysEn[dayIndex];
+    dateStr = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+  } else if (lang === 'ja') {
+    const daysJa = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+    dayName = daysJa[dayIndex];
+    dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
+  } else {
+    const daysVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    dayName = daysVi[dayIndex];
+    dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+  }
+
   const headerDateEl = document.getElementById('currentDateDisplay');
   if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
 };
@@ -570,9 +992,9 @@ const renderWeekDetails = () => {
   document.getElementById('kpiWeekSalary').textContent = fmtCurrency(totalSalary);
   document.getElementById('kpiWeekHours').textContent = fmtHours(totalHours);
   document.getElementById('kpiWeekHoursDetail').textContent = hoursToHourMinutes(totalHours);
-  document.getElementById('kpiShiftCount').textContent = `${shiftCount} ca`;
-  document.getElementById('kpiAvgHours').textContent = `${avgHours} h/ca`;
-  document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ca`;
+  document.getElementById('kpiShiftCount').textContent = `${shiftCount} ${t('unit_shift', 'ca')}`;
+  document.getElementById('kpiAvgHours').textContent = `${avgHours} ${t('unit_per_shift', 'h/ca')}`;
+  document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ${t('unit_shift', 'ca')}`;
 };
 
 const shiftsFilterState = {
@@ -898,25 +1320,31 @@ const renderShiftsList = () => {
     const card = document.createElement('div');
     card.className = 'shift-card';
     
-    const shiftRate = getShiftRate(shift, week);
-    const shiftEarnings = Number(shift.hours || 0) * shiftRate;
-    const displayType = formatShiftType(shift.type);
-    const normType = displayType.toLowerCase();
+    const shiftEarnings = getShiftEarnings(shift, week);
+    const displayType = getLocalizedShiftType(shift.type);
+    const normType = formatShiftType(shift.type).toLowerCase();
     const typeClass = normType === 'trưa' ? 'type-trua' : (normType === 'tối' ? 'type-toi' : (normType === 'sáng' ? 'type-sang' : ''));
-    const dayLabel = dayNames[shift.day] || shift.day;
+    const dayLabel = getLocalizedDayName(shift.day);
     const shiftDateStr = getShiftDateShort(week, shift.day);
     const breakTag = shift.breakMinutes ? ` • nghỉ ${shift.breakMinutes}m` : '';
+
+    const otRateVal = Number(shift.otRate) || 1.0;
+    const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">OT ${otRateVal}x</span>` : '';
+    const allowanceVal = Number(shift.allowance) || 0;
+    const allowanceBadge = allowanceVal > 0 ? `<span class="shift-allowance-badge font-mono">+${fmtCurrency(allowanceVal)}</span>` : '';
 
     card.innerHTML = `
       <div class="shift-left">
         <div class="day-badge font-mono ${getDayClass(shift.day)}">
-          <span class="day-badge-name">${shift.day}</span>
+          <span class="day-badge-name">${dayLabel}</span>
           ${shiftDateStr ? `<span class="day-badge-date font-mono">${shiftDateStr}</span>` : ''}
         </div>
         <div class="shift-info">
           <div class="shift-title-row">
             <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
             <span class="shift-type-pill ${typeClass}">${escapeHtml(displayType)}</span>
+            ${otBadge}
+            ${allowanceBadge}
             ${shift.workplace ? (() => {
               const wpCol = getWorkplaceColor(shift.workplace);
               return `<span class="workplace-pill font-mono" style="background:${wpCol.bg};color:${wpCol.color};border-color:${wpCol.border};">${escapeHtml(shift.workplace)}</span>`;
@@ -1178,6 +1606,10 @@ const openAddShiftModal = (prefill = null) => {
   document.getElementById('shiftEnd').value = defaultEnd;
   const breakInput = document.getElementById('shiftBreak');
   if (breakInput) breakInput.value = '0';
+  const otInput = document.getElementById('shiftOtRate');
+  if (otInput) otInput.value = '1.0';
+  const allowanceInput = document.getElementById('shiftAllowance');
+  if (allowanceInput) allowanceInput.value = '0';
   document.getElementById('shiftNote').value = defaultNote;
 
   updateModalComputedPreview();
@@ -1186,7 +1618,7 @@ const openAddShiftModal = (prefill = null) => {
 
 const openEditShiftModal = (shift) => {
   const modal = document.getElementById('shiftModal');
-  document.getElementById('shiftModalTitle').textContent = 'Chỉnh sửa ca làm việc';
+  document.getElementById('shiftModalTitle').textContent = t('modal_edit_shift', 'Chỉnh sửa ca làm việc');
   document.getElementById('editShiftId').value = shift.id;
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
@@ -1210,6 +1642,10 @@ const openEditShiftModal = (shift) => {
   document.getElementById('shiftEnd').value = shift.end;
   const breakInput = document.getElementById('shiftBreak');
   if (breakInput) breakInput.value = shift.breakMinutes || 0;
+  const otInput = document.getElementById('shiftOtRate');
+  if (otInput) otInput.value = String(shift.otRate || '1.0');
+  const allowanceInput = document.getElementById('shiftAllowance');
+  if (allowanceInput) allowanceInput.value = String(shift.allowance || '0');
   document.getElementById('shiftNote').value = shift.note || '';
 
   updateModalComputedPreview();
@@ -1220,16 +1656,19 @@ const updateModalComputedPreview = () => {
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
   const breakMins = Number(document.getElementById('shiftBreak')?.value || 0);
+  const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
+  const allowance = Number(document.getElementById('shiftAllowance')?.value || 0);
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   if (!start || !end) return;
 
   const hours = calculateHoursDiff(start, end, breakMins);
   const week = getCurrentWeek();
   const rate = getShiftRate({ workplace }, week);
-  const wage = hours * rate;
+  const wage = Math.round(hours * rate * otRate + allowance);
 
   const breakLabel = breakMins > 0 ? ` (nghỉ ${breakMins}m)` : '';
-  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}`;
+  const otLabel = otRate > 1 ? ` • OT ${otRate}x` : '';
+  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}${otLabel}`;
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
 };
 
@@ -1241,6 +1680,8 @@ const saveShiftFromModal = (e) => {
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
   const breakMinutes = Math.max(0, Number(document.getElementById('shiftBreak')?.value || 0));
+  const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
+  const allowance = Math.max(0, Number(document.getElementById('shiftAllowance')?.value || 0));
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   const note = document.getElementById('shiftNote').value.trim();
   const hours = calculateHoursDiff(start, end, breakMinutes);
@@ -1278,7 +1719,7 @@ const saveShiftFromModal = (e) => {
   if (editId) {
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
-      week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, hours, workplace, note };
+      week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, otRate, allowance, hours, workplace, note };
       showToast('Đã cập nhật ca làm');
     }
   } else {
@@ -1289,6 +1730,8 @@ const saveShiftFromModal = (e) => {
       start,
       end,
       breakMinutes,
+      otRate,
+      allowance,
       hours,
       workplace,
       note
@@ -1503,9 +1946,8 @@ const renderMonthlyReport = () => {
         };
       }
 
-      const shiftRate = getShiftRate(shift, week);
       const shiftHours = Number(shift.hours || 0);
-      const shiftEarnings = shiftHours * shiftRate;
+      const shiftEarnings = getShiftEarnings(shift, week);
       const wp = shift.workplace || 'Chung';
 
       monthMap[mKey].totalHours += shiftHours;
@@ -1745,7 +2187,7 @@ const getAnalyticsData = () => {
       if (analyticsState.workplaceFilter !== 'all' && wp !== analyticsState.workplaceFilter) {
         return;
       }
-      const wage = Number(s.hours || 0) * getShiftRate(s, w);
+      const wage = getShiftEarnings(s, w);
       const h = Number(s.hours || 0);
       totalSalary += wage;
       totalHours += h;
@@ -1836,7 +2278,7 @@ const drawTimelineChart = (data) => {
         (curWeek.shifts || []).forEach(s => {
           const wp = s.workplace || 'Chung';
           if (s.day === d && (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter)) {
-            salary += Number(s.hours || 0) * getShiftRate(s, curWeek);
+            salary += getShiftEarnings(s, curWeek);
             hours += Number(s.hours || 0);
           }
         });
@@ -1856,7 +2298,7 @@ const drawTimelineChart = (data) => {
       (w.shifts || []).forEach(s => {
         const wp = s.workplace || 'Chung';
         if (analyticsState.workplaceFilter === 'all' || wp === analyticsState.workplaceFilter) {
-          salary += Number(s.hours || 0) * getShiftRate(s, w);
+          salary += getShiftEarnings(s, w);
           hours += Number(s.hours || 0);
         }
       });
@@ -2165,6 +2607,19 @@ const addWorkplaceFromSetting = () => {
 const openSettingsModal = () => {
   document.getElementById('settingDefaultRate').value = state.settings.defaultRate;
   renderSettingsWorkplaces();
+
+  const currentTheme = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
+  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.themeVal === currentTheme);
+  });
+
+  const currentLang = getCurrentLang();
+  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.langVal === currentLang);
+  });
+
+  updateSyncStatusUI();
+
   document.getElementById('settingsModal').style.display = 'flex';
 };
 
@@ -2265,7 +2720,7 @@ const renderSlipCanvas = () => {
   shifts.forEach((s, idx) => {
     const shiftHours = Number(s.hours || 0);
     totalHours += shiftHours;
-    const shiftWage = shiftHours * getShiftRate(s, week);
+    const shiftWage = getShiftEarnings(s, week);
     const isEven = idx % 2 === 0;
 
    
@@ -2284,7 +2739,8 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    const shiftLabel = `${s.day} ${formatShiftType(s.type)}`;
+    const otExtra = (s.otRate && Number(s.otRate) > 1) ? ` (OT ${s.otRate}x)` : '';
+    const shiftLabel = `${s.day} ${formatShiftType(s.type)}${otExtra}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -2329,7 +2785,7 @@ const renderSlipCanvas = () => {
 
  
   if (includeMoney) {
-    const totalSalary = shifts.reduce((acc, s) => acc + (Number(s.hours || 0) * getShiftRate(s, week)), 0);
+    const totalSalary = shifts.reduce((acc, s) => acc + getShiftEarnings(s, week), 0);
     ctx.fillStyle = '#34d399';
     ctx.textAlign = 'right';
     ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 10, curY + 23);
@@ -2757,16 +3213,18 @@ const exportCurrentWeekCSV = () => {
   let csvContent = '\uFEFF';
   csvContent += `BẢNG CHẤM CÔNG VÀ LƯƠNG — ${week.name}\r\n`;
   csvContent += `Đơn giá mặc định: ${week.rate} VNĐ/h\r\n\r\n`;
-  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Nghỉ (phút),Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Thứ,Ca,Nơi làm việc,Giờ bắt đầu,Giờ kết thúc,Nghỉ (phút),Số giờ,Hệ số OT,Thưởng/Phụ cấp (VNĐ),Thành tiền (VNĐ),Ghi chú\r\n`;
 
   week.shifts.forEach(s => {
-    const salary = Number(s.hours || 0) * getShiftRate(s, week);
-    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    const salary = getShiftEarnings(s, week);
+    const ot = Number(s.otRate) || 1.0;
+    const allowance = Number(s.allowance) || 0;
+    csvContent += `"${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
-  csvContent += `\r\nTỔNG CỘNG,,,"",,,${totalHours.toFixed(2)},${Math.round(totalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG CỘNG,,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
 
   downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
   showToast(`Đã xuất file CSV cho ${week.name}`);
@@ -2775,7 +3233,7 @@ const exportCurrentWeekCSV = () => {
 const exportAllWeeksCSV = () => {
   let csvContent = '\uFEFF';
   csvContent += `TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN\r\n\r\n`;
-  csvContent += `Tuần,Khoảng ngày,Đơn giá mặc định (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Nghỉ (phút),Số giờ,Thành tiền (VNĐ),Ghi chú\r\n`;
+  csvContent += `Tuần,Khoảng ngày,Đơn giá mặc định (VNĐ/h),Ngày làm,Thứ,Ca,Nơi làm việc,Bắt đầu,Kết thúc,Nghỉ (phút),Số giờ,Hệ số OT,Thưởng/Phụ cấp (VNĐ),Thành tiền (VNĐ),Ghi chú\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -2783,15 +3241,17 @@ const exportAllWeeksCSV = () => {
   state.weeks.forEach(w => {
     const weekRange = getWeekDateRangeDisplay(w);
     w.shifts.forEach(s => {
-      const salary = Number(s.hours || 0) * getShiftRate(s, w);
+      const salary = getShiftEarnings(s, w);
+      const ot = Number(s.otRate) || 1.0;
+      const allowance = Number(s.allowance) || 0;
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${w.name}","${weekRange}",${w.rate},"${shiftFullDate}","${s.day}","${s.type}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,,${grandTotalHours.toFixed(2)},${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\nTỔNG TOÀN BỘ,,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
 
   downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
   showToast('Đã xuất tổng hợp toàn bộ các tuần');
@@ -2919,7 +3379,30 @@ const bindEvents = () => {
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
- 
+  const btnToggleTheme = document.getElementById('btnToggleTheme');
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener('click', toggleTheme);
+  }
+
+  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.themeVal;
+      applyTheme(val, true);
+    });
+  });
+
+  document.querySelectorAll('#langSegmentedControl .segmented-btn-3d').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.langVal;
+      applyLanguage(val, true);
+    });
+  });
+
+  const btnManualSync = document.getElementById('btnManualCloudSync');
+  if (btnManualSync) {
+    btnManualSync.addEventListener('click', () => syncPendingToCloud(true));
+  }
+
   const btnNewWeek = document.getElementById('btnNewWeek');
   if (btnNewWeek) btnNewWeek.addEventListener('click', createNewWeek);
 
@@ -2929,11 +3412,9 @@ const bindEvents = () => {
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
- 
   const btnQuickExport = document.getElementById('btnQuickExportWeek');
   if (btnQuickExport) btnQuickExport.addEventListener('click', exportCurrentWeekCSV);
 
- 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', () => {
     const val = document.getElementById('shiftStart').value;
@@ -2950,6 +3431,16 @@ const bindEvents = () => {
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
   const shiftBreakInput = document.getElementById('shiftBreak');
   if (shiftBreakInput) shiftBreakInput.addEventListener('input', updateModalComputedPreview);
+  const shiftOtRateInput = document.getElementById('shiftOtRate');
+  if (shiftOtRateInput) {
+    shiftOtRateInput.addEventListener('input', updateModalComputedPreview);
+    shiftOtRateInput.addEventListener('change', updateModalComputedPreview);
+  }
+  const shiftAllowanceInput = document.getElementById('shiftAllowance');
+  if (shiftAllowanceInput) {
+    shiftAllowanceInput.addEventListener('input', updateModalComputedPreview);
+    shiftAllowanceInput.addEventListener('change', updateModalComputedPreview);
+  }
   const shiftWorkplaceInput = document.getElementById('shiftWorkplace');
   if (shiftWorkplaceInput) shiftWorkplaceInput.addEventListener('input', updateModalComputedPreview);
 
@@ -3266,7 +3757,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024ak').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025a').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
@@ -3302,7 +3793,8 @@ const setupRealtimeSync = () => {
         { event: 'UPDATE', schema: 'public', table: 'user_salary_data' },
         (payload) => {
           if (state.currentUser && payload.new && payload.new.user_id === state.currentUser.id) {
-            if (Array.isArray(payload.new.weeks)) {
+            // Không ghi đè nếu máy đang có chỉnh sửa offline chưa đồng bộ
+            if (!hasPendingSync() && Array.isArray(payload.new.weeks)) {
               state.weeks = payload.new.weeks;
               if (payload.new.settings) state.settings = { ...state.settings, ...payload.new.settings };
               renderApp();
@@ -3317,10 +3809,49 @@ const setupRealtimeSync = () => {
   }
 };
 
+const setupAutoSync = () => {
+  updateSyncStatusUI();
+
+  window.addEventListener('online', async () => {
+    updateSyncStatusUI();
+    if (hasPendingSync()) {
+      showToast(t('toast_online_syncing', 'Đã có kết nối mạng. Đang tự động đồng bộ lên đám mây...'));
+      const ok = await syncPendingToCloud(false);
+      if (ok) {
+        showToast(t('toast_synced_success', 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây!'));
+      }
+    } else {
+      showToast('Đã kết nối mạng.');
+    }
+  });
+
+  window.addEventListener('offline', () => {
+    updateSyncStatusUI('offline');
+    showToast(t('toast_offline_mode', 'Bạn đang ngoại tuyến. Dữ liệu sẽ lưu cục bộ và tự động đồng bộ khi online.'));
+  });
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      const currentTheme = localStorage.getItem('salary_tracker_theme') || 'light';
+      if (currentTheme === 'auto') {
+        applyTheme('auto', false);
+      }
+    });
+  }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // Khởi tạo Theme & Ngôn ngữ trước khi vẽ UI
+  const savedTheme = localStorage.getItem('salary_tracker_theme') || 'light';
+  applyTheme(savedTheme, false);
+
+  const savedLang = getCurrentLang();
+  applyLanguage(savedLang, false);
+
   await initAuth();
   await loadState();
   bindEvents();
   renderApp();
   setupRealtimeSync();
+  setupAutoSync();
 });

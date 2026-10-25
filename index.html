@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261024ak">
+  <link rel="stylesheet" href="./styles.css?v=20261025a">
 </head>
 <body>
   
@@ -42,6 +42,22 @@
       </div>
 
       <nav class="header-nav">
+        <button id="btnToggleTheme" class="btn-morphic" title="Đổi giao diện Sáng / Tối" aria-label="Đổi giao diện Sáng / Tối">
+          <svg id="iconThemeSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="iconThemeMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
         <button id="btnUserAuth" class="btn-morphic" title="Tài khoản & Đăng nhập" aria-label="Tài khoản">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -288,9 +304,29 @@
           </div>
         </div>
 
+        <div class="form-grid-2">
+          <div class="form-item">
+            <label class="form-label font-mono" for="shiftBreak">Nghỉ giữa ca (phút)</label>
+            <input type="number" id="shiftBreak" class="form-input font-mono" value="0" min="0" step="5" placeholder="Phút nghỉ">
+          </div>
+          <div class="form-item">
+            <label class="form-label font-mono" for="shiftOtRate">Hệ số tăng ca (OT)</label>
+            <select id="shiftOtRate" class="form-select font-mono">
+              <option value="1.0">1.0x (Chuẩn)</option>
+              <option value="1.2">1.2x (+20%)</option>
+              <option value="1.5">1.5x (Tăng ca)</option>
+              <option value="2.0">2.0x (Ngày nghỉ)</option>
+              <option value="3.0">3.0x (Ngày lễ)</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-item">
-          <label class="form-label font-mono" for="shiftBreak">Nghỉ giữa ca (phút)</label>
-          <input type="number" id="shiftBreak" class="form-input font-mono" value="0" min="0" step="5" placeholder="Phút nghỉ">
+          <label class="form-label font-mono" for="shiftAllowance">Phụ cấp / Thưởng (VNĐ)</label>
+          <div class="input-with-tag">
+            <input type="number" id="shiftAllowance" class="form-input font-mono" value="0" min="0" step="1000" placeholder="0">
+            <span class="tag font-mono">đ</span>
+          </div>
         </div>
 
         <div class="calc-strip">
@@ -554,6 +590,53 @@
               </svg>
               <input type="file" id="fileRestoreJson" accept=".json" style="display: none;">
             </label>
+          </div>
+        </div>
+
+        <div class="form-item">
+          <label class="form-label font-mono" id="labelSettingTheme">Giao diện (Theme)</label>
+          <div class="segmented-control-3d" id="themeSegmentedControl">
+            <button type="button" class="segmented-btn-3d active" data-theme-val="light">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+              </svg>
+              <span id="txtThemeLight">Sáng</span>
+            </button>
+            <button type="button" class="segmented-btn-3d" data-theme-val="dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <span id="txtThemeDark">Tối</span>
+            </button>
+            <button type="button" class="segmented-btn-3d" data-theme-val="auto">
+              <span id="txtThemeAuto">Tự động</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-item">
+          <label class="form-label font-mono" id="labelSettingLang">Ngôn ngữ (Language)</label>
+          <div class="segmented-control-3d" id="langSegmentedControl">
+            <button type="button" class="segmented-btn-3d active" data-lang-val="vi">🇻🇳 Tiếng Việt</button>
+            <button type="button" class="segmented-btn-3d" data-lang-val="en">🇺🇸 English</button>
+            <button type="button" class="segmented-btn-3d" data-lang-val="ja">🇯🇵 日本語</button>
+          </div>
+        </div>
+
+        <div class="form-item">
+          <label class="form-label font-mono" id="labelSettingSync">Đồng bộ đám mây (Cloud Sync)</label>
+          <div class="cloud-sync-status-box font-mono">
+            <div class="sync-status-left">
+              <span class="sync-status-dot" id="syncStatusDot"></span>
+              <span id="syncStatusText">Trực tuyến (Đã đồng bộ)</span>
+            </div>
+            <button type="button" class="btn-morphic btn-morphic-sm" id="btnManualCloudSync" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -920,6 +1003,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261024ak"></script>
+  <script src="./app.js?v=20261025a"></script>
 </body>
 </html>
