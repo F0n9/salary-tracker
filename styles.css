@@ -833,8 +833,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   background: var(--bg-subtle);
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .shift-type-pill.type-trua {

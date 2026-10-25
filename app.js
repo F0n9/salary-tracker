@@ -210,6 +210,17 @@ const getDayClass = (day) => {
   }
 };
 
+const formatShiftType = (type) => {
+  if (!type) return '';
+  const trimmed = String(type).trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === 'sáng') return 'Sáng';
+  if (lower === 'trưa') return 'Trưa';
+  if (lower === 'tối') return 'Tối';
+  if (lower === 'khác') return 'Khác';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+};
+
 const showToast = (message) => {
   const toast = document.getElementById('toast');
   toast.innerHTML = `<span>${message}</span>`;
@@ -889,7 +900,9 @@ const renderShiftsList = () => {
     
     const shiftRate = getShiftRate(shift, week);
     const shiftEarnings = Number(shift.hours || 0) * shiftRate;
-    const typeClass = shift.type === 'Trưa' ? 'type-trua' : (shift.type === 'Tối' ? 'type-toi' : (shift.type === 'Sáng' ? 'type-sang' : ''));
+    const displayType = formatShiftType(shift.type);
+    const normType = displayType.toLowerCase();
+    const typeClass = normType === 'trưa' ? 'type-trua' : (normType === 'tối' ? 'type-toi' : (normType === 'sáng' ? 'type-sang' : ''));
     const dayLabel = dayNames[shift.day] || shift.day;
     const shiftDateStr = getShiftDateShort(week, shift.day);
     const breakTag = shift.breakMinutes ? ` • nghỉ ${shift.breakMinutes}m` : '';
@@ -903,7 +916,7 @@ const renderShiftsList = () => {
         <div class="shift-info">
           <div class="shift-title-row">
             <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
-            <span class="shift-type-pill ${typeClass}">${shift.type}</span>
+            <span class="shift-type-pill ${typeClass}">${escapeHtml(displayType)}</span>
             ${shift.workplace ? (() => {
               const wpCol = getWorkplaceColor(shift.workplace);
               return `<span class="workplace-pill font-mono" style="background:${wpCol.bg};color:${wpCol.color};border-color:${wpCol.border};">${escapeHtml(shift.workplace)}</span>`;
@@ -1224,7 +1237,7 @@ const saveShiftFromModal = (e) => {
   e.preventDefault();
   const editId = document.getElementById('editShiftId').value;
   const day = document.getElementById('shiftDay').value;
-  const type = document.getElementById('shiftType').value;
+  const type = formatShiftType(document.getElementById('shiftType').value);
   const start = document.getElementById('shiftStart').value;
   const end = document.getElementById('shiftEnd').value;
   const breakMinutes = Math.max(0, Number(document.getElementById('shiftBreak')?.value || 0));
@@ -2271,7 +2284,7 @@ const renderSlipCanvas = () => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 12px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    const shiftLabel = `${s.day} ${s.type}`;
+    const shiftLabel = `${s.day} ${formatShiftType(s.type)}`;
     ctx.fillText(shiftLabel, colX[0] + 10, curY + 20);
 
    
@@ -3253,7 +3266,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261024aj').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261024ak').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
