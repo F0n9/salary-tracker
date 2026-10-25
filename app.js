@@ -1524,12 +1524,123 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
   }
 };
 
+const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
+  // 1. Giờ kết thúc: mặc định là thời điểm hiện tại khi người dùng bấm vào hộp thoại (làm tròn 15 phút gần nhất)
+  let endMin = Math.round(now.getMinutes() / 15) * 15;
+  let endHour = now.getHours();
+  if (endMin === 60) {
+    endHour = (endHour + 1) % 24;
+    endMin = 0;
+  }
+  const endTotalMins = endHour * 60 + endMin;
+  const defaultEnd = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+  // 2. Thu thập toàn bộ lịch sử ca làm từ trước đến nay trong state.weeks
+  const allPastShifts = [];
+  if (Array.isArray(state.weeks)) {
+    state.weeks.forEach(w => {
+      if (Array.isArray(w.shifts)) {
+        w.shifts.forEach(s => {
+          if (s && s.start && s.end) {
+            allPastShifts.push(s);
+          }
+        });
+      }
+    });
+  }
+
+  // 3. Phân tích thông minh: tìm thời gian làm việc (duration) và loại ca phù hợp
+  let durationMinutes = 4 * 60; // Mặc định chuẩn 4 tiếng nếu chưa có bất kỳ dữ liệu gì
+  let detectedType = '';
+  let detectedBreak = 0;
+
+  if (allPastShifts.length > 0) {
+    // Ưu tiên các ca làm kết thúc quanh khung giờ này (trong vòng 90 phút)
+    const similarEndShifts = allPastShifts.filter(s => {
+      const sEndMins = parseTimeToMinutes(s.end);
+      let diff = Math.abs(sEndMins - endTotalMins);
+      if (diff > 12 * 60) diff = 24 * 60 - diff;
+      return diff <= 90;
+    });
+
+    const candidateShifts = similarEndShifts.length > 0 ? similarEndShifts : allPastShifts;
+
+    // Tính thời lượng làm việc phổ biến nhất (median duration)
+    const durations = candidateShifts.map(s => {
+      const sStart = parseTimeToMinutes(s.start);
+      let sEnd = parseTimeToMinutes(s.end);
+      if (sEnd <= sStart) sEnd += 24 * 60;
+      return sEnd - sStart;
+    }).filter(d => d > 0 && d <= 16 * 60);
+
+    if (durations.length > 0) {
+      durations.sort((a, b) => a - b);
+      durationMinutes = durations[Math.floor(durations.length / 2)];
+    }
+
+    // Xác định loại ca phổ biến nhất từ các ca tương đồng
+    if (similarEndShifts.length > 0) {
+      const typeCounts = {};
+      similarEndShifts.forEach(s => {
+        if (s.type) typeCounts[s.type] = (typeCounts[s.type] || 0) + 1;
+      });
+      const topType = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a])[0];
+      if (topType) detectedType = topType;
+
+      // Tìm thời gian nghỉ phổ biến nhất
+      const breakCounts = {};
+      similarEndShifts.forEach(s => {
+        const b = Number(s.breakMinutes) || 0;
+        breakCounts[b] = (breakCounts[b] || 0) + 1;
+      });
+      const topBreak = Object.keys(breakCounts).sort((a, b) => breakCounts[b] - breakCounts[a])[0];
+      if (topBreak !== undefined) detectedBreak = Number(topBreak);
+    }
+  }
+
+  // 4. Tính giờ bắt đầu tự động: lùi lại bằng đúng duration từ giờ kết thúc
+  let startTotalMins = (endTotalMins - durationMinutes + 24 * 60) % (24 * 60);
+  let startHour = Math.floor(startTotalMins / 60);
+  let startMin = startTotalMins % 60;
+  let defaultStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+
+  // 5. Nếu chưa có loại ca từ lịch sử, tự động suy luận loại ca dựa trên khung giờ
+  if (!detectedType) {
+    if (endHour >= 18 || endHour < 5 || startHour >= 16) {
+      detectedType = 'Tối';
+    } else if (endHour >= 13 && endHour < 18) {
+      detectedType = 'Trưa';
+    } else {
+      detectedType = 'Sáng';
+    }
+  }
+
+  // 6. Ngày trong tuần: mặc định hôm nay
+  const defaultDay = prefill?.day || getVietnameseDayOfWeek(now);
+
+  // 7. Ghi đè nếu có prefill từ preset tiles
+  if (prefill) {
+    if (prefill.start) defaultStart = prefill.start;
+    if (prefill.end) defaultEnd = prefill.end;
+    if (prefill.type) detectedType = prefill.type;
+  }
+
+  return {
+    start: defaultStart,
+    end: defaultEnd,
+    type: detectedType,
+    day: defaultDay,
+    breakMinutes: detectedBreak,
+    note: prefill?.note || ''
+  };
+};
+
 const openAddShiftModal = (prefill = null) => {
   const modal = document.getElementById('shiftModal');
   const form = document.getElementById('shiftForm');
   form.reset();
 
-  document.getElementById('shiftModalTitle').textContent = 'Thêm ca làm việc';
+  document.getElementById('shiftModalTitle').textContent = t('modal_add_shift', 'Thêm ca làm việc');
   document.getElementById('editShiftId').value = '';
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
@@ -1543,50 +1654,27 @@ const openAddShiftModal = (prefill = null) => {
   const defaultWp = (state.settings.workplaces && state.settings.workplaces.length > 0) ? state.settings.workplaces[0] : '';
   updateWorkplaceInputOptions(defaultWp);
 
-  const now = new Date();
+  // Tính toán thông minh dựa trên lịch sử dữ liệu và thời điểm tan ca hiện tại
+  const smartDefaults = calculateSmartShiftDefaults(prefill, new Date());
 
-  // Tính toán thời gian bắt đầu và kết thúc dựa trên thời điểm bấm vào hộp thoại để thêm (làm tròn 15 phút gần nhất)
-  let startMin = Math.round(now.getMinutes() / 15) * 15;
-  let startHour = now.getHours();
-  if (startMin === 60) {
-    startHour = (startHour + 1) % 24;
-    startMin = 0;
-  }
-
-  // Ca làm việc chuẩn 4 tiếng
-  let endHour = (startHour + 4) % 24;
-  let endMin = startMin;
-
-  let defaultStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
-  let defaultEnd = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-  let defaultType = detectShiftType(defaultStart);
-
-  const defaultDay = prefill ? prefill.day : getVietnameseDayOfWeek(now);
-  if (prefill) {
-    defaultStart = prefill.start || defaultStart;
-    defaultEnd = prefill.end || defaultEnd;
-    defaultType = prefill.type || detectShiftType(defaultStart);
-  }
-  const defaultNote = prefill ? (prefill.note || '') : '';
-
-  document.getElementById('shiftDay').value = defaultDay;
-  document.getElementById('shiftType').value = defaultType;
+  document.getElementById('shiftDay').value = smartDefaults.day;
+  document.getElementById('shiftType').value = smartDefaults.type;
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
   setupCustomSelect('shiftOtRate');
   syncCustomSelect('shiftDay');
   syncCustomSelect('shiftType');
 
-  document.getElementById('shiftStart').value = defaultStart;
-  document.getElementById('shiftEnd').value = defaultEnd;
+  document.getElementById('shiftStart').value = smartDefaults.start;
+  document.getElementById('shiftEnd').value = smartDefaults.end;
   const breakInput = document.getElementById('shiftBreak');
-  if (breakInput) breakInput.value = '0';
+  if (breakInput) breakInput.value = String(smartDefaults.breakMinutes || 0);
   const otInput = document.getElementById('shiftOtRate');
   if (otInput) otInput.value = '1.0';
   syncCustomSelect('shiftOtRate');
   const allowanceInput = document.getElementById('shiftAllowance');
   if (allowanceInput) allowanceInput.value = '0';
-  document.getElementById('shiftNote').value = defaultNote;
+  document.getElementById('shiftNote').value = smartDefaults.note;
 
   updateModalComputedPreview();
   modal.style.display = 'flex';
@@ -3703,7 +3791,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025h').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025i').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
