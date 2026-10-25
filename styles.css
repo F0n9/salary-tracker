@@ -2468,6 +2468,24 @@ body.dark-mode .btn-submit-action:hover {
   white-space: nowrap;
 }
 
+.wp-default-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-xs);
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+body.dark-mode .wp-default-tag {
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
 .settings-wp-rate-wrap {
   display: flex;
   align-items: center;

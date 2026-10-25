@@ -34,7 +34,7 @@ const I18N_VI = {
   app_title: 'Salary Tracker',
     nav_account: 'Tài khoản & Đăng nhập',
     nav_settings: 'Cài đặt & Dữ liệu',
-    btn_edit_week_meta: 'Chỉnh sửa đơn giá tuần này',
+    btn_edit_week_meta: 'Chỉnh sửa thông tin tuần',
     btn_add_week: 'Tạo tuần mới',
     btn_delete_week: 'Xóa tuần này',
     week_prefix: 'Tuần',
@@ -178,8 +178,7 @@ const I18N_VI = {
     time_unknown: 'Không rõ thời gian',
 
     settings_title: 'Cài đặt',
-    setting_default_rate: 'Đơn giá mặc định',
-    setting_workplaces: 'Nơi làm việc',
+    setting_workplaces: 'Nơi làm việc & Đơn giá (đ/h)',
     ph_new_workplace: 'Nơi làm mới',
     btn_add_workplace: 'Thêm nơi làm',
     setting_data: 'Dữ liệu',
@@ -191,8 +190,9 @@ const I18N_VI = {
     setting_cloud_sync: 'Đồng bộ đám mây (Cloud Sync)',
     btn_save_settings: 'Lưu cài đặt',
     empty_workplaces_hint: 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.',
-    custom_wp_rate: 'Đơn giá riêng (đ/h)',
+    custom_wp_rate: 'Đơn giá (đ/h)',
     btn_delete_wp: 'Xóa nơi làm',
+    tag_default_workplace: 'Mặc định',
 
     modal_week_title: 'Thông tin tuần',
     modal_week_name: 'Tên tuần',
@@ -291,7 +291,7 @@ const I18N_VI = {
     toast_slip_downloaded: 'Đã tải ảnh bảng chấm công!',
     toast_slip_copied: 'Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.',
     csv_slip_title: 'BẢNG CHẤM CÔNG VÀ LƯƠNG',
-    csv_default_rate: 'Đơn giá mặc định',
+    csv_col_rate: 'Đơn giá',
     csv_col_day: 'Thứ',
     csv_col_type: 'Ca',
     csv_col_workplace: 'Nơi làm việc',
@@ -478,8 +478,31 @@ const state = {
   weeks: [],
   currentWeekId: null,
   settings: {
-    defaultRate: 0,
-    workplaces: []
+    workplaces: ['Chính'],
+    workplaceRates: {}
+  }
+};
+
+const getDefaultWorkplace = () => {
+  if (Array.isArray(state.settings?.workplaces) && state.settings.workplaces.length > 0) {
+    return state.settings.workplaces[0];
+  }
+  return 'Chính';
+};
+
+const normalizeWorkplacesAndRates = () => {
+  if (!state.settings) state.settings = {};
+  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+  if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
+    state.settings.workplaceRates = {};
+  }
+  if (state.settings.workplaces.length === 0) {
+    state.settings.workplaces.push('Chính');
+  }
+  const defWp = state.settings.workplaces[0] || 'Chính';
+  if (state.settings.workplaceRates[defWp] === undefined || state.settings.workplaceRates[defWp] === null) {
+    const fallbackRate = Number(state.settings.defaultRate) || (state.weeks[0]?.rate) || 0;
+    state.settings.workplaceRates[defWp] = fallbackRate;
   }
 };
 
@@ -550,18 +573,24 @@ const calculateHoursDiff = (startStr, endStr, breakMinutes = 0) => {
   return Number((diffMinutes / 60).toFixed(2));
 };
 
-const getShiftRate = (shift, week) => {
-  if (shift && shift.workplace && state.settings && state.settings.workplaceRates && state.settings.workplaceRates[shift.workplace]) {
-    const customRate = Number(state.settings.workplaceRates[shift.workplace]);
-    if (customRate > 0) return customRate;
+const getShiftRate = (shift) => {
+  const wp = (shift && shift.workplace && shift.workplace.trim()) ? shift.workplace.trim() : getDefaultWorkplace();
+  if (state.settings && state.settings.workplaceRates && state.settings.workplaceRates[wp] !== undefined) {
+    const customRate = Number(state.settings.workplaceRates[wp]);
+    if (!isNaN(customRate) && customRate >= 0) return customRate;
   }
-  return Number(week?.rate ?? state.settings?.defaultRate ?? 0);
+  const defWp = getDefaultWorkplace();
+  if (state.settings && state.settings.workplaceRates && state.settings.workplaceRates[defWp] !== undefined) {
+    const defRate = Number(state.settings.workplaceRates[defWp]);
+    if (!isNaN(defRate) && defRate >= 0) return defRate;
+  }
+  return 0;
 };
 
 const getShiftEarnings = (shift, week) => {
   if (!shift) return 0;
   const hours = Number(shift.hours || 0);
-  const rate = getShiftRate(shift, week);
+  const rate = getShiftRate(shift);
   const ot = Number(shift.otRate) || 1.0;
   const allowance = Number(shift.allowance) || 0;
   return Math.round(hours * rate * ot + allowance);
@@ -775,13 +804,11 @@ const loadState = async () => {
       saveWeeks();
     }
 
+    normalizeWorkplacesAndRates();
     if (state.weeks.length > 0) {
       state.weeks.forEach((w, idx) => {
         ensureWeekStartDate(w, idx);
       });
-      if (!Array.isArray(state.settings.workplaces)) {
-        state.settings.workplaces = [];
-      }
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
   } catch (err) {
@@ -1012,7 +1039,8 @@ const renderWeekDetails = () => {
   const dateRange = getWeekDateRangeDisplay(week);
   const localizedName = getLocalizedWeekName(week.name);
   document.getElementById('currentWeekTitle').textContent = dateRange ? `${localizedName} (${dateRange})` : localizedName;
-  document.getElementById('currentWeekRateBadge').textContent = `${new Intl.NumberFormat('vi-VN').format(week.rate)} đ/h`;
+  const rateBadge = document.getElementById('currentWeekRateBadge');
+  if (rateBadge) rateBadge.textContent = `${new Intl.NumberFormat('vi-VN').format(getShiftRate())} đ/h`;
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
@@ -1493,7 +1521,7 @@ const renderCustomWorkplaceDropdown = (filterText = '') => {
       <span>${escapeHtml(wp)}</span>
     `;
 
-    const rate = getShiftRate({ workplace: wp }, week);
+    const rate = getShiftRate({ workplace: wp });
     const right = document.createElement('span');
     right.className = 'workplace-item-rate font-mono';
     right.textContent = fmtCurrency(rate) + '/h';
@@ -1693,7 +1721,7 @@ const openAddShiftModal = (prefill = null) => {
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
-  const defaultWp = (state.settings.workplaces && state.settings.workplaces.length > 0) ? state.settings.workplaces[0] : '';
+  const defaultWp = getDefaultWorkplace();
   updateWorkplaceInputOptions(defaultWp);
 
   // Tính toán thông minh dựa trên lịch sử dữ liệu và thời điểm tan ca hiện tại
@@ -1770,8 +1798,7 @@ const updateModalComputedPreview = () => {
   if (!start || !end) return;
 
   const hours = calculateHoursDiff(start, end, breakMins);
-  const week = getCurrentWeek();
-  const rate = getShiftRate({ workplace }, week);
+  const rate = getShiftRate({ workplace });
   const wage = Math.round(hours * rate * otRate + allowance);
 
   const breakLabel = breakMins > 0 ? ` (${t('break_tag', 'nghỉ')} ${breakMins}${t('unit_min', 'm')})` : '';
@@ -1918,7 +1945,6 @@ const createNewWeek = () => {
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
   const newWeekName = `Tuần ${nextNum}`;
-  const newWeekRate = Number(state.settings.defaultRate) || 0;
 
   let newStartDate = getMondayDate(new Date());
   if (state.weeks.length > 0) {
@@ -1937,7 +1963,6 @@ const createNewWeek = () => {
     id: newWeekId,
     name: newWeekName,
     startDate: newStartDate,
-    rate: newWeekRate,
     shifts: []
   };
 
@@ -1955,7 +1980,8 @@ const openEditWeekModal = () => {
 
   document.getElementById('editWeekNameInput').value = week.name;
   document.getElementById('editWeekStartDateInput').value = week.startDate || getMondayDate(new Date());
-  document.getElementById('editWeekRateInput').value = week.rate;
+  const editRateInput = document.getElementById('editWeekRateInput');
+  if (editRateInput) editRateInput.value = week.rate || 0;
   document.getElementById('editWeekModal').style.display = 'flex';
 };
 
@@ -1966,11 +1992,14 @@ const saveWeekMeta = (e) => {
 
   const newName = document.getElementById('editWeekNameInput').value.trim();
   const newStartDate = document.getElementById('editWeekStartDateInput').value;
-  const newRate = Number(document.getElementById('editWeekRateInput').value);
+  const editRateInput = document.getElementById('editWeekRateInput');
+  if (editRateInput) {
+    const newRate = Number(editRateInput.value);
+    if (!isNaN(newRate) && newRate >= 0) week.rate = newRate;
+  }
 
   if (newName) week.name = newName;
   if (newStartDate) week.startDate = newStartDate;
-  if (newRate !== undefined && !isNaN(newRate) && newRate >= 0) week.rate = newRate;
 
   saveWeeks();
   closeModal('editWeekModal');
@@ -2220,7 +2249,6 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${escapeHtml(week.name)} ${dateRange ? `<span class="field-hint" style="font-size:0.75rem;">(${dateRange})</span>` : ''}</td>
-      <td>${fmtCurrency(week.rate)}/h</td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
       <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
@@ -2681,13 +2709,10 @@ const openAnalyticsModal = () => {
 };
 
 const renderSettingsWorkplaces = () => {
+  normalizeWorkplacesAndRates();
   const container = document.getElementById('settingsWorkplacesList');
   if (!container) return;
   container.innerHTML = '';
-  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
-  if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
-    state.settings.workplaceRates = {};
-  }
 
   if (state.settings.workplaces.length === 0) {
     const emptyRow = document.createElement('div');
@@ -2700,45 +2725,63 @@ const renderSettingsWorkplaces = () => {
 
   state.settings.workplaces.forEach((wp, idx) => {
     const wpCol = getWorkplaceColor(wp);
-    const customRate = state.settings.workplaceRates[wp] || '';
+    const customRate = (state.settings.workplaceRates && state.settings.workplaceRates[wp] !== undefined)
+      ? state.settings.workplaceRates[wp]
+      : '';
+    const isDefault = (idx === 0);
     const row = document.createElement('div');
     row.className = 'settings-workplace-row font-mono';
     row.innerHTML = `
       <div class="settings-wp-name-wrap">
         <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
         <span class="settings-wp-name">${escapeHtml(wp)}</span>
+        ${isDefault ? `<span class="wp-default-tag font-mono">${t('tag_default_workplace', 'Mặc định')}</span>` : ''}
       </div>
       <div class="settings-wp-rate-wrap">
         <div class="settings-wp-rate-box">
-          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="${state.settings.defaultRate || 0}" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá riêng (đ/h)')}">
+          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="0" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá (đ/h)')}">
           <span class="settings-wp-rate-tag font-mono">${t('rate_unit', 'đ/h')}</span>
         </div>
-        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        ${(!isDefault || state.settings.workplaces.length > 1) ? `
+          <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        ` : `
+          <div style="width: 28px; height: 28px; flex-shrink: 0;"></div>
+        `}
       </div>
     `;
 
-    row.querySelector('[data-del-wp]').addEventListener('click', () => {
-      const removed = state.settings.workplaces.splice(idx, 1)[0];
-      if (removed && state.settings.workplaceRates) {
-        delete state.settings.workplaceRates[removed];
-      }
-      saveSettings();
-      renderSettingsWorkplaces();
-    });
+    const delBtn = row.querySelector('[data-del-wp]');
+    if (delBtn) {
+      delBtn.addEventListener('click', () => {
+        if (state.settings.workplaces.length <= 1) {
+          alert('Cần ít nhất một nơi làm việc.');
+          return;
+        }
+        const removed = state.settings.workplaces.splice(idx, 1)[0];
+        if (removed && state.settings.workplaceRates) {
+          delete state.settings.workplaceRates[removed];
+        }
+        normalizeWorkplacesAndRates();
+        saveSettings();
+        renderSettingsWorkplaces();
+        renderApp();
+      });
+    }
 
-    row.querySelector('.settings-wp-rate-input').addEventListener('change', (e) => {
+    row.querySelector('.settings-wp-rate-input').addEventListener('input', (e) => {
       const val = Number(e.target.value);
       if (!isNaN(val) && val >= 0) {
         state.settings.workplaceRates[wp] = val;
       } else {
-        delete state.settings.workplaceRates[wp];
+        state.settings.workplaceRates[wp] = 0;
       }
       saveSettings();
+      renderApp();
     });
 
     container.appendChild(row);
@@ -2750,18 +2793,25 @@ const addWorkplaceFromSetting = () => {
   if (!input) return;
   const val = input.value.trim();
   if (!val) return;
-  if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+  normalizeWorkplacesAndRates();
   if (!state.settings.workplaces.includes(val)) {
     state.settings.workplaces.push(val);
+    if (state.settings.workplaceRates[val] === undefined) {
+      const defWp = getDefaultWorkplace();
+      state.settings.workplaceRates[val] = state.settings.workplaceRates[defWp] || 0;
+    }
     saveSettings();
     renderSettingsWorkplaces();
+    renderApp();
     input.value = '';
     showToast(`Đã thêm nơi làm: ${val}`);
   }
 };
 
 const openSettingsModal = () => {
-  document.getElementById('settingDefaultRate').value = state.settings.defaultRate ? state.settings.defaultRate : '';
+  normalizeWorkplacesAndRates();
+  const defRateEl = document.getElementById('settingDefaultRate');
+  if (defRateEl) defRateEl.value = state.settings.defaultRate ? state.settings.defaultRate : '';
   renderSettingsWorkplaces();
 
   const currentTheme = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
@@ -2775,17 +2825,21 @@ const openSettingsModal = () => {
 };
 
 const saveSettingsFromModal = () => {
-  const rateInputVal = document.getElementById('settingDefaultRate').value.trim();
-  if (rateInputVal === '') {
-    state.settings.defaultRate = 0;
-  } else {
-    const rate = Number(rateInputVal);
-    if (!isNaN(rate) && rate >= 0) {
-      state.settings.defaultRate = rate;
+  const defRateEl = document.getElementById('settingDefaultRate');
+  if (defRateEl) {
+    const rateInputVal = defRateEl.value.trim();
+    if (rateInputVal === '') {
+      state.settings.defaultRate = 0;
+    } else {
+      const rate = Number(rateInputVal);
+      if (!isNaN(rate) && rate >= 0) {
+        state.settings.defaultRate = rate;
+      }
     }
   }
   saveSettings();
   closeModal('settingsModal');
+  renderApp();
   showToast('Đã lưu cài đặt');
 };
 
@@ -3368,20 +3422,20 @@ const exportCurrentWeekCSV = () => {
 
   let csvContent = '\uFEFF';
   const unit = t('rate_unit', 'đ/h');
-  csvContent += `${t('csv_slip_title', 'BẢNG CHẤM CÔNG VÀ LƯƠNG')} — ${getLocalizedWeekName(week.name)}\r\n`;
-  csvContent += `${t('csv_default_rate', 'Đơn giá mặc định')}: ${week.rate} ${unit}\r\n\r\n`;
-  csvContent += `"${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Giờ bắt đầu')}","${t('csv_col_end', 'Giờ kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
+  csvContent += `${t('csv_slip_title', 'BẢNG CHẤM CÔNG VÀ LƯƠNG')} — ${getLocalizedWeekName(week.name)}\r\n\r\n`;
+  csvContent += `"${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_start', 'Giờ bắt đầu')}","${t('csv_col_end', 'Giờ kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   week.shifts.forEach(s => {
+    const rate = getShiftRate(s);
     const salary = getShiftEarnings(s, week);
     const ot = Number(s.otRate) || 1.0;
     const allowance = Number(s.allowance) || 0;
-    csvContent += `"${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    csvContent += `"${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}",${rate},"${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
-  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
+  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
 
   downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
   showToast(`${t('toast_csv_exported', 'Đã xuất file CSV cho')} ${getLocalizedWeekName(week.name)}`);
@@ -3391,7 +3445,7 @@ const exportAllWeeksCSV = () => {
   let csvContent = '\uFEFF';
   const unit = t('rate_unit', 'đ/h');
   csvContent += `${t('csv_all_weeks_title', 'TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN')}\r\n\r\n`;
-  csvContent += `"${t('csv_col_week', 'Tuần')}","${t('csv_col_date_range', 'Khoảng ngày')}","${t('csv_default_rate', 'Đơn giá mặc định')} (${unit})","${t('csv_col_work_date', 'Ngày làm')}","${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Bắt đầu')}","${t('csv_col_end', 'Kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
+  csvContent += `"${t('csv_col_week', 'Tuần')}","${t('csv_col_date_range', 'Khoảng ngày')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_work_date', 'Ngày làm')}","${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Bắt đầu')}","${t('csv_col_end', 'Kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -3399,13 +3453,14 @@ const exportAllWeeksCSV = () => {
   state.weeks.forEach(w => {
     const weekRange = getWeekDateRangeDisplay(w);
     w.shifts.forEach(s => {
+      const rate = getShiftRate(s);
       const salary = getShiftEarnings(s, w);
       const ot = Number(s.otRate) || 1.0;
       const allowance = Number(s.allowance) || 0;
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${getLocalizedWeekName(w.name)}","${weekRange}",${w.rate},"${shiftFullDate}","${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${getLocalizedWeekName(w.name)}","${weekRange}",${rate},"${shiftFullDate}","${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
@@ -3527,6 +3582,9 @@ const bindEvents = () => {
 
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
+
+  const currentWeekTitle = document.getElementById('currentWeekTitle');
+  if (currentWeekTitle) currentWeekTitle.addEventListener('click', openEditWeekModal);
 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', () => {
@@ -3851,7 +3909,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025p').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261025q').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
