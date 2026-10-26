@@ -339,22 +339,6 @@ const getLocalizedDayName = (dayCode) => {
 };
 
 // ===== THEME & AUTO-SYNC HELPERS =====
-let _canAnimatePseudo = null;
-const supportsWaapiPseudoElement = () => {
-  if (_canAnimatePseudo !== null) return _canAnimatePseudo;
-  try {
-    const anim = document.documentElement.animate(
-      { opacity: [1, 1] },
-      { duration: 1, pseudoElement: '::view-transition-new(root)' }
-    );
-    anim.cancel();
-    _canAnimatePseudo = true;
-  } catch (e) {
-    _canAnimatePseudo = false;
-  }
-  return _canAnimatePseudo;
-};
-
 const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
   if (theme === 'auto') {
@@ -421,11 +405,14 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     y = clickEvent.clientY;
   }
 
-  // Calculate radius to encompass all 4 corners + extra margin so the circle smoothly clears the screen
-  const endRadius = Math.hypot(
+  // Calculate radius to encompass all 4 corners + 15% overshoot + 60px buffer
+  // This guarantees all 4 corners are 100% inside the new theme by ~80% of the duration,
+  // completely eliminating any snapping, stuttering, or freezing at the end.
+  const maxCornerDist = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
-  ) + 30;
+  );
+  const endRadius = Math.ceil(maxCornerDist * 1.15) + 60;
 
   // Reduced motion preference
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -436,56 +423,60 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
 
   // Circular reveal with View Transitions API (Reveals new UI progressively without hiding any UI)
   if (typeof document.startViewTransition === 'function') {
-    document.documentElement.style.setProperty('--ripple-x', `${x}px`);
-    document.documentElement.style.setProperty('--ripple-y', `${y}px`);
-    document.documentElement.style.setProperty('--ripple-radius', `${Math.ceil(endRadius)}px`);
-
-    const waapiSupported = supportsWaapiPseudoElement();
-    if (!waapiSupported) {
-      document.documentElement.classList.add('vt-css-ripple');
-    }
-
     try {
       const transition = document.startViewTransition(() => {
         performThemeChange();
       });
 
-      if (waapiSupported && transition && typeof transition.ready?.then === 'function') {
+      if (transition && typeof transition.ready?.then === 'function') {
         transition.ready.then(() => {
           try {
             document.documentElement.animate(
               {
                 clipPath: [
                   `circle(0px at ${x}px ${y}px)`,
-                  `circle(${Math.ceil(endRadius)}px at ${x}px ${y}px)`
+                  `circle(${endRadius}px at ${x}px ${y}px)`
                 ]
               },
               {
-                duration: 520,
-                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                duration: 540,
+                easing: 'cubic-bezier(0.25, 1, 0.4, 1)',
                 pseudoElement: '::view-transition-new(root)'
               }
             );
-          } catch (e) {
-            // Handled
+          } catch (waapiErr) {
+            // Safari (WebKit) fallback: dynamically inject exact pixel keyframe
+            let styleTag = document.getElementById('_vtThemeStyle');
+            if (!styleTag) {
+              styleTag = document.createElement('style');
+              styleTag.id = '_vtThemeStyle';
+              document.head.appendChild(styleTag);
+            }
+            styleTag.textContent = `
+              ::view-transition-new(root) {
+                animation: themeWaterRipple 0.54s cubic-bezier(0.25, 1, 0.4, 1) forwards !important;
+              }
+              @keyframes themeWaterRipple {
+                0% { clip-path: circle(0px at ${x}px ${y}px); }
+                100% { clip-path: circle(${endRadius}px at ${x}px ${y}px); }
+              }
+            `;
+            setTimeout(() => {
+              if (styleTag) styleTag.textContent = '';
+            }, 600);
           }
         }).catch(() => {});
       }
 
       if (transition && typeof transition.finished?.then === 'function') {
         transition.finished.finally(() => {
-          document.documentElement.classList.remove('vt-css-ripple');
           persistThemeSettings();
         });
       } else {
-        setTimeout(() => {
-          document.documentElement.classList.remove('vt-css-ripple');
-          persistThemeSettings();
-        }, 550);
+        setTimeout(persistThemeSettings, 580);
       }
       return;
     } catch (e) {
-      document.documentElement.classList.remove('vt-css-ripple');
       // Fallback below
     }
   }

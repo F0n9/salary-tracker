@@ -120,20 +120,6 @@ body.dark-mode {
   z-index: 99999;
 }
 
-/* Fallback for Safari WebKit (when WAAPI pseudoElement is unavailable) */
-html.vt-css-ripple::view-transition-new(root) {
-  animation: themeWaterRipple 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes themeWaterRipple {
-  0% {
-    clip-path: circle(0px at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
-  }
-  100% {
-    clip-path: circle(var(--ripple-radius, 150vmax) at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
-  }
-}
-
 /* Fallback smooth transition for browsers without View Transitions */
 body.theme-transitioning,
 body.theme-transitioning *,
