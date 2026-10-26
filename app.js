@@ -126,7 +126,7 @@ const I18N_VI = {
     modal_end: 'Giờ ra',
     modal_break: 'Nghỉ giữa ca (phút)',
     modal_ot: 'Hệ số tăng ca',
-    modal_allowance: 'Phụ cấp / Thưởng (VNĐ)',
+    modal_allowance: 'Phụ cấp / Thưởng (đ)',
     modal_workplace: 'Nơi làm việc',
     modal_note: 'Ghi chú',
     modal_preview_est: 'Dự tính',
@@ -157,8 +157,8 @@ const I18N_VI = {
     kpi_avg_week: 'TB / Tuần',
     chart_title_daily: 'Thu nhập theo ngày làm việc',
     chart_title_weekly: 'Thu nhập theo từng tuần',
-    chart_sub_daily: 'Theo ngày (VNĐ)',
-    chart_sub_weekly: 'Theo tuần (VNĐ)',
+    chart_sub_daily: 'Theo ngày (đ)',
+    chart_sub_weekly: 'Theo tuần (đ)',
     chart_title_workplace: 'Phân bổ thu nhập theo nơi làm việc',
     no_shift_data: 'Chưa có dữ liệu ca làm việc.',
     no_shifts: 'Chưa có ca',
@@ -204,7 +204,7 @@ const I18N_VI = {
     modal_week_name: 'Tên tuần',
     ph_week_name: 'Tên tuần',
     modal_week_start: 'Ngày bắt đầu tuần (T2)',
-    modal_week_rate: 'Đơn giá (VNĐ/giờ)',
+    modal_week_rate: 'Đơn giá (đ/h)',
     btn_update_week: 'Cập nhật thông tin tuần',
 
     slip_modal_title: 'Phiếu chấm công',
@@ -2687,7 +2687,7 @@ const renderAnalyticsDashboard = () => {
 
   const subtitle = document.getElementById('timelineChartSubtitle');
   if (subtitle) {
-    subtitle.textContent = analyticsState.timeFilter === 'current' ? t('chart_sub_daily', 'Theo ngày (VNĐ)') : t('chart_sub_weekly', 'Theo tuần (VNĐ)');
+    subtitle.textContent = analyticsState.timeFilter === 'current' ? t('chart_sub_daily', 'Theo ngày (đ)') : t('chart_sub_weekly', 'Theo tuần (đ)');
   }
   const title = document.getElementById('timelineChartTitle');
   if (title) {
