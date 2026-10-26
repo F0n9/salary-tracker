@@ -339,7 +339,25 @@ const getLocalizedDayName = (dayCode) => {
 };
 
 // ===== THEME & AUTO-SYNC HELPERS =====
-const applyTheme = (theme, save = true) => {
+const triggerWaterRippleWave = (x, y, isDark) => {
+  const wave = document.createElement('div');
+  wave.className = 'theme-water-ripple-wave';
+  wave.style.left = `${x}px`;
+  wave.style.top = `${y}px`;
+  wave.style.borderColor = isDark ? 'rgba(96, 165, 250, 0.65)' : 'rgba(37, 99, 235, 0.55)';
+  wave.style.boxShadow = isDark ? '0 0 30px rgba(96, 165, 250, 0.45)' : '0 0 30px rgba(37, 99, 235, 0.35)';
+  document.body.appendChild(wave);
+
+  requestAnimationFrame(() => {
+    wave.classList.add('is-expanding');
+  });
+
+  setTimeout(() => {
+    wave.remove();
+  }, 800);
+};
+
+const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
   if (theme === 'auto') {
     effectiveTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -382,25 +400,81 @@ const applyTheme = (theme, save = true) => {
     return;
   }
 
-  // Smooth View Transition API (Chrome, Edge, Safari 18+)
-  if (typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    try {
-      document.startViewTransition(() => {
-        performThemeChange();
-      });
-      return;
-    } catch (e) {
-      // Fallback to CSS transitions below
+  // Determine origin point (x, y) for water ripple effect
+  let x = window.innerWidth / 2;
+  let y = window.innerHeight / 2;
+
+  if (clickEvent && typeof clickEvent.clientX === 'number') {
+    x = clickEvent.clientX;
+    y = clickEvent.clientY;
+  } else {
+    const activeBtn = document.querySelector(`#themeSegmentedControl .segmented-btn-3d[data-theme-val="${theme}"]`);
+    if (activeBtn) {
+      const rect = activeBtn.getBoundingClientRect();
+      x = Math.round(rect.left + rect.width / 2);
+      y = Math.round(rect.top + rect.height / 2);
     }
   }
 
-  // Fallback CSS animation
-  document.body.classList.add('theme-transitioning');
-  performThemeChange();
-  clearTimeout(window._themeTransitionTimer);
-  window._themeTransitionTimer = setTimeout(() => {
-    document.body.classList.remove('theme-transitioning');
-  }, 400);
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y)
+  );
+
+  // Water ripple wave ring
+  triggerWaterRippleWave(x, y, isDark);
+
+  // Smooth View Transition API with circular expanding clipPath
+  if (typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    try {
+      const transition = document.startViewTransition(() => {
+        performThemeChange();
+      });
+
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`
+            ]
+          },
+          {
+            duration: 650,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      }).catch(() => {});
+      return;
+    } catch (e) {
+      // Fallback below
+    }
+  }
+
+  // Fallback circular water expansion for non-supporting browsers
+  const rippleOverlay = document.createElement('div');
+  rippleOverlay.className = 'theme-water-fallback-overlay';
+  rippleOverlay.style.left = `${x}px`;
+  rippleOverlay.style.top = `${y}px`;
+  rippleOverlay.style.backgroundColor = isDark ? '#0b0f19' : '#f8fafc';
+  const size = Math.round(endRadius * 2);
+  rippleOverlay.style.width = `${size}px`;
+  rippleOverlay.style.height = `${size}px`;
+  document.body.appendChild(rippleOverlay);
+
+  requestAnimationFrame(() => {
+    rippleOverlay.classList.add('is-expanded');
+  });
+
+  setTimeout(() => {
+    performThemeChange();
+  }, 260);
+
+  setTimeout(() => {
+    rippleOverlay.style.opacity = '0';
+    setTimeout(() => rippleOverlay.remove(), 260);
+  }, 520);
 };
 
 const toggleTheme = () => {
@@ -3669,9 +3743,9 @@ const bindEvents = () => {
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
 
   document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
       const val = btn.dataset.themeVal;
-      applyTheme(val, true);
+      applyTheme(val, true, e);
     });
   });
 

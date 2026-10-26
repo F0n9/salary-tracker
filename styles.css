@@ -100,51 +100,54 @@ body.dark-mode {
   background-color: #0b0f19;
 }
 
-/* Theme Switching Smooth Animation */
+/* Water Ripple Circular View Transition for Theme Switch */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.38s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 ::view-transition-old(root) {
-  animation-name: themeFadeOut;
+  z-index: 1;
 }
 
 ::view-transition-new(root) {
-  animation-name: themeFadeIn;
+  z-index: 9999;
 }
 
-@keyframes themeFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+/* Water Ripple Wave Ring */
+.theme-water-ripple-wave {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000000;
+  transform: translate(-50%, -50%) scale(0);
+  border: 3px solid rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+  width: 16px;
+  height: 16px;
+  opacity: 1;
 }
 
-@keyframes themeFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.theme-water-ripple-wave.is-expanding {
+  transform: translate(-50%, -50%) scale(180);
+  opacity: 0;
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Fallback CSS transitions when View Transitions API is not active */
-body.theme-transitioning,
-body.theme-transitioning *,
-body.theme-transitioning *::before,
-body.theme-transitioning *::after {
-  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              fill 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              stroke 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  transition-delay: 0s !important;
+/* Fallback Water Ripple Overlay for non-supporting browsers */
+.theme-water-fallback-overlay {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
+
+.theme-water-fallback-overlay.is-expanded {
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .font-mono {
