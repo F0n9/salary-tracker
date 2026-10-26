@@ -10,15 +10,15 @@
 
   
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./favicon.png?v=20261026b">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261026b">
+  <link rel="icon" type="image/png" href="./favicon.png?v=20261026c">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261026c">
 
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261026b">
+  <link rel="stylesheet" href="./styles.css?v=20261026c">
 </head>
 <body>
   
@@ -307,19 +307,9 @@
           </div>
         </div>
 
-        <div class="form-item workplace-field-group">
+        <div class="form-item">
           <label class="form-label font-mono" for="shiftWorkplace" data-i18n="modal_workplace">Nơi làm việc</label>
-          <div class="workplace-input-wrap">
-            <input type="text" id="shiftWorkplace" class="form-input font-mono" placeholder="Nơi làm việc" data-i18n-placeholder="ph_workplace" autocomplete="off">
-            <button type="button" id="btnToggleWorkplaceDropdown" class="workplace-dropdown-btn" data-i18n-title="title_workplace_list" title="Danh sách nơi làm việc" aria-label="Danh sách nơi làm việc">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div class="custom-workplace-dropdown" id="customWorkplaceDropdown" style="display: none;"></div>
-          </div>
-          <datalist id="workplaceDatalist" style="display: none;"></datalist>
-          <div class="workplace-chips-list" id="shiftWorkplaceChips"></div>
+          <select id="shiftWorkplace" class="form-select font-mono" required></select>
         </div>
 
         <div class="form-item">
@@ -940,6 +930,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261026b"></script>
+  <script src="./app.js?v=20261026c"></script>
 </body>
 </html>

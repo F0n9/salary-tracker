@@ -1168,9 +1168,28 @@ const setupCustomSelect = (selectId) => {
 
   const options = Array.from(select.options);
   const selectedOption = select.options[select.selectedIndex] || options[0];
-  if (selectedOption && label) {
-    label.textContent = selectedOption.textContent;
-  }
+
+  const updateTriggerLabel = () => {
+    if (!label) return;
+    const curOpt = select.options[select.selectedIndex] || options[0];
+    if (!curOpt) {
+      label.textContent = '';
+      return;
+    }
+    if (selectId === 'shiftWorkplace' && curOpt.value) {
+      const wpCol = getWorkplaceColor(curOpt.value);
+      label.innerHTML = `
+        <span class="workplace-item-left">
+          <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+          <span>${escapeHtml(curOpt.value)}</span>
+        </span>
+      `;
+    } else {
+      label.textContent = curOpt.textContent;
+    }
+  };
+
+  updateTriggerLabel();
 
   options.forEach((opt) => {
     const item = document.createElement('div');
@@ -1179,21 +1198,40 @@ const setupCustomSelect = (selectId) => {
     item.setAttribute('role', 'option');
     item.setAttribute('data-value', opt.value);
 
-    const textSpan = document.createElement('span');
-    textSpan.textContent = opt.textContent;
+    if (selectId === 'shiftWorkplace' && opt.value) {
+      const wpCol = getWorkplaceColor(opt.value);
+      const rate = getShiftRate({ workplace: opt.value });
+      item.innerHTML = `
+        <div class="workplace-item-left">
+          <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+          <span>${escapeHtml(opt.value)}</span>
+        </div>
+        <div class="workplace-item-right">
+          <span class="workplace-item-rate font-mono">${fmtCurrency(rate)}/h</span>
+          <span class="custom-select-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+        </div>
+      `;
+    } else {
+      const textSpan = document.createElement('span');
+      textSpan.textContent = opt.textContent;
 
-    const checkIcon = document.createElement('span');
-    checkIcon.className = 'custom-select-check';
-    checkIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      const checkIcon = document.createElement('span');
+      checkIcon.className = 'custom-select-check';
+      checkIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-    item.appendChild(textSpan);
-    item.appendChild(checkIcon);
+      item.appendChild(textSpan);
+      item.appendChild(checkIcon);
+    }
 
     item.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       select.value = opt.value;
-      if (label) label.textContent = opt.textContent;
+      updateTriggerLabel();
       wrapper.querySelectorAll('.custom-select-option').forEach(el => el.classList.remove('is-selected'));
       item.classList.add('is-selected');
       closeAllCustomSelects();
@@ -1217,7 +1255,17 @@ const syncCustomSelect = (selectId) => {
   const label = wrapper.querySelector('.custom-select-label');
   const selectedOption = select.options[select.selectedIndex];
   if (label && selectedOption) {
-    label.textContent = selectedOption.textContent;
+    if (selectId === 'shiftWorkplace' && selectedOption.value) {
+      const wpCol = getWorkplaceColor(selectedOption.value);
+      label.innerHTML = `
+        <span class="workplace-item-left">
+          <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+          <span>${escapeHtml(selectedOption.value)}</span>
+        </span>
+      `;
+    } else {
+      label.textContent = selectedOption.textContent;
+    }
   }
   wrapper.querySelectorAll('.custom-select-option').forEach(el => {
     if (el.getAttribute('data-value') === select.value) {
@@ -1238,11 +1286,7 @@ const closeAllCustomSelects = () => {
   document.querySelectorAll('.has-open-dropdown').forEach(el => {
     el.classList.remove('has-open-dropdown');
   });
-  const wpDropdown = document.getElementById('customWorkplaceDropdown');
-  if (wpDropdown) {
-    wpDropdown.style.display = 'none';
-    wpDropdown.classList.remove('open-up');
-  }
+
 };
 
 const updateFilterActiveState = () => {
@@ -1551,121 +1595,33 @@ const getUniqueWorkplacesList = () => {
   return Array.from(set);
 };
 
-const renderCustomWorkplaceDropdown = (filterText = '') => {
-  const dropdown = document.getElementById('customWorkplaceDropdown');
-  const input = document.getElementById('shiftWorkplace');
-  if (!dropdown || !input) return;
-
-  const allWps = getUniqueWorkplacesList();
-  const filtered = filterText
-    ? allWps.filter(wp => wp.toLowerCase().includes(filterText.toLowerCase()))
-    : allWps;
-
-  dropdown.innerHTML = '';
-  if (filtered.length === 0) {
-    dropdown.style.display = 'none';
-    dropdown.classList.remove('open-up');
-    const wpGroup = dropdown.closest('.workplace-field-group');
-    if (wpGroup) wpGroup.classList.remove('has-open-dropdown');
-    const wpWrap = dropdown.closest('.workplace-input-wrap');
-    if (wpWrap) wpWrap.classList.remove('has-open-dropdown');
-    return;
-  }
-
-  const currentVal = input.value.trim().toLowerCase();
-  filtered.forEach(wp => {
-    const isSelected = (currentVal && wp.toLowerCase() === currentVal);
-    const item = document.createElement('div');
-    item.className = 'workplace-dropdown-item custom-select-option' + (isSelected ? ' is-selected' : '');
-    item.setAttribute('role', 'option');
-    item.setAttribute('data-value', wp);
-
-    const wpCol = getWorkplaceColor(wp);
-    const left = document.createElement('div');
-    left.className = 'workplace-item-left';
-    left.innerHTML = `
-      <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
-      <span>${escapeHtml(wp)}</span>
-    `;
-
-    const rate = getShiftRate({ workplace: wp });
-    const right = document.createElement('div');
-    right.className = 'workplace-item-right';
-    right.innerHTML = `
-      <span class="workplace-item-rate font-mono">${fmtCurrency(rate)}/h</span>
-      <span class="custom-select-check">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </span>
-    `;
-
-    item.appendChild(left);
-    item.appendChild(right);
-
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      input.value = wp;
-      closeAllCustomSelects();
-      updateModalComputedPreview();
-      const chips = document.getElementById('shiftWorkplaceChips');
-      if (chips) {
-        chips.querySelectorAll('.workplace-chip').forEach(c => {
-          c.classList.toggle('active', c.textContent === wp);
-        });
-      }
-    });
-
-    dropdown.appendChild(item);
-  });
-
-  const rect = input.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - rect.bottom;
-  const spaceAbove = rect.top;
-  if (spaceBelow < 220 && spaceAbove > 180) {
-    dropdown.classList.add('open-up');
-  } else {
-    dropdown.classList.remove('open-up');
-  }
-
-  dropdown.style.display = 'block';
-
-  const wpGroup = dropdown.closest('.workplace-field-group');
-  if (wpGroup) wpGroup.classList.add('has-open-dropdown');
-  const wpWrap = dropdown.closest('.workplace-input-wrap');
-  if (wpWrap) wpWrap.classList.add('has-open-dropdown');
-  const modalBody = dropdown.closest('.modal-body');
-  if (modalBody) modalBody.classList.add('has-open-dropdown');
-};
-
 const updateWorkplaceInputOptions = (currentVal = '') => {
-  const chipsContainer = document.getElementById('shiftWorkplaceChips');
-  const input = document.getElementById('shiftWorkplace');
-  if (input) input.value = currentVal;
+  const select = document.getElementById('shiftWorkplace');
+  if (!select) return;
 
   const list = getUniqueWorkplacesList();
+  const defaultWp = getDefaultWorkplace();
+  const targetVal = (currentVal && list.includes(currentVal))
+    ? currentVal
+    : (defaultWp && list.includes(defaultWp) ? defaultWp : (list[0] || ''));
 
-  if (chipsContainer) {
-    chipsContainer.innerHTML = '';
-    list.forEach(wp => {
-      const chip = document.createElement('span');
-      chip.className = `workplace-chip font-mono ${currentVal === wp ? 'active' : ''}`;
-      chip.textContent = wp;
-      chip.addEventListener('click', () => {
-        if (input.value === wp) {
-          input.value = '';
-          chip.classList.remove('active');
-        } else {
-          input.value = wp;
-          chipsContainer.querySelectorAll('.workplace-chip').forEach(c => c.classList.remove('active'));
-          chip.classList.add('active');
-        }
-        updateModalComputedPreview();
-      });
-      chipsContainer.appendChild(chip);
-    });
+  select.innerHTML = '';
+  list.forEach(wp => {
+    const opt = document.createElement('option');
+    opt.value = wp;
+    opt.textContent = wp;
+    if (wp === targetVal) {
+      opt.selected = true;
+    }
+    select.appendChild(opt);
+  });
+
+  if (targetVal) {
+    select.value = targetVal;
   }
+
+  setupCustomSelect('shiftWorkplace');
+  syncCustomSelect('shiftWorkplace');
 };
 
 const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
@@ -1796,8 +1752,7 @@ const openAddShiftModal = (prefill = null) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'none';
 
-  const wpDropdown = document.getElementById('customWorkplaceDropdown');
-  if (wpDropdown) wpDropdown.style.display = 'none';
+
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
@@ -1812,8 +1767,10 @@ const openAddShiftModal = (prefill = null) => {
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
   setupCustomSelect('shiftOtRate');
+  setupCustomSelect('shiftWorkplace');
   syncCustomSelect('shiftDay');
   syncCustomSelect('shiftType');
+  syncCustomSelect('shiftWorkplace');
 
   document.getElementById('shiftStart').value = smartDefaults.start;
   document.getElementById('shiftEnd').value = smartDefaults.end;
@@ -1838,8 +1795,7 @@ const openEditShiftModal = (shift) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'inline-flex';
 
-  const wpDropdown = document.getElementById('customWorkplaceDropdown');
-  if (wpDropdown) wpDropdown.style.display = 'none';
+
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
@@ -1850,8 +1806,10 @@ const openEditShiftModal = (shift) => {
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
   setupCustomSelect('shiftOtRate');
+  setupCustomSelect('shiftWorkplace');
   syncCustomSelect('shiftDay');
   syncCustomSelect('shiftType');
+  syncCustomSelect('shiftWorkplace');
 
   document.getElementById('shiftStart').value = shift.start;
   document.getElementById('shiftEnd').value = shift.end;
@@ -3915,37 +3873,14 @@ const bindEvents = () => {
     });
   }
 
-  // Custom Workplace Autocomplete Dropdown Popover
-  const btnToggleWp = document.getElementById('btnToggleWorkplaceDropdown');
-  const shiftWpInput = document.getElementById('shiftWorkplace');
-  const customWpDropdown = document.getElementById('customWorkplaceDropdown');
-  if (btnToggleWp && shiftWpInput && customWpDropdown) {
-    btnToggleWp.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const isHidden = customWpDropdown.style.display === 'none' || customWpDropdown.style.display === '';
-      if (isHidden) {
-        closeAllCustomSelects();
-        renderCustomWorkplaceDropdown(shiftWpInput.value.trim());
-      } else {
-        closeAllCustomSelects();
-      }
-    });
-
-    shiftWpInput.addEventListener('focus', () => {
-      closeAllCustomSelects();
-      renderCustomWorkplaceDropdown(shiftWpInput.value.trim());
-    });
-
-    shiftWpInput.addEventListener('input', (e) => {
-      renderCustomWorkplaceDropdown(e.target.value.trim());
-      updateModalComputedPreview();
-    });
+  const shiftWpSelect = document.getElementById('shiftWorkplace');
+  if (shiftWpSelect) {
+    shiftWpSelect.addEventListener('change', updateModalComputedPreview);
   }
 
-  // Global dismiss for Custom Selects and Workplace Dropdown
+  // Global dismiss for Custom Selects
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.custom-select-wrapper') && !e.target.closest('.workplace-field-group')) {
+    if (!e.target.closest('.custom-select-wrapper')) {
       closeAllCustomSelects();
     }
   });
@@ -3960,6 +3895,7 @@ const bindEvents = () => {
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
   setupCustomSelect('shiftOtRate');
+  setupCustomSelect('shiftWorkplace');
   setupCustomSelect('filterWorkplaceSelect');
 
   const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
