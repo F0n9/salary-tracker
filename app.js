@@ -375,10 +375,6 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
       sunIcon.style.display = isDark ? 'block' : 'none';
       moonIcon.style.display = isDark ? 'none' : 'block';
     }
-
-    document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.themeVal === theme);
-    });
   };
 
   const persistThemeSettings = () => {
@@ -409,7 +405,7 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   const toggleBtn = document.getElementById('btnToggleTheme');
   let targetBtn = toggleBtn;
   if (clickEvent && clickEvent.target) {
-    const clicked = clickEvent.target.closest('#btnToggleTheme, .segmented-btn-3d');
+    const clicked = clickEvent.target.closest('#btnToggleTheme');
     if (clicked) targetBtn = clicked;
   }
 
@@ -3017,11 +3013,6 @@ const openSettingsModal = () => {
   if (defRateEl) defRateEl.value = state.settings.defaultRate ? state.settings.defaultRate : '';
   renderSettingsWorkplaces();
 
-  const currentTheme = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
-  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.themeVal === currentTheme);
-  });
-
   updateSyncStatusUI();
 
   document.getElementById('settingsModal').style.display = 'flex';
@@ -3774,13 +3765,6 @@ const bindEvents = () => {
       toggleTheme(e);
     });
   }
-
-  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const val = btn.dataset.themeVal;
-      applyTheme(val, true, e);
-    });
-  });
 
   const btnManualSync = document.getElementById('btnManualCloudSync');
   if (btnManualSync) {
