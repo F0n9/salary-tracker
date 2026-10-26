@@ -193,6 +193,8 @@ const I18N_VI = {
     custom_wp_rate: 'Đơn giá (đ/h)',
     btn_delete_wp: 'Xóa nơi làm',
     tag_default_workplace: 'Mặc định',
+    btn_set_default_wp: 'Đặt làm nơi làm việc mặc định',
+    toast_wp_set_default: 'Đã đặt làm nơi làm việc mặc định',
     warn_no_workplace: 'Vui lòng thêm nơi làm việc trong Cài đặt trước khi tiếp tục!',
     warn_no_workplace_action: 'Cần thêm nơi làm việc để tiếp tục',
     no_workplaces_title: 'Chưa có nơi làm việc',
@@ -483,7 +485,8 @@ const state = {
   currentWeekId: null,
   settings: {
     workplaces: ['Chính'],
-    workplaceRates: {}
+    workplaceRates: {},
+    defaultWorkplace: 'Chính'
   }
 };
 
@@ -493,6 +496,9 @@ const hasWorkplaces = () => {
 
 const getDefaultWorkplace = () => {
   if (hasWorkplaces()) {
+    if (state.settings?.defaultWorkplace && state.settings.workplaces.includes(state.settings.defaultWorkplace)) {
+      return state.settings.defaultWorkplace;
+    }
     return state.settings.workplaces[0];
   }
   return '';
@@ -503,6 +509,13 @@ const normalizeWorkplacesAndRates = () => {
   if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
   if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
     state.settings.workplaceRates = {};
+  }
+  if (hasWorkplaces()) {
+    if (!state.settings.defaultWorkplace || !state.settings.workplaces.includes(state.settings.defaultWorkplace)) {
+      state.settings.defaultWorkplace = state.settings.workplaces[0];
+    }
+  } else {
+    state.settings.defaultWorkplace = '';
   }
   const defWp = getDefaultWorkplace();
   if (defWp && (state.settings.workplaceRates[defWp] === undefined || state.settings.workplaceRates[defWp] === null)) {
@@ -2793,19 +2806,33 @@ const renderSettingsWorkplaces = () => {
     return;
   }
 
+  const currentDefaultWp = getDefaultWorkplace();
+  const hasMultipleWp = state.settings.workplaces.length > 1;
+
   state.settings.workplaces.forEach((wp, idx) => {
     const wpCol = getWorkplaceColor(wp);
     const customRate = (state.settings.workplaceRates && state.settings.workplaceRates[wp] !== undefined)
       ? state.settings.workplaceRates[wp]
       : '';
-    const isDefault = (idx === 0);
+    const isDefault = (wp === currentDefaultWp);
     const row = document.createElement('div');
     row.className = 'settings-workplace-row font-mono';
     row.innerHTML = `
       <div class="settings-wp-name-wrap">
         <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
         <span class="settings-wp-name">${escapeHtml(wp)}</span>
-        ${isDefault ? `<span class="wp-default-tag font-mono">${t('tag_default_workplace', 'Mặc định')}</span>` : ''}
+        ${isDefault ? `
+          <span class="wp-default-tag font-mono">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10" style="margin-right:2px;">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            ${t('tag_default_workplace', 'Mặc định')}
+          </span>` : (hasMultipleWp ? `
+          <button type="button" class="btn-set-default-wp btn-morphic" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}" aria-label="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>` : '')}
       </div>
       <div class="settings-wp-rate-wrap">
         <div class="settings-wp-rate-box">
@@ -2821,10 +2848,24 @@ const renderSettingsWorkplaces = () => {
       </div>
     `;
 
+    const setDefaultBtn = row.querySelector('[data-set-default]');
+    if (setDefaultBtn) {
+      setDefaultBtn.addEventListener('click', () => {
+        state.settings.defaultWorkplace = wp;
+        saveSettings();
+        renderSettingsWorkplaces();
+        renderApp();
+        showToast(`Đã đặt "${wp}" làm nơi làm việc mặc định`);
+      });
+    }
+
     const delBtn = row.querySelector('[data-del-wp]');
     if (delBtn) {
       delBtn.addEventListener('click', () => {
         const removed = state.settings.workplaces.splice(idx, 1)[0];
+        if (state.settings.defaultWorkplace === removed) {
+          state.settings.defaultWorkplace = state.settings.workplaces[0] || '';
+        }
         saveSettings();
         renderSettingsWorkplaces();
         renderApp();
@@ -2854,7 +2895,11 @@ const addWorkplaceFromSetting = () => {
   if (!val) return;
   normalizeWorkplacesAndRates();
   if (!state.settings.workplaces.includes(val)) {
+    const isFirst = state.settings.workplaces.length === 0;
     state.settings.workplaces.push(val);
+    if (isFirst || !state.settings.defaultWorkplace) {
+      state.settings.defaultWorkplace = val;
+    }
     if (state.settings.workplaceRates[val] === undefined) {
       const defWp = getDefaultWorkplace();
       state.settings.workplaceRates[val] = state.settings.workplaceRates[defWp] || 0;
@@ -3968,7 +4013,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261026a').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261026b').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
