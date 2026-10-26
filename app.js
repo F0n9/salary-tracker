@@ -4012,28 +4012,33 @@ const bindEvents = () => {
   }
 
  
+  // Service Worker: Tải mượt mà 1 lần duy nhất, dọn dẹp đăng ký cũ có query string và không bao giờ ép reload trang
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261026b').then((reg) => {
-      reg.update().catch(() => {});
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-              window.location.reload();
+    window.addEventListener('load', async () => {
+      try {
+        if (typeof navigator.serviceWorker.getRegistrations === 'function') {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const reg of registrations) {
+            const scriptURL = (reg.active && reg.active.scriptURL) || (reg.installing && reg.installing.scriptURL) || (reg.waiting && reg.waiting.scriptURL) || '';
+            if (scriptURL.includes('?v=')) {
+              await reg.unregister();
             }
-          });
+          }
         }
-      });
-    }).catch(err => {
-      console.warn('Service Worker registration skipped:', err);
-    });
 
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('Salary Tracker: Phiên bản mới đã được lưu vào bộ nhớ đệm.');
+              }
+            });
+          }
+        });
+      } catch (err) {
+        console.warn('Service Worker registration skipped:', err);
       }
     });
   }
