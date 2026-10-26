@@ -42,6 +42,7 @@
   --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
 }
 
+html.dark-mode,
 body.dark-mode {
   --bg-app: linear-gradient(180deg, #0b0f19 0%, #0e1526 50%, #111827 100%);
   --bg-card: #152035;
@@ -96,6 +97,7 @@ body {
   color: var(--text-main);
 }
 
+html.dark-mode,
 body.dark-mode {
   background-color: #0b0f19;
 }
@@ -112,7 +114,17 @@ body.dark-mode {
 }
 
 ::view-transition-new(root) {
-  z-index: 9999;
+  animation: themeWaterRipple 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 99999;
+}
+
+@keyframes themeWaterRipple {
+  0% {
+    clip-path: circle(0px at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
+  }
+  100% {
+    clip-path: circle(var(--ripple-radius, 150vmax) at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
+  }
 }
 
 /* Water Ripple Wave Ring */
@@ -130,7 +142,7 @@ body.dark-mode {
 }
 
 .theme-water-ripple-wave.is-expanding {
-  transform: translate(-50%, -50%) scale(180);
+  transform: translate(-50%, -50%) scale(320);
   opacity: 0;
   transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }

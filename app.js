@@ -368,6 +368,7 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   const isStateChange = isDark !== currentlyDark;
 
   const performThemeChange = () => {
+    document.documentElement.classList.toggle('dark-mode', isDark);
     document.body.classList.toggle('dark-mode', isDark);
 
     const sunIcon = document.getElementById('iconThemeSun');
@@ -404,11 +405,11 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   let x = window.innerWidth / 2;
   let y = window.innerHeight / 2;
 
-  if (clickEvent && typeof clickEvent.clientX === 'number') {
+  if (clickEvent && typeof clickEvent.clientX === 'number' && (clickEvent.clientX > 0 || clickEvent.clientY > 0)) {
     x = clickEvent.clientX;
     y = clickEvent.clientY;
   } else {
-    const activeBtn = document.querySelector(`#themeSegmentedControl .segmented-btn-3d[data-theme-val="${theme}"]`);
+    const activeBtn = document.getElementById('btnToggleTheme') || document.querySelector(`#themeSegmentedControl .segmented-btn-3d[data-theme-val="${theme}"]`);
     if (activeBtn) {
       const rect = activeBtn.getBoundingClientRect();
       x = Math.round(rect.left + rect.width / 2);
@@ -419,7 +420,12 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   const endRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
-  );
+  ) + 30;
+
+  // Set CSS variables for View Transition keyframes
+  document.documentElement.style.setProperty('--ripple-x', `${x}px`);
+  document.documentElement.style.setProperty('--ripple-y', `${y}px`);
+  document.documentElement.style.setProperty('--ripple-radius', `${Math.ceil(endRadius)}px`);
 
   // Water ripple wave ring
   triggerWaterRippleWave(x, y, isDark);
@@ -431,21 +437,27 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
         performThemeChange();
       });
 
-      transition.ready.then(() => {
-        document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${endRadius}px at ${x}px ${y}px)`
-            ]
-          },
-          {
-            duration: 650,
-            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-            pseudoElement: '::view-transition-new(root)'
+      if (transition && typeof transition.ready?.then === 'function') {
+        transition.ready.then(() => {
+          try {
+            document.documentElement.animate(
+              {
+                clipPath: [
+                  `circle(0px at ${x}px ${y}px)`,
+                  `circle(${Math.ceil(endRadius)}px at ${x}px ${y}px)`
+                ]
+              },
+              {
+                duration: 650,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                pseudoElement: '::view-transition-new(root)'
+              }
+            );
+          } catch (err) {
+            // Handled by CSS keyframes
           }
-        );
-      }).catch(() => {});
+        }).catch(() => {});
+      }
       return;
     } catch (e) {
       // Fallback below
@@ -477,7 +489,7 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   }, 520);
 };
 
-const toggleTheme = () => {
+const toggleTheme = (clickEvent = null) => {
   const currentSaved = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
   let nextTheme = 'dark';
   if (currentSaved === 'dark') {
@@ -488,7 +500,7 @@ const toggleTheme = () => {
     const isDark = document.body.classList.contains('dark-mode');
     nextTheme = isDark ? 'light' : 'dark';
   }
-  applyTheme(nextTheme, true);
+  applyTheme(nextTheme, true, clickEvent);
 };
 
 const getPendingSyncKey = () => {
@@ -3741,6 +3753,13 @@ const bindEvents = () => {
  
   const btnSettings = document.getElementById('btnSettings');
   if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
+
+  const btnToggleTheme = document.getElementById('btnToggleTheme');
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener('click', (e) => {
+      toggleTheme(e);
+    });
+  }
 
   document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
     btn.addEventListener('click', (e) => {
