@@ -1080,10 +1080,31 @@ body.dark-mode .btn-morphic-danger:hover {
   color: var(--text-main);
 }
 
-.empty-state-desc {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  max-width: 320px;
+.no-workplaces-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.85rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  color: #b45309;
+  font-size: 0.78rem;
+}
+
+body.dark-mode .no-workplaces-banner {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.no-workplaces-banner .banner-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.35;
 }
 
 .floating-dock {

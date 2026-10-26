@@ -1284,37 +1284,6 @@ const renderShiftsList = () => {
 
   updateFilterWorkplaceOptions();
 
-  if (!hasWorkplaces()) {
-    const shiftsCountBadge = document.getElementById('shiftsCountBadge');
-    if (shiftsCountBadge) shiftsCountBadge.textContent = '0 ca';
-
-    listContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon" style="color: #f59e0b;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-        </div>
-        <div class="empty-state-title">${t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
-        <p class="empty-state-desc">${t('no_workplaces_desc', 'Bạn cần thêm ít nhất một nơi làm việc để bắt đầu thêm ca và tính lương.')}</p>
-        <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
-          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span style="font-size: 0.8rem; font-weight: 600; margin-left: 0.35rem;">Thêm nơi làm việc</span>
-          </button>
-        </div>
-      </div>
-    `;
-
-    const btnWp = document.getElementById('btnEmptyAddWp');
-    if (btnWp) btnWp.addEventListener('click', openSettingsModal);
-    return;
-  }
-
   if (!week || !Array.isArray(week.shifts) || week.shifts.length === 0) {
     const shiftsCountBadge = document.getElementById('shiftsCountBadge');
     if (shiftsCountBadge) shiftsCountBadge.textContent = '0 ca';
@@ -1329,15 +1298,24 @@ const renderShiftsList = () => {
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
-        <div class="empty-state-title">${t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này')}</div>
-        <p class="empty-state-desc">${t('empty_shifts_desc', 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.')}</p>
+        <div class="empty-state-title">${hasWorkplaces() ? t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này') : t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
+        <p class="empty-state-desc">${hasWorkplaces() ? t('empty_shifts_desc', 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.') : t('no_workplaces_desc', 'Thêm nơi làm việc trong Cài đặt để bắt đầu thêm ca và tính lương.')}</p>
         <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
-          <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
+          ${hasWorkplaces() ? `
+            <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          ` : `
+            <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          `}
           <button class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -1351,10 +1329,37 @@ const renderShiftsList = () => {
     const btnAdd = document.getElementById('btnEmptyAddShift');
     if (btnAdd) btnAdd.addEventListener('click', () => openAddShiftModal());
 
+    const btnWp = document.getElementById('btnEmptyAddWp');
+    if (btnWp) btnWp.addEventListener('click', openSettingsModal);
+
     const btnDel = document.getElementById('btnEmptyDeleteWeek');
     if (btnDel) btnDel.addEventListener('click', deleteCurrentWeek);
 
     return;
+  }
+
+  if (!hasWorkplaces()) {
+    const banner = document.createElement('div');
+    banner.className = 'no-workplaces-banner font-mono';
+    banner.innerHTML = `
+      <div class="banner-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>Chưa có nơi làm việc nào. Thêm nơi làm việc để tiếp tục thêm ca mới.</span>
+      </div>
+      <button type="button" class="btn-morphic btn-morphic-sm btn-morphic-primary" id="btnBannerAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+    `;
+    const btnBannerWp = banner.querySelector('#btnBannerAddWp');
+    if (btnBannerWp) btnBannerWp.addEventListener('click', openSettingsModal);
+    listContainer.appendChild(banner);
   }
 
   const allShifts = week.shifts;
@@ -2820,9 +2825,6 @@ const renderSettingsWorkplaces = () => {
     if (delBtn) {
       delBtn.addEventListener('click', () => {
         const removed = state.settings.workplaces.splice(idx, 1)[0];
-        if (removed && state.settings.workplaceRates) {
-          delete state.settings.workplaceRates[removed];
-        }
         saveSettings();
         renderSettingsWorkplaces();
         renderApp();
@@ -3966,7 +3968,7 @@ const bindEvents = () => {
 
  
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=20261025r').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=20261026a').then((reg) => {
       reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
