@@ -339,7 +339,21 @@ const getLocalizedDayName = (dayCode) => {
 };
 
 // ===== THEME & AUTO-SYNC HELPERS =====
-let _isThemeSwitching = false;
+let _canAnimatePseudo = null;
+const supportsWaapiPseudoElement = () => {
+  if (_canAnimatePseudo !== null) return _canAnimatePseudo;
+  try {
+    const anim = document.documentElement.animate(
+      { opacity: [1, 1] },
+      { duration: 1, pseudoElement: '::view-transition-new(root)' }
+    );
+    anim.cancel();
+    _canAnimatePseudo = true;
+  } catch (e) {
+    _canAnimatePseudo = false;
+  }
+  return _canAnimatePseudo;
+};
 
 const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
@@ -365,12 +379,17 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.themeVal === theme);
     });
+  };
 
+  const persistThemeSettings = () => {
     if (save) {
       localStorage.setItem('salary_tracker_theme', theme);
       if (!state.settings) state.settings = {};
       state.settings.theme = theme;
-      saveSettings();
+      const settingsKey = getSettingsStorageKey();
+      try {
+        localStorage.setItem(settingsKey, JSON.stringify(state.settings));
+      } catch (_) {}
     }
 
     const allWeeksModal = document.getElementById('allWeeksModal');
@@ -382,21 +401,16 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   // If initial page load or no actual visual change between light/dark, apply instantly
   if (!isStateChange || !save) {
     performThemeChange();
+    persistThemeSettings();
     return;
   }
 
-  // Prevent double-click animation collision
-  if (_isThemeSwitching) {
-    performThemeChange();
-    return;
-  }
-  _isThemeSwitching = true;
-
-  // Determine origin button: prioritize #btnToggleTheme or clicked element
+  // Determine origin point (x, y) - lock directly to center of #btnToggleTheme
   const toggleBtn = document.getElementById('btnToggleTheme');
   let targetBtn = toggleBtn;
   if (clickEvent && clickEvent.target) {
-    targetBtn = clickEvent.target.closest('#btnToggleTheme, .segmented-btn-3d') || toggleBtn;
+    const clicked = clickEvent.target.closest('#btnToggleTheme, .segmented-btn-3d');
+    if (clicked) targetBtn = clicked;
   }
 
   let x = window.innerWidth - 45;
@@ -406,88 +420,87 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     const rect = targetBtn.getBoundingClientRect();
     x = Math.round(rect.left + rect.width / 2);
     y = Math.round(rect.top + rect.height / 2);
-    targetBtn.classList.remove('btn-theme-pulsing');
-    void targetBtn.offsetWidth; // trigger reflow
-    targetBtn.classList.add('btn-theme-pulsing');
   } else if (clickEvent && typeof clickEvent.clientX === 'number' && (clickEvent.clientX > 0 || clickEvent.clientY > 0)) {
     x = clickEvent.clientX;
     y = clickEvent.clientY;
   }
 
-  // If user prefers reduced motion, apply instantly without water ripple
+  // Calculate radius to encompass all 4 corners + extra margin so the circle smoothly clears the screen
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y)
+  ) + 30;
+
+  // Reduced motion preference
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     performThemeChange();
-    _isThemeSwitching = false;
+    persistThemeSettings();
     return;
   }
 
-  // Calculate radius to encompass all 4 corners + extra margin
-  const maxDist = Math.hypot(
-    Math.max(x, window.innerWidth - x),
-    Math.max(y, window.innerHeight - y)
-  );
-  const radius = Math.ceil(maxDist) + 80;
-  const diameter = radius * 2;
+  // Circular reveal with View Transitions API (Reveals new UI progressively without hiding any UI)
+  if (typeof document.startViewTransition === 'function') {
+    document.documentElement.style.setProperty('--ripple-x', `${x}px`);
+    document.documentElement.style.setProperty('--ripple-y', `${y}px`);
+    document.documentElement.style.setProperty('--ripple-radius', `${Math.ceil(endRadius)}px`);
 
-  // Build the multi-layer liquid water ripple container
-  const container = document.createElement('div');
-  container.className = 'theme-water-container';
-  container.style.left = `${x}px`;
-  container.style.top = `${y}px`;
+    const waapiSupported = supportsWaapiPseudoElement();
+    if (!waapiSupported) {
+      document.documentElement.classList.add('vt-css-ripple');
+    }
 
-  const disk = document.createElement('div');
-  disk.className = 'theme-water-disk';
-  disk.style.width = `${diameter}px`;
-  disk.style.height = `${diameter}px`;
-  disk.style.background = isDark
-    ? 'radial-gradient(circle at center, #152035 0%, #0e1526 40%, #0b0f19 80%, #070a12 100%)'
-    : 'radial-gradient(circle at center, #ffffff 0%, #fafbfc 40%, #f1f5f9 80%, #e2e8f0 100%)';
-  disk.style.boxShadow = isDark
-    ? '0 0 60px rgba(96, 165, 250, 0.4), inset 0 0 40px rgba(96, 165, 250, 0.2)'
-    : '0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 40px rgba(255, 255, 255, 0.5)';
+    try {
+      const transition = document.startViewTransition(() => {
+        performThemeChange();
+      });
 
-  const wave1 = document.createElement('div');
-  wave1.className = 'theme-water-wave-ring wave-1';
-  wave1.style.width = `${diameter}px`;
-  wave1.style.height = `${diameter}px`;
+      if (waapiSupported && transition && typeof transition.ready?.then === 'function') {
+        transition.ready.then(() => {
+          try {
+            document.documentElement.animate(
+              {
+                clipPath: [
+                  `circle(0px at ${x}px ${y}px)`,
+                  `circle(${Math.ceil(endRadius)}px at ${x}px ${y}px)`
+                ]
+              },
+              {
+                duration: 520,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                pseudoElement: '::view-transition-new(root)'
+              }
+            );
+          } catch (e) {
+            // Handled
+          }
+        }).catch(() => {});
+      }
 
-  const wave2 = document.createElement('div');
-  wave2.className = 'theme-water-wave-ring wave-2';
-  wave2.style.width = `${diameter}px`;
-  wave2.style.height = `${diameter}px`;
+      if (transition && typeof transition.finished?.then === 'function') {
+        transition.finished.finally(() => {
+          document.documentElement.classList.remove('vt-css-ripple');
+          persistThemeSettings();
+        });
+      } else {
+        setTimeout(() => {
+          document.documentElement.classList.remove('vt-css-ripple');
+          persistThemeSettings();
+        }, 550);
+      }
+      return;
+    } catch (e) {
+      document.documentElement.classList.remove('vt-css-ripple');
+      // Fallback below
+    }
+  }
 
-  const wave3 = document.createElement('div');
-  wave3.className = 'theme-water-wave-ring wave-3';
-  wave3.style.width = `${diameter}px`;
-  wave3.style.height = `${diameter}px`;
-
-  container.appendChild(disk);
-  container.appendChild(wave3);
-  container.appendChild(wave2);
-  container.appendChild(wave1);
-  document.body.appendChild(container);
-
-  // Trigger fluid water expansion
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      container.classList.add('is-active');
-    });
-  });
-
-  // Switch the actual DOM theme smoothly while covered by the expanding liquid disk
+  // Fallback smooth color fade for non-supporting browsers
+  document.body.classList.add('theme-transitioning');
+  performThemeChange();
+  persistThemeSettings();
   setTimeout(() => {
-    performThemeChange();
-  }, 300);
-
-  // Seamlessly dissolve and clean up
-  setTimeout(() => {
-    container.classList.add('is-fading');
-    setTimeout(() => {
-      container.remove();
-      if (targetBtn) targetBtn.classList.remove('btn-theme-pulsing');
-      _isThemeSwitching = false;
-    }, 220);
-  }, 620);
+    document.body.classList.remove('theme-transitioning');
+  }, 350);
 };
 
 const toggleTheme = (clickEvent = null) => {

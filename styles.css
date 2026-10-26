@@ -102,93 +102,44 @@ body.dark-mode {
   background-color: #0b0f19;
 }
 
-/* Liquid Water Ripple Theme Transition Engine */
-.theme-water-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  z-index: 9999999;
+/* ============================================================
+   Circular Water Ripple Theme Reveal (View Transitions API)
+   Lan tới đâu thì UI đổi màu tới đó - UI luôn hiển thị 100%
+   ============================================================ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
-.theme-water-disk {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%) scale(0);
-  border-radius: 50%;
-  pointer-events: none;
-  will-change: transform;
-  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
+::view-transition-old(root) {
+  z-index: 1;
 }
 
-.theme-water-wave-ring {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%) scale(0);
-  border-radius: 50%;
-  pointer-events: none;
-  will-change: transform, opacity;
+::view-transition-new(root) {
+  z-index: 99999;
 }
 
-/* Wave 1: The leading luminous water wave crest */
-.theme-water-wave-ring.wave-1 {
-  border: 4px solid rgba(96, 165, 250, 0.85);
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.65), inset 0 0 25px rgba(96, 165, 250, 0.45);
-  transition: transform 0.66s cubic-bezier(0.15, 0.95, 0.28, 1), opacity 0.66s cubic-bezier(0.35, 0, 0.2, 1);
+/* Fallback for Safari WebKit (when WAAPI pseudoElement is unavailable) */
+html.vt-css-ripple::view-transition-new(root) {
+  animation: themeWaterRipple 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Wave 2: The harmonic secondary undulating wave */
-.theme-water-wave-ring.wave-2 {
-  border: 2.5px solid rgba(147, 197, 253, 0.75);
-  box-shadow: 0 0 30px rgba(147, 197, 253, 0.5), inset 0 0 18px rgba(147, 197, 253, 0.3);
-  transition: transform 0.72s cubic-bezier(0.18, 1, 0.3, 1) 0.04s, opacity 0.72s cubic-bezier(0.35, 0, 0.2, 1) 0.04s;
+@keyframes themeWaterRipple {
+  0% {
+    clip-path: circle(0px at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
+  }
+  100% {
+    clip-path: circle(var(--ripple-radius, 150vmax) at var(--ripple-x, 50vw) var(--ripple-y, 50vh));
+  }
 }
 
-/* Wave 3: The tertiary ambient shimmer ripple */
-.theme-water-wave-ring.wave-3 {
-  border: 1.5px solid rgba(191, 219, 254, 0.6);
-  box-shadow: 0 0 20px rgba(191, 219, 254, 0.35);
-  transition: transform 0.78s cubic-bezier(0.2, 1, 0.35, 1) 0.08s, opacity 0.78s cubic-bezier(0.35, 0, 0.2, 1) 0.08s;
-}
-
-.theme-water-container.is-active .theme-water-disk {
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.theme-water-container.is-active .theme-water-wave-ring.wave-1 {
-  transform: translate(-50%, -50%) scale(1.07);
-  opacity: 0;
-}
-
-.theme-water-container.is-active .theme-water-wave-ring.wave-2 {
-  transform: translate(-50%, -50%) scale(1.03);
-  opacity: 0;
-}
-
-.theme-water-container.is-active .theme-water-wave-ring.wave-3 {
-  transform: translate(-50%, -50%) scale(0.99);
-  opacity: 0;
-}
-
-.theme-water-container.is-fading {
-  opacity: 0;
-  transition: opacity 0.22s ease-out;
-}
-
-/* Button water droplet bounce */
-.btn-theme-pulsing {
-  animation: themeBtnPulse 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-@keyframes themeBtnPulse {
-  0% { transform: scale(1); }
-  35% { transform: scale(0.85) rotate(-14deg); }
-  65% { transform: scale(1.15) rotate(10deg); }
-  100% { transform: scale(1) rotate(0deg); }
+/* Fallback smooth transition for browsers without View Transitions */
+body.theme-transitioning,
+body.theme-transitioning *,
+body.theme-transitioning *::before,
+body.theme-transitioning *::after {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, fill 0.35s ease, stroke 0.35s ease !important;
 }
 
 .font-mono {
