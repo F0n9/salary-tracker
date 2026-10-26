@@ -10,15 +10,15 @@
 
   
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./favicon.png?v=20261026d">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261026d">
+  <link rel="icon" type="image/png" href="./favicon.png?v=20261026e">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20261026e">
 
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261026d">
+  <link rel="stylesheet" href="./styles.css?v=20261026e">
 </head>
 <body>
   
@@ -196,7 +196,7 @@
         </svg>
       </button>
 
-      <button id="dockAllWeeks" class="btn-morphic" data-i18n-title="dock_reports" title="Tổng kết tất cả các tuần" aria-label="Tổng kết tất cả các tuần">
+      <button id="dockAllWeeks" class="btn-morphic" data-i18n-title="dock_reports" title="Thống kê" aria-label="Thống kê">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19">
           <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
           <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
@@ -338,7 +338,7 @@
   <div class="modal-backdrop" id="allWeeksModal" style="display: none;">
     <div class="modal-surface modal-surface-wide">
       <div class="modal-header">
-        <h3 class="modal-title" data-i18n="analytics_title">Tổng kết & Thống kê</h3>
+        <h3 class="modal-title" data-i18n="analytics_title">Thống kê</h3>
         <button type="button" class="btn-morphic modal-close" data-close-modal="allWeeksModal" data-i18n-title="btn_close" title="Đóng" aria-label="Đóng">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -387,7 +387,7 @@
             </div>
             <div class="analytics-filter-group">
               <span class="analytics-filter-label font-mono" data-i18n="lbl_workplace">Nơi làm</span>
-              <div id="analyticsWorkplaceFilterPills" class="workplace-chips-list" style="margin-top: 0;"></div>
+              <div id="analyticsWorkplaceFilterPills" class="analytics-workplace-pills"></div>
             </div>
           </div>
 
@@ -930,6 +930,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261026d"></script>
+  <script src="./app.js?v=20261026e"></script>
 </body>
 </html>

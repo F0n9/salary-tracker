@@ -115,7 +115,7 @@ const I18N_VI = {
     dock_prev: 'Tuần trước',
     dock_slip: 'Ảnh phiếu chấm công',
     dock_add: 'Thêm ca làm việc mới',
-    dock_reports: 'Tổng kết tất cả các tuần',
+    dock_reports: 'Thống kê',
     dock_next: 'Tuần sau',
 
     modal_add_shift: 'Thêm ca làm việc',
@@ -141,7 +141,7 @@ const I18N_VI = {
     ph_note: 'Ghi chú',
     title_workplace_list: 'Danh sách nơi làm việc',
 
-    analytics_title: 'Tổng kết & Thống kê',
+    analytics_title: 'Thống kê',
     tab_charts: 'Biểu đồ thống kê',
     tab_weeks: 'Danh sách các tuần',
     tab_months: 'Báo cáo theo tháng',
@@ -2697,8 +2697,9 @@ const renderAnalyticsDashboard = () => {
   const pillsContainer = document.getElementById('analyticsWorkplaceFilterPills');
   if (pillsContainer) {
     pillsContainer.innerHTML = '';
-    const allPill = document.createElement('span');
-    allPill.className = `workplace-chip font-mono ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
+    const allPill = document.createElement('button');
+    allPill.type = 'button';
+    allPill.className = `filter-pill-btn font-mono ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
     allPill.textContent = t('filter_all', 'Tất cả');
     allPill.addEventListener('click', () => {
       analyticsState.workplaceFilter = 'all';
@@ -2707,10 +2708,11 @@ const renderAnalyticsDashboard = () => {
     pillsContainer.appendChild(allPill);
 
     data.availableWorkplaces.forEach(wp => {
-      const chip = document.createElement('span');
-      chip.className = `workplace-chip font-mono ${analyticsState.workplaceFilter === wp ? 'active' : ''}`;
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `filter-pill-btn font-mono ${analyticsState.workplaceFilter === wp ? 'active' : ''}`;
       const col = getWorkplaceColor(wp);
-      chip.innerHTML = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col.fill};margin-right:4px;"></span>${escapeHtml(wp)}`;
+      chip.innerHTML = `<span class="wb-color-dot" style="background:${col.fill};"></span><span>${escapeHtml(wp)}</span>`;
       chip.addEventListener('click', () => {
         analyticsState.workplaceFilter = (analyticsState.workplaceFilter === wp) ? 'all' : wp;
         renderAnalyticsDashboard();

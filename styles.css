@@ -2555,7 +2555,18 @@ body.dark-mode .wp-default-tag {
   min-width: 60px;
 }
 
+.analytics-workplace-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 .filter-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.25rem 0.65rem;
@@ -2565,6 +2576,7 @@ body.dark-mode .wp-default-tag {
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .filter-pill-btn:hover {
@@ -2578,6 +2590,18 @@ body.dark-mode .wp-default-tag {
   color: #ffffff;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.filter-pill-btn .wb-color-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s ease;
+}
+
+.filter-pill-btn.active .wb-color-dot {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
 }
 
 .analytics-kpi-grid {
