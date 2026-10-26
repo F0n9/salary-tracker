@@ -118,23 +118,54 @@ body {
   outline-offset: 2px;
 }
 
+/* Custom Elegant Compact Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
 * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+body.dark-mode * {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Ẩn thanh cuộn ở những nơi vuốt ngang hoặc bánh xe chọn tuần */
+.week-wheel-track,
+.week-pills-list,
+.shifts-filter-pills {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
 
-*::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-html, body {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-
-html::-webkit-scrollbar, body::-webkit-scrollbar {
+.week-wheel-track::-webkit-scrollbar,
+.week-pills-list::-webkit-scrollbar,
+.shifts-filter-pills::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -1534,6 +1565,16 @@ select option {
   z-index: 2;
 }
 
+.workplace-dropdown-btn svg {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+}
+
+.workplace-field-group.has-open-dropdown .workplace-dropdown-btn svg,
+.workplace-input-wrap.has-open-dropdown .workplace-dropdown-btn svg {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
 .workplace-dropdown-btn:hover {
   color: var(--primary);
   background: rgba(37, 99, 235, 0.08);
@@ -1541,7 +1582,7 @@ select option {
 
 .custom-workplace-dropdown {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 5px);
   left: 0;
   right: 0;
   z-index: 10010 !important;
@@ -1559,7 +1600,7 @@ select option {
 
 .custom-workplace-dropdown.open-up {
   top: auto;
-  bottom: calc(100% + 4px);
+  bottom: calc(100% + 5px);
   box-shadow: 0 -12px 30px -4px rgba(15, 23, 42, 0.16), 0 -4px 10px -2px rgba(15, 23, 42, 0.08);
 }
 
@@ -1578,6 +1619,37 @@ select option {
 .workplace-dropdown-item:hover {
   background-color: rgba(37, 99, 235, 0.08);
   color: var(--primary);
+}
+
+.workplace-dropdown-item.is-selected {
+  background-color: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+body.dark-mode .workplace-dropdown-item.is-selected {
+  background-color: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+}
+
+.workplace-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.workplace-dropdown-item .custom-select-check {
+  display: none;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+body.dark-mode .workplace-dropdown-item .custom-select-check {
+  color: #93c5fd;
+}
+
+.workplace-dropdown-item.is-selected .custom-select-check {
+  display: flex;
 }
 
 .workplace-item-left {

@@ -93,14 +93,14 @@ const I18N_VI = {
     filter_noon: 'Trưa',
     filter_evening: 'Tối',
     filter_all_workplaces: 'Nơi làm: Tất cả',
-    filter_toggle: 'Tìm kiếm & Lọc ca làm việc',
-    filter_wp_title: 'Lọc theo nơi làm việc',
-    filter_date_title: 'Lọc theo ngày cụ thể',
-    filter_clear_all: 'Xóa toàn bộ bộ lọc',
-    filter_no_match_title: 'Không tìm thấy ca làm việc phù hợp',
-    filter_no_match_desc: 'Không có ca nào khớp với bộ lọc bạn đã chọn.',
-    empty_shifts_title: 'Chưa có ca làm việc nào trong tuần này',
-    empty_shifts_desc: 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.',
+    filter_toggle: 'Lọc ca làm việc',
+    filter_wp_title: 'Lọc nơi làm',
+    filter_date_title: 'Lọc theo ngày',
+    filter_clear_all: 'Xóa bộ lọc',
+    filter_no_match_title: 'Không tìm thấy ca',
+    filter_no_match_desc: 'Không khớp bộ lọc đã chọn.',
+    empty_shifts_title: 'Chưa có ca làm việc',
+    empty_shifts_desc: 'Bấm "+" bên dưới để thêm ca mới.',
 
     shift_morning: 'Sáng',
     shift_noon: 'Trưa',
@@ -173,8 +173,8 @@ const I18N_VI = {
     confirm_delete_week: 'Bạn có chắc chắn muốn xóa tuần này không?',
     alert_cannot_delete_only_week: 'Không thể xóa tuần duy nhất còn lại.',
     btn_export_excel: 'Xuất tất cả ra Excel',
-    empty_month_title: 'Chưa có dữ liệu theo tháng',
-    empty_month_desc: 'Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.',
+    empty_month_title: 'Chưa có dữ liệu tháng',
+    empty_month_desc: 'Thêm ca vào tuần để xem báo cáo tháng.',
     time_unknown: 'Không rõ thời gian',
 
     settings_title: 'Cài đặt',
@@ -189,16 +189,16 @@ const I18N_VI = {
     setting_language: 'Ngôn ngữ (Language)',
     setting_cloud_sync: 'Đồng bộ đám mây (Cloud Sync)',
     btn_save_settings: 'Lưu cài đặt',
-    empty_workplaces_hint: 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới để có thể thêm ca và tạo tuần.',
+    empty_workplaces_hint: 'Chưa có nơi làm việc. Thêm ở ô bên dưới.',
     custom_wp_rate: 'Đơn giá (đ/h)',
     btn_delete_wp: 'Xóa nơi làm',
     tag_default_workplace: 'Mặc định',
     btn_set_default_wp: 'Đặt làm nơi làm việc mặc định',
     toast_wp_set_default: 'Đã đặt làm nơi làm việc mặc định',
-    warn_no_workplace: 'Vui lòng thêm nơi làm việc trong Cài đặt trước khi tiếp tục!',
-    warn_no_workplace_action: 'Cần thêm nơi làm việc để tiếp tục',
+    warn_no_workplace: 'Vui lòng thêm nơi làm việc trong Cài đặt trước!',
+    warn_no_workplace_action: 'Cần thêm nơi làm việc',
     no_workplaces_title: 'Chưa có nơi làm việc',
-    no_workplaces_desc: 'Bạn cần thêm ít nhất một nơi làm việc để bắt đầu thêm ca và tính lương.',
+    no_workplaces_desc: 'Thêm nơi làm việc trong Cài đặt để bắt đầu.',
 
     modal_week_title: 'Thông tin tuần',
     modal_week_name: 'Tên tuần',
@@ -209,9 +209,9 @@ const I18N_VI = {
 
     slip_modal_title: 'Phiếu chấm công',
     slip_toggle_wage: 'Hiển thị cả tiền lương',
-    btn_download_png: 'Tải ảnh PNG về máy',
-    btn_copy_slip_img: 'Sao chép ảnh vào Zalo (Ctrl+V)',
-    btn_copy_slip_text: 'Sao chép văn bản',
+    btn_download_png: 'Tải ảnh PNG',
+    btn_copy_slip_img: 'Sao chép ảnh',
+    btn_copy_slip_text: 'Sao chép chữ',
     slip_th_shift: 'Ca',
     slip_th_start: 'Giờ vào',
     slip_th_end: 'Giờ ra',
@@ -1572,25 +1572,33 @@ const renderCustomWorkplaceDropdown = (filterText = '') => {
     return;
   }
 
-  const week = getCurrentWeek();
+  const currentVal = input.value.trim().toLowerCase();
   filtered.forEach(wp => {
+    const isSelected = (currentVal && wp.toLowerCase() === currentVal);
     const item = document.createElement('div');
-    item.className = 'workplace-dropdown-item';
+    item.className = 'workplace-dropdown-item custom-select-option' + (isSelected ? ' is-selected' : '');
+    item.setAttribute('role', 'option');
+    item.setAttribute('data-value', wp);
 
+    const wpCol = getWorkplaceColor(wp);
     const left = document.createElement('div');
     left.className = 'workplace-item-left';
     left.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" class="workplace-item-icon">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-        <circle cx="12" cy="10" r="3"></circle>
-      </svg>
+      <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
       <span>${escapeHtml(wp)}</span>
     `;
 
     const rate = getShiftRate({ workplace: wp });
-    const right = document.createElement('span');
-    right.className = 'workplace-item-rate font-mono';
-    right.textContent = fmtCurrency(rate) + '/h';
+    const right = document.createElement('div');
+    right.className = 'workplace-item-right';
+    right.innerHTML = `
+      <span class="workplace-item-rate font-mono">${fmtCurrency(rate)}/h</span>
+      <span class="custom-select-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    `;
 
     item.appendChild(left);
     item.appendChild(right);
