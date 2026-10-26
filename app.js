@@ -339,23 +339,7 @@ const getLocalizedDayName = (dayCode) => {
 };
 
 // ===== THEME & AUTO-SYNC HELPERS =====
-const triggerWaterRippleWave = (x, y, isDark) => {
-  const wave = document.createElement('div');
-  wave.className = 'theme-water-ripple-wave';
-  wave.style.left = `${x}px`;
-  wave.style.top = `${y}px`;
-  wave.style.borderColor = isDark ? 'rgba(96, 165, 250, 0.65)' : 'rgba(37, 99, 235, 0.55)';
-  wave.style.boxShadow = isDark ? '0 0 30px rgba(96, 165, 250, 0.45)' : '0 0 30px rgba(37, 99, 235, 0.35)';
-  document.body.appendChild(wave);
-
-  requestAnimationFrame(() => {
-    wave.classList.add('is-expanding');
-  });
-
-  setTimeout(() => {
-    wave.remove();
-  }, 800);
-};
+let _isThemeSwitching = false;
 
 const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
@@ -401,92 +385,109 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     return;
   }
 
-  // Determine origin point (x, y) for water ripple effect
-  let x = window.innerWidth / 2;
-  let y = window.innerHeight / 2;
+  // Prevent double-click animation collision
+  if (_isThemeSwitching) {
+    performThemeChange();
+    return;
+  }
+  _isThemeSwitching = true;
 
-  if (clickEvent && typeof clickEvent.clientX === 'number' && (clickEvent.clientX > 0 || clickEvent.clientY > 0)) {
+  // Determine origin button: prioritize #btnToggleTheme or clicked element
+  const toggleBtn = document.getElementById('btnToggleTheme');
+  let targetBtn = toggleBtn;
+  if (clickEvent && clickEvent.target) {
+    targetBtn = clickEvent.target.closest('#btnToggleTheme, .segmented-btn-3d') || toggleBtn;
+  }
+
+  let x = window.innerWidth - 45;
+  let y = 35;
+
+  if (targetBtn) {
+    const rect = targetBtn.getBoundingClientRect();
+    x = Math.round(rect.left + rect.width / 2);
+    y = Math.round(rect.top + rect.height / 2);
+    targetBtn.classList.remove('btn-theme-pulsing');
+    void targetBtn.offsetWidth; // trigger reflow
+    targetBtn.classList.add('btn-theme-pulsing');
+  } else if (clickEvent && typeof clickEvent.clientX === 'number' && (clickEvent.clientX > 0 || clickEvent.clientY > 0)) {
     x = clickEvent.clientX;
     y = clickEvent.clientY;
-  } else {
-    const activeBtn = document.getElementById('btnToggleTheme') || document.querySelector(`#themeSegmentedControl .segmented-btn-3d[data-theme-val="${theme}"]`);
-    if (activeBtn) {
-      const rect = activeBtn.getBoundingClientRect();
-      x = Math.round(rect.left + rect.width / 2);
-      y = Math.round(rect.top + rect.height / 2);
-    }
   }
 
-  const endRadius = Math.hypot(
+  // If user prefers reduced motion, apply instantly without water ripple
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    performThemeChange();
+    _isThemeSwitching = false;
+    return;
+  }
+
+  // Calculate radius to encompass all 4 corners + extra margin
+  const maxDist = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
-  ) + 30;
+  );
+  const radius = Math.ceil(maxDist) + 80;
+  const diameter = radius * 2;
 
-  // Set CSS variables for View Transition keyframes
-  document.documentElement.style.setProperty('--ripple-x', `${x}px`);
-  document.documentElement.style.setProperty('--ripple-y', `${y}px`);
-  document.documentElement.style.setProperty('--ripple-radius', `${Math.ceil(endRadius)}px`);
+  // Build the multi-layer liquid water ripple container
+  const container = document.createElement('div');
+  container.className = 'theme-water-container';
+  container.style.left = `${x}px`;
+  container.style.top = `${y}px`;
 
-  // Water ripple wave ring
-  triggerWaterRippleWave(x, y, isDark);
+  const disk = document.createElement('div');
+  disk.className = 'theme-water-disk';
+  disk.style.width = `${diameter}px`;
+  disk.style.height = `${diameter}px`;
+  disk.style.background = isDark
+    ? 'radial-gradient(circle at center, #152035 0%, #0e1526 40%, #0b0f19 80%, #070a12 100%)'
+    : 'radial-gradient(circle at center, #ffffff 0%, #fafbfc 40%, #f1f5f9 80%, #e2e8f0 100%)';
+  disk.style.boxShadow = isDark
+    ? '0 0 60px rgba(96, 165, 250, 0.4), inset 0 0 40px rgba(96, 165, 250, 0.2)'
+    : '0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 40px rgba(255, 255, 255, 0.5)';
 
-  // Smooth View Transition API with circular expanding clipPath
-  if (typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    try {
-      const transition = document.startViewTransition(() => {
-        performThemeChange();
-      });
+  const wave1 = document.createElement('div');
+  wave1.className = 'theme-water-wave-ring wave-1';
+  wave1.style.width = `${diameter}px`;
+  wave1.style.height = `${diameter}px`;
 
-      if (transition && typeof transition.ready?.then === 'function') {
-        transition.ready.then(() => {
-          try {
-            document.documentElement.animate(
-              {
-                clipPath: [
-                  `circle(0px at ${x}px ${y}px)`,
-                  `circle(${Math.ceil(endRadius)}px at ${x}px ${y}px)`
-                ]
-              },
-              {
-                duration: 650,
-                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                pseudoElement: '::view-transition-new(root)'
-              }
-            );
-          } catch (err) {
-            // Handled by CSS keyframes
-          }
-        }).catch(() => {});
-      }
-      return;
-    } catch (e) {
-      // Fallback below
-    }
-  }
+  const wave2 = document.createElement('div');
+  wave2.className = 'theme-water-wave-ring wave-2';
+  wave2.style.width = `${diameter}px`;
+  wave2.style.height = `${diameter}px`;
 
-  // Fallback circular water expansion for non-supporting browsers
-  const rippleOverlay = document.createElement('div');
-  rippleOverlay.className = 'theme-water-fallback-overlay';
-  rippleOverlay.style.left = `${x}px`;
-  rippleOverlay.style.top = `${y}px`;
-  rippleOverlay.style.backgroundColor = isDark ? '#0b0f19' : '#f8fafc';
-  const size = Math.round(endRadius * 2);
-  rippleOverlay.style.width = `${size}px`;
-  rippleOverlay.style.height = `${size}px`;
-  document.body.appendChild(rippleOverlay);
+  const wave3 = document.createElement('div');
+  wave3.className = 'theme-water-wave-ring wave-3';
+  wave3.style.width = `${diameter}px`;
+  wave3.style.height = `${diameter}px`;
 
+  container.appendChild(disk);
+  container.appendChild(wave3);
+  container.appendChild(wave2);
+  container.appendChild(wave1);
+  document.body.appendChild(container);
+
+  // Trigger fluid water expansion
   requestAnimationFrame(() => {
-    rippleOverlay.classList.add('is-expanded');
+    requestAnimationFrame(() => {
+      container.classList.add('is-active');
+    });
   });
 
+  // Switch the actual DOM theme smoothly while covered by the expanding liquid disk
   setTimeout(() => {
     performThemeChange();
-  }, 260);
+  }, 300);
 
+  // Seamlessly dissolve and clean up
   setTimeout(() => {
-    rippleOverlay.style.opacity = '0';
-    setTimeout(() => rippleOverlay.remove(), 260);
-  }, 520);
+    container.classList.add('is-fading');
+    setTimeout(() => {
+      container.remove();
+      if (targetBtn) targetBtn.classList.remove('btn-theme-pulsing');
+      _isThemeSwitching = false;
+    }, 220);
+  }, 620);
 };
 
 const toggleTheme = (clickEvent = null) => {

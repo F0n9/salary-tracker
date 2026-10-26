@@ -1,16 +1,16 @@
-const CACHE_NAME = 'salary-tracker-v77';
+const CACHE_NAME = 'salary-tracker-v78';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './styles.css?v=20261026h',
-  './app.js?v=20261026h',
+  './styles.css?v=20261026i',
+  './app.js?v=20261026i',
   './manifest.json',
-  './apple-touch-icon.png?v=20261026h',
+  './apple-touch-icon.png?v=20261026i',
   './apple-touch-icon.png',
-  './icon-192.png?v=20261026h',
+  './icon-192.png?v=20261026i',
   './icon-192.png',
   './icon-512.png',
-  './favicon.png?v=20261026h',
+  './favicon.png?v=20261026i',
   './favicon.png',
   './icon.svg'
 ];
