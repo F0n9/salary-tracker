@@ -346,30 +346,61 @@ const applyTheme = (theme, save = true) => {
   }
 
   const isDark = effectiveTheme === 'dark';
-  document.body.classList.toggle('dark-mode', isDark);
+  const currentlyDark = document.body.classList.contains('dark-mode');
+  const isStateChange = isDark !== currentlyDark;
 
-  const sunIcon = document.getElementById('iconThemeSun');
-  const moonIcon = document.getElementById('iconThemeMoon');
-  if (sunIcon && moonIcon) {
-    sunIcon.style.display = isDark ? 'block' : 'none';
-    moonIcon.style.display = isDark ? 'none' : 'block';
+  const performThemeChange = () => {
+    document.body.classList.toggle('dark-mode', isDark);
+
+    const sunIcon = document.getElementById('iconThemeSun');
+    const moonIcon = document.getElementById('iconThemeMoon');
+    if (sunIcon && moonIcon) {
+      sunIcon.style.display = isDark ? 'block' : 'none';
+      moonIcon.style.display = isDark ? 'none' : 'block';
+    }
+
+    document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.themeVal === theme);
+    });
+
+    if (save) {
+      localStorage.setItem('salary_tracker_theme', theme);
+      if (!state.settings) state.settings = {};
+      state.settings.theme = theme;
+      saveSettings();
+    }
+
+    const allWeeksModal = document.getElementById('allWeeksModal');
+    if (allWeeksModal && allWeeksModal.style.display === 'flex') {
+      renderAnalyticsDashboard();
+    }
+  };
+
+  // If initial page load or no actual visual change between light/dark, apply instantly
+  if (!isStateChange || !save) {
+    performThemeChange();
+    return;
   }
 
-  document.querySelectorAll('#themeSegmentedControl .segmented-btn-3d').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.themeVal === theme);
-  });
-
-  if (save) {
-    localStorage.setItem('salary_tracker_theme', theme);
-    if (!state.settings) state.settings = {};
-    state.settings.theme = theme;
-    saveSettings();
+  // Smooth View Transition API (Chrome, Edge, Safari 18+)
+  if (typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    try {
+      document.startViewTransition(() => {
+        performThemeChange();
+      });
+      return;
+    } catch (e) {
+      // Fallback to CSS transitions below
+    }
   }
 
-  const allWeeksModal = document.getElementById('allWeeksModal');
-  if (allWeeksModal && allWeeksModal.style.display === 'flex') {
-    renderAnalyticsDashboard();
-  }
+  // Fallback CSS animation
+  document.body.classList.add('theme-transitioning');
+  performThemeChange();
+  clearTimeout(window._themeTransitionTimer);
+  window._themeTransitionTimer = setTimeout(() => {
+    document.body.classList.remove('theme-transitioning');
+  }, 400);
 };
 
 const toggleTheme = () => {
