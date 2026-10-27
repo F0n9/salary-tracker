@@ -414,6 +414,9 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   );
   const endRadius = Math.ceil(maxCornerDist * 1.15) + 60;
 
+  // Detect mobile or touch devices (high-DPI mobile screens bottleneck on clip-path stencil rasterization)
+  const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
   // Reduced motion preference
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     performThemeChange();
@@ -421,62 +424,76 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     return;
   }
 
-  // Circular reveal with View Transitions API (Reveals new UI progressively without hiding any UI)
+  // View Transitions API
   if (typeof document.startViewTransition === 'function') {
     try {
+      if (isMobileDevice) {
+        document.documentElement.classList.add('theme-vt-mobile');
+      } else {
+        document.documentElement.classList.add('theme-vt-desktop');
+      }
+
       const transition = document.startViewTransition(() => {
         performThemeChange();
       });
 
       if (transition && typeof transition.ready?.then === 'function') {
         transition.ready.then(() => {
-          try {
-            document.documentElement.animate(
-              {
-                clipPath: [
-                  `circle(0px at ${x}px ${y}px)`,
-                  `circle(${endRadius}px at ${x}px ${y}px)`
-                ]
-              },
-              {
-                duration: 540,
-                easing: 'cubic-bezier(0.25, 1, 0.4, 1)',
-                pseudoElement: '::view-transition-new(root)'
+          if (!isMobileDevice) {
+            // Desktop: Circular reveal with corner overshoot radius
+            try {
+              document.documentElement.animate(
+                {
+                  clipPath: [
+                    `circle(0px at ${x}px ${y}px)`,
+                    `circle(${endRadius}px at ${x}px ${y}px)`
+                  ]
+                },
+                {
+                  duration: 520,
+                  easing: 'cubic-bezier(0.25, 1, 0.4, 1)',
+                  pseudoElement: '::view-transition-new(root)'
+                }
+              );
+            } catch (waapiErr) {
+              // Safari (WebKit) desktop fallback: dynamically inject exact pixel keyframe
+              let styleTag = document.getElementById('_vtThemeStyle');
+              if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = '_vtThemeStyle';
+                document.head.appendChild(styleTag);
               }
-            );
-          } catch (waapiErr) {
-            // Safari (WebKit) fallback: dynamically inject exact pixel keyframe
-            let styleTag = document.getElementById('_vtThemeStyle');
-            if (!styleTag) {
-              styleTag = document.createElement('style');
-              styleTag.id = '_vtThemeStyle';
-              document.head.appendChild(styleTag);
+              styleTag.textContent = `
+                ::view-transition-new(root) {
+                  animation: themeWaterRipple 0.52s cubic-bezier(0.25, 1, 0.4, 1) forwards !important;
+                }
+                @keyframes themeWaterRipple {
+                  0% { clip-path: circle(0px at ${x}px ${y}px); }
+                  100% { clip-path: circle(${endRadius}px at ${x}px ${y}px); }
+                }
+              `;
+              setTimeout(() => {
+                if (styleTag) styleTag.textContent = '';
+              }, 560);
             }
-            styleTag.textContent = `
-              ::view-transition-new(root) {
-                animation: themeWaterRipple 0.54s cubic-bezier(0.25, 1, 0.4, 1) forwards !important;
-              }
-              @keyframes themeWaterRipple {
-                0% { clip-path: circle(0px at ${x}px ${y}px); }
-                100% { clip-path: circle(${endRadius}px at ${x}px ${y}px); }
-              }
-            `;
-            setTimeout(() => {
-              if (styleTag) styleTag.textContent = '';
-            }, 600);
           }
+          // On mobile, the transition runs 100% via GPU-composited CSS keyframes on html.theme-vt-mobile (0 layout, 0 repaint, 120fps)
         }).catch(() => {});
       }
 
+      const cleanupVT = () => {
+        document.documentElement.classList.remove('theme-vt-mobile', 'theme-vt-desktop');
+        persistThemeSettings();
+      };
+
       if (transition && typeof transition.finished?.then === 'function') {
-        transition.finished.finally(() => {
-          persistThemeSettings();
-        });
+        transition.finished.finally(cleanupVT);
       } else {
-        setTimeout(persistThemeSettings, 580);
+        setTimeout(cleanupVT, isMobileDevice ? 260 : 560);
       }
       return;
     } catch (e) {
+      document.documentElement.classList.remove('theme-vt-mobile', 'theme-vt-desktop');
       // Fallback below
     }
   }
@@ -487,7 +504,7 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
   persistThemeSettings();
   setTimeout(() => {
     document.body.classList.remove('theme-transitioning');
-  }, 350);
+  }, 240);
 };
 
 const toggleTheme = (clickEvent = null) => {

@@ -97,18 +97,24 @@ body {
   color: var(--text-main);
 }
 
+@media (max-width: 768px), (pointer: coarse) {
+  body {
+    background-attachment: scroll !important;
+  }
+}
+
 html.dark-mode,
 body.dark-mode {
   background-color: #0b0f19;
 }
 
 /* ============================================================
-   Circular Water Ripple Theme Reveal (View Transitions API)
-   Lan tới đâu thì UI đổi màu tới đó - UI luôn hiển thị 100%
+   Adaptive High-Performance Theme Transition (View Transitions API)
+   - Desktop: Circular Water Ripple Reveal (Lan tới đâu đổi màu tới đó)
+   - Mobile: Ultra-fast GPU Compositor Crossfade (120fps, 0 repaints)
    ============================================================ */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: none;
   mix-blend-mode: normal;
 }
 
@@ -120,12 +126,40 @@ body.dark-mode {
   z-index: 99999;
 }
 
+/* Desktop: circular reveal via WAAPI, suppress default animation */
+html.theme-vt-desktop::view-transition-old(root),
+html.theme-vt-desktop::view-transition-new(root) {
+  animation: none;
+}
+
+/* Mobile: 100% GPU-composited hardware crossfade (220ms, zero layout/repaint) */
+html.theme-vt-mobile::view-transition-old(root) {
+  animation: vtMobileFadeOut 0.22s cubic-bezier(0.2, 0, 0, 1) forwards !important;
+}
+html.theme-vt-mobile::view-transition-new(root) {
+  animation: vtMobileFadeIn 0.22s cubic-bezier(0.2, 0, 0, 1) forwards !important;
+}
+
+@keyframes vtMobileFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes vtMobileFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Fallback smooth transition for browsers without View Transitions */
 body.theme-transitioning,
-body.theme-transitioning *,
-body.theme-transitioning *::before,
-body.theme-transitioning *::after {
-  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, fill 0.35s ease, stroke 0.35s ease !important;
+body.theme-transitioning .app-header,
+body.theme-transitioning .dashboard-card,
+body.theme-transitioning .card-base,
+body.theme-transitioning .btn-morphic,
+body.theme-transitioning .modal-box,
+body.theme-transitioning .morphic-pill-capsule,
+body.theme-transitioning .theme-btn-toggle {
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease !important;
 }
 
 .font-mono {
