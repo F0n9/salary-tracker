@@ -1,4 +1,4 @@
-
+/*  */
 
 const SUPABASE_URL = 'https://vkrtqjghtgjnhuhiwlay.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrcnRxamdodGdqbmh1aGl3bGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NDA0MDQsImV4cCI6MjEwODMxNjQwNH0.GEZjiHjy7V7oNzG5CvRtwA2vOzeY7mx7Oh-A49SVKn4';
@@ -1386,10 +1386,7 @@ const drawDashboardWeekChart = (week) => {
   }
 };
 
-const shiftsFilterState = {
-  workplace: '',
-  date: ''
-};
+
 
 const setupCustomSelect = (selectId) => {
   const select = document.getElementById(selectId);
@@ -1590,57 +1587,11 @@ const closeAllCustomSelects = () => {
 
 };
 
-const updateFilterActiveState = () => {
-  const dot = document.getElementById('filterActiveDot');
-  const btnToggle = document.getElementById('btnToggleShiftsFilter');
-  const btnReset = document.getElementById('btnResetAllFilters');
-  const tray = document.getElementById('shiftsFilterBar');
-
-  const hasFilter = Boolean(shiftsFilterState.workplace || shiftsFilterState.date);
-
-  if (dot) dot.style.display = hasFilter ? 'inline-block' : 'none';
-  if (btnToggle) btnToggle.classList.toggle('is-active', hasFilter);
-  if (btnReset) btnReset.style.display = hasFilter ? 'flex' : 'none';
-
-  if (hasFilter && tray) {
-    tray.style.display = 'block';
-  }
-};
-
-const updateFilterWorkplaceOptions = () => {
-  const select = document.getElementById('filterWorkplaceSelect');
-  if (!select) return;
-  const currentVal = select.value;
-
-  const week = getCurrentWeek();
-  const set = new Set(state.settings.workplaces || []);
-  if (week && Array.isArray(week.shifts)) {
-    week.shifts.forEach(s => {
-      if (s.workplace) set.add(s.workplace);
-    });
-  }
-
-  select.innerHTML = `<option value="">${t('filter_wp_all', 'Nơi làm: Tất cả')}</option>`;
-  Array.from(set).forEach(wp => {
-    const opt = document.createElement('option');
-    opt.value = wp;
-    opt.textContent = wp;
-    if (wp === currentVal || wp === shiftsFilterState.workplace) {
-      opt.selected = true;
-    }
-    select.appendChild(opt);
-  });
-
-  setupCustomSelect('filterWorkplaceSelect');
-};
-
 const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
   listContainer.innerHTML = '';
 
   const week = getCurrentWeek();
-
-  updateFilterWorkplaceOptions();
 
   if (!week || !Array.isArray(week.shifts) || week.shifts.length === 0) {
     const shiftsCountBadge = document.getElementById('shiftsCountBadge');
@@ -1665,7 +1616,6 @@ const renderShiftsList = () => {
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span>Thêm ca làm mới</span>
             </button>
           ` : `
             <button type="button" class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
@@ -1673,7 +1623,6 @@ const renderShiftsList = () => {
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span>Thêm nơi làm việc</span>
             </button>
           `}
           <button type="button" class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
@@ -1681,7 +1630,6 @@ const renderShiftsList = () => {
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            <span>Xóa tuần</span>
           </button>
         </div>
       </div>
@@ -1724,60 +1672,10 @@ const renderShiftsList = () => {
   }
 
   const allShifts = week.shifts;
-  let filteredShifts = allShifts;
-
-  if (shiftsFilterState.workplace) {
-    filteredShifts = filteredShifts.filter(s => s.workplace === shiftsFilterState.workplace);
-  }
-
-  if (shiftsFilterState.date) {
-    filteredShifts = filteredShifts.filter(s => {
-      const dObj = getShiftDateObj(week, s.day);
-      return dObj && dObj.iso === shiftsFilterState.date;
-    });
-  }
-
   const shiftsCountBadge = document.getElementById('shiftsCountBadge');
-  if (shiftsFilterState.workplace || shiftsFilterState.date) {
-    if (shiftsCountBadge) shiftsCountBadge.textContent = `${filteredShifts.length} / ${allShifts.length} ${t('unit_shift', 'ca')}`;
-  } else {
-    if (shiftsCountBadge) shiftsCountBadge.textContent = `${allShifts.length} ${t('unit_shift', 'ca')}`;
-  }
+  if (shiftsCountBadge) shiftsCountBadge.textContent = `${allShifts.length} ${t('unit_shift', 'ca')}`;
 
-  if (allShifts.length > 0 && filteredShifts.length === 0) {
-    listContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-title">${t('filter_no_match_title', 'Không tìm thấy ca làm việc phù hợp')}</div>
-        <p class="empty-state-desc">${t('filter_no_match_desc', 'Không có ca nào khớp với bộ lọc bạn đã chọn.')}</p>
-        <div style="margin-top: 0.85rem; display: flex; justify-content: center;">
-          <button class="btn-morphic btn-morphic-danger" id="btnResetShiftsFilter" title="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}" aria-label="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span>Đặt lại bộ lọc</span>
-          </button>
-        </div>
-      </div>
-    `;
-    const btnReset = document.getElementById('btnResetShiftsFilter');
-    if (btnReset) {
-      btnReset.addEventListener('click', () => {
-        shiftsFilterState.workplace = '';
-        shiftsFilterState.date = '';
-        const wpSel = document.getElementById('filterWorkplaceSelect');
-        const dtInp = document.getElementById('filterDateInput');
-        if (wpSel) wpSel.value = '';
-        syncCustomSelect('filterWorkplaceSelect');
-        if (dtInp) dtInp.value = '';
-        renderShiftsList();
-      });
-    }
-    updateFilterActiveState();
-    return;
-  }
-
-  filteredShifts.forEach((shift) => {
+  allShifts.forEach((shift) => {
     const card = document.createElement('div');
     card.className = 'shift-ledger-row';
     
@@ -1874,7 +1772,6 @@ const renderShiftsList = () => {
 
     listContainer.appendChild(card);
   });
-  updateFilterActiveState();
 };
 
 const escapeHtml = (str) => {
@@ -4158,65 +4055,6 @@ const bindEvents = () => {
   const btnTabSummaryMonthly = document.getElementById('tabBtnSummaryMonthly');
   if (btnTabSummaryMonthly) {
     btnTabSummaryMonthly.addEventListener('click', () => switchSummaryTab('monthly'));
-  }
-
-  // Shifts Filter Tray & Custom Select Events
-  const btnToggleFilter = document.getElementById('btnToggleShiftsFilter');
-  const btnHeaderSearch = document.getElementById('btnHeaderSearch');
-  const shiftsFilterTray = document.getElementById('shiftsFilterBar');
-
-  const toggleFilterTray = () => {
-    if (!shiftsFilterTray) return;
-    const isHidden = shiftsFilterTray.style.display === 'none' || shiftsFilterTray.style.display === '';
-    shiftsFilterTray.style.display = isHidden ? 'block' : 'none';
-    if (isHidden) {
-      syncCustomSelect('filterWorkplaceSelect');
-      const dateInput = document.getElementById('filterDateInput');
-      if (dateInput) dateInput.focus();
-    }
-  };
-
-  if (btnToggleFilter && shiftsFilterTray) {
-    btnToggleFilter.addEventListener('click', toggleFilterTray);
-  }
-  if (btnHeaderSearch) {
-    btnHeaderSearch.addEventListener('click', toggleFilterTray);
-  }
-
-  window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      toggleFilterTray();
-    }
-  });
-
-  const filterWpSelect = document.getElementById('filterWorkplaceSelect');
-  if (filterWpSelect) {
-    filterWpSelect.addEventListener('change', (e) => {
-      shiftsFilterState.workplace = e.target.value;
-      syncCustomSelect('filterWorkplaceSelect');
-      renderShiftsList();
-    });
-  }
-
-  const filterDateInput = document.getElementById('filterDateInput');
-  if (filterDateInput) {
-    filterDateInput.addEventListener('change', (e) => {
-      shiftsFilterState.date = e.target.value;
-      renderShiftsList();
-    });
-  }
-
-  const btnResetAll = document.getElementById('btnResetAllFilters');
-  if (btnResetAll) {
-    btnResetAll.addEventListener('click', () => {
-      shiftsFilterState.workplace = '';
-      shiftsFilterState.date = '';
-      if (filterWpSelect) filterWpSelect.value = '';
-      syncCustomSelect('filterWorkplaceSelect');
-      if (filterDateInput) filterDateInput.value = '';
-      renderShiftsList();
-    });
   }
 
   const shiftWpSelect = document.getElementById('shiftWorkplace');
