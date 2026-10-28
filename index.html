@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261028b">
+  <link rel="stylesheet" href="./styles.css?v=20261028c">
 </head>
 <body>
   
@@ -135,74 +135,128 @@
     </section>
 
     <!-- Executive KPI Dashboard Grid (Inspired by Ember's 2026 SaaS Dashboard) -->
-    <section class="dashboard-kpi-grid clickable-card" id="ledgerCardSummary" data-i18n-title="ledger_hint_click" title="Nhấn để xem biểu đồ thống kê">
-      <!-- Card 1: Thu nhập tuần (Fintech Debit Card Widget) -->
-      <div class="kpi-card kpi-card-income">
-        <div class="kpi-card-meta">
-          <span class="kpi-card-label" data-i18n="kpi_salary">Thu nhập tuần</span>
-          <div class="kpi-card-figure-row">
-            <span class="kpi-card-number font-mono" id="kpiWeekSalary">0 đ</span>
+    <section class="dashboard-stats-card clickable-card" id="ledgerCardSummary" data-i18n-title="ledger_hint_click" title="Nhấn để xem biểu đồ và phân tích chi tiết">
+      <!-- Top Row: 3-Card KPI Matrix -->
+      <div class="dashboard-kpi-grid">
+        <!-- Card 1: Thu nhập tuần (Fintech Debit Card Widget) -->
+        <div class="kpi-card kpi-card-income">
+          <div class="kpi-card-meta">
+            <div class="kpi-card-label-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span class="kpi-card-label" data-i18n="kpi_salary">Thu nhập tuần</span>
+            </div>
+            <div class="kpi-card-figure-row">
+              <span class="kpi-card-number font-mono" id="kpiWeekSalary">0 đ</span>
+            </div>
+            <div class="kpi-card-trend-badge font-mono">
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+              <span id="kpiSalaryTrendText">Đã tính theo ca</span>
+            </div>
           </div>
-          <div class="kpi-card-trend-badge">
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-            <span id="kpiSalaryTrendText">Đã tính theo ca</span>
-          </div>
-        </div>
 
-        <!-- Mini Fintech Salary Card Mockup (Inspired by Ember's credit card) -->
-        <div class="mini-fintech-card" aria-hidden="true">
-          <div class="mfc-top">
-            <div class="mfc-chip"></div>
-            <div class="mfc-contactless">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Luxury Fintech Salary Card Mockup (Ember Card Style) -->
+          <div class="mini-fintech-card" aria-hidden="true">
+            <div class="mfc-top">
+              <div class="mfc-chip"></div>
+              <svg class="mfc-contactless" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8.5 16.5a5 5 0 0 1 0-9"></path>
                 <path d="M12 19a8.5 8.5 0 0 0 0-14"></path>
               </svg>
             </div>
+            <div class="mfc-bottom">
+              <span class="mfc-dots font-mono">•••• 2026</span>
+              <span class="mfc-type">SALARY</span>
+            </div>
           </div>
-          <div class="mfc-bottom">
-            <span class="mfc-dots font-mono">•••• 2026</span>
-            <span class="mfc-type">SALARY</span>
+        </div>
+
+        <!-- Card 2: Tổng thời gian -->
+        <div class="kpi-card kpi-card-hours">
+          <div class="kpi-card-meta">
+            <div class="kpi-card-label-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span class="kpi-card-label" data-i18n="kpi_hours">Tổng thời gian</span>
+            </div>
+            <span class="kpi-card-number font-mono" id="kpiWeekHours">0.00 h</span>
+          </div>
+          <div class="kpi-card-subinfo">
+            <span class="kpi-subpill font-mono" id="kpiWeekHoursDetail">0h 00m</span>
+            <span class="kpi-subpill font-mono" id="kpiAvgHours">0.00 h/ca</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Cơ sở làm việc (Ember's Plans list breakdown) -->
+        <div class="kpi-card kpi-card-workplaces">
+          <div class="kpi-card-top-row">
+            <div class="kpi-card-label-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              <span class="kpi-card-label">Cơ sở làm việc</span>
+            </div>
+            <span class="kpi-shifts-badge font-mono" id="kpiShiftCount">0 ca</span>
+          </div>
+          <div class="kpi-workplaces-list font-mono" id="kpiWorkplacesList">
+            <span class="kpi-wp-empty font-mono">Chưa có ca</span>
           </div>
         </div>
       </div>
 
-      <!-- Card 2: Tổng thời gian -->
-      <div class="kpi-card kpi-card-hours">
-        <span class="kpi-card-label" data-i18n="kpi_hours">Tổng thời gian</span>
-        <span class="kpi-card-number font-mono" id="kpiWeekHours">0.00 h</span>
-        <div class="kpi-card-subinfo">
-          <span class="kpi-subpill font-mono" id="kpiWeekHoursDetail">0h 00m</span>
-          <span class="kpi-subpill font-mono" id="kpiAvgHours">0.00 h/ca</span>
+      <!-- Bottom Row: Weekly Income Curve Strip (Replicating Ember's Centerpiece Spline Chart) -->
+      <div class="dashboard-chart-strip">
+        <div class="dcs-header">
+          <div class="dcs-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <path d="M3 3v18h18"></path>
+              <path d="M18 9l-5 5-4-4-6 6"></path>
+            </svg>
+            <span class="dcs-title">Xu hướng thu nhập trong tuần</span>
+          </div>
+          <div class="dcs-right font-mono">
+            <span>Chi tiết phân tích</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
         </div>
-      </div>
-
-      <!-- Card 3: Cơ sở làm việc (Ember's Plans list breakdown) -->
-      <div class="kpi-card kpi-card-workplaces">
-        <div class="kpi-card-top-row">
-          <span class="kpi-card-label">Cơ sở làm việc</span>
-          <span class="kpi-shifts-badge font-mono" id="kpiShiftCount">0 ca</span>
-        </div>
-        <div class="kpi-workplaces-list" id="kpiWorkplacesList">
-          <span class="kpi-wp-empty font-mono">Chưa có ca</span>
+        <div class="dcs-canvas-wrap">
+          <canvas id="dashboardWeekCanvas" height="72"></canvas>
         </div>
       </div>
     </section>
 
-    <!-- Shifts Section -->
-    <section class="shifts-section">
+    <!-- Shifts Section (2026 Executive Shift Ledger) -->
+    <section class="shifts-section" aria-label="Danh sách ca làm việc">
       <div class="shifts-header">
         <div class="shifts-title-group">
-          <h3 class="shifts-title" data-i18n="shifts_title">Danh sách ca làm việc</h3>
+          <div class="shifts-section-overline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            <h3 class="shifts-title" data-i18n="shifts_title">Danh sách ca làm việc</h3>
+          </div>
           <span class="badge-count font-mono" id="shiftsCountBadge">0 ca</span>
         </div>
         <div class="shifts-header-actions">
           <button type="button" id="btnToggleShiftsFilter" class="btn-morphic btn-filter-toggle" data-i18n-title="filter_toggle" title="Tìm kiếm & Lọc ca làm việc" aria-label="Tìm kiếm & Lọc ca làm việc">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
+            <span class="filter-toggle-text">Bộ lọc</span>
             <span class="filter-active-dot" id="filterActiveDot" style="display: none;"></span>
           </button>
         </div>
@@ -212,7 +266,7 @@
       <div class="shifts-filter-tray" id="shiftsFilterBar" style="display: none;">
         <div class="filter-tray-inner">
           <div class="filter-item filter-wp-wrap" data-i18n-title="filter_wp_title" title="Lọc theo nơi làm việc">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" class="filter-icon">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
@@ -222,7 +276,7 @@
           </div>
 
           <div class="filter-item filter-date-wrap" data-i18n-title="filter_date_title" title="Lọc theo ngày cụ thể">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" class="filter-icon">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -232,7 +286,7 @@
           </div>
 
           <button type="button" id="btnResetAllFilters" class="btn-reset-filters" data-i18n-title="filter_clear_all" title="Xóa toàn bộ bộ lọc" aria-label="Xóa bộ lọc" style="display: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="12" height="12">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -412,7 +466,7 @@
       <div class="modal-header">
         <h3 class="modal-title" data-i18n="analytics_title">Thống kê</h3>
         <button type="button" class="btn-morphic modal-close" data-close-modal="allWeeksModal" data-i18n-title="btn_close" title="Đóng" aria-label="Đóng">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -422,7 +476,7 @@
       <div class="modal-body">
         <div class="summary-tab-nav">
           <button type="button" class="summary-tab-btn font-mono active" id="tabBtnSummaryAnalytics" data-summary-tab="analytics">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <line x1="18" y1="20" x2="18" y2="10"></line>
               <line x1="12" y1="20" x2="12" y2="4"></line>
               <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -430,7 +484,7 @@
             <span data-i18n="tab_charts">Biểu đồ thống kê</span>
           </button>
           <button type="button" class="summary-tab-btn font-mono" id="tabBtnSummaryTable" data-summary-tab="table">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
               <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
               <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
@@ -439,7 +493,7 @@
             <span data-i18n="tab_weeks">Danh sách các tuần</span>
           </button>
           <button type="button" class="summary-tab-btn font-mono" id="tabBtnSummaryMonthly" data-summary-tab="monthly">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <rect x="3" y="4" width="18" height="18" rx="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -979,6 +1033,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261028b"></script>
+  <script src="./app.js?v=20261028c"></script>
 </body>
 </html>

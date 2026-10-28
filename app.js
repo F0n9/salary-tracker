@@ -1251,6 +1251,139 @@ const renderWeekDetails = () => {
       wpListEl.innerHTML = `<span class="kpi-wp-empty font-mono">Chưa có ca</span>`;
     }
   }
+
+  // Draw Dashboard Weekly Spline Curve Chart (Ember Style)
+  drawDashboardWeekChart(week);
+};
+
+const drawDashboardWeekChart = (week) => {
+  const canvas = document.getElementById('dashboardWeekCanvas');
+  if (!canvas) return;
+
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const width = parent.clientWidth || 600;
+  const height = 72;
+
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const dayEarnings = { T2: 0, T3: 0, T4: 0, T5: 0, T6: 0, T7: 0, CN: 0 };
+
+  if (week && Array.isArray(week.shifts)) {
+    week.shifts.forEach((s) => {
+      const d = (s.day || '').toUpperCase().trim();
+      if (dayEarnings[d] !== undefined) {
+        dayEarnings[d] += getShiftEarnings(s, week);
+      }
+    });
+  }
+
+  const values = days.map(d => dayEarnings[d]);
+  const maxVal = Math.max(...values, 100000);
+
+  const padLeft = 24;
+  const padRight = 24;
+  const padTop = 14;
+  const padBottom = 20;
+  const chartW = width - padLeft - padRight;
+  const chartH = height - padTop - padBottom;
+
+  const isDark = document.body.classList.contains('dark-mode');
+
+  // Hairline subtle grid
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.05)';
+  ctx.lineWidth = 1;
+
+  ctx.beginPath();
+  ctx.moveTo(padLeft, padTop + chartH);
+  ctx.lineTo(width - padRight, padTop + chartH);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(padLeft, padTop + chartH / 2);
+  ctx.lineTo(width - padRight, padTop + chartH / 2);
+  ctx.stroke();
+
+  // Compute points
+  const points = days.map((d, i) => {
+    const x = padLeft + (i / (days.length - 1)) * chartW;
+    const norm = values[i] / maxVal;
+    const y = padTop + chartH - (norm * (chartH - 4));
+    return { x, y, val: values[i], day: d };
+  });
+
+  if (points.length > 0) {
+    // Fill area under spline curve
+    const areaGrad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+    if (isDark) {
+      areaGrad.addColorStop(0, 'rgba(59, 130, 246, 0.22)');
+      areaGrad.addColorStop(0.7, 'rgba(16, 185, 129, 0.08)');
+      areaGrad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+    } else {
+      areaGrad.addColorStop(0, 'rgba(37, 99, 235, 0.16)');
+      areaGrad.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const mx = (p0.x + p1.x) / 2;
+      ctx.bezierCurveTo(mx, p0.y, mx, p1.y, p1.x, p1.y);
+    }
+
+    ctx.lineTo(points[points.length - 1].x, padTop + chartH);
+    ctx.lineTo(points[0].x, padTop + chartH);
+    ctx.closePath();
+    ctx.fillStyle = areaGrad;
+    ctx.fill();
+
+    // Smooth stroke
+    const strokeGrad = ctx.createLinearGradient(padLeft, 0, width - padRight, 0);
+    strokeGrad.addColorStop(0, '#3b82f6');
+    strokeGrad.addColorStop(0.5, '#10b981');
+    strokeGrad.addColorStop(1, '#8b5cf6');
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const mx = (p0.x + p1.x) / 2;
+      ctx.bezierCurveTo(mx, p0.y, mx, p1.y, p1.x, p1.y);
+    }
+    ctx.strokeStyle = strokeGrad;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Day labels & dots
+    points.forEach((pt) => {
+      ctx.fillStyle = pt.val > 0 ? (isDark ? '#e2e8f0' : '#0f172a') : '#64748b';
+      ctx.font = '500 10px Inter, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(pt.day, pt.x, height - 3);
+
+      if (pt.val > 0) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#10b981';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isDark ? '#0c0d12' : '#ffffff';
+        ctx.stroke();
+      }
+    });
+  }
 };
 
 const shiftsFilterState = {
@@ -1514,38 +1647,41 @@ const renderShiftsList = () => {
     if (shiftsCountBadge) shiftsCountBadge.textContent = '0 ca';
 
     listContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+      <div class="empty-shifts-box">
+        <div class="es-icon-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <rect x="3" y="4" width="18" height="18" rx="3"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </div>
-        <div class="empty-state-title">${hasWorkplaces() ? t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này') : t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
-        <p class="empty-state-desc">${hasWorkplaces() ? t('empty_shifts_desc', 'Thêm ca làm việc mới hoặc xóa tuần này nếu bạn lỡ tạo nhầm.') : t('no_workplaces_desc', 'Thêm nơi làm việc trong Cài đặt để bắt đầu thêm ca và tính lương.')}</p>
-        <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 0.85rem;">
+        <div class="es-title">${hasWorkplaces() ? t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này') : t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
+        <p class="es-desc">${hasWorkplaces() ? t('empty_shifts_desc', 'Thêm ca làm việc mới để bắt đầu theo dõi thu nhập và giờ giấc.') : t('no_workplaces_desc', 'Thêm nơi làm việc trong Cài đặt để bắt đầu tính lương.')}</p>
+        <div class="es-actions">
           ${hasWorkplaces() ? `
-            <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+            <button type="button" class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+              <span>Thêm ca làm mới</span>
             </button>
           ` : `
-            <button class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+            <button type="button" class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+              <span>Thêm nơi làm việc</span>
             </button>
           `}
-          <button class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <button type="button" class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
+            <span>Xóa tuần</span>
           </button>
         </div>
       </div>
@@ -1576,7 +1712,7 @@ const renderShiftsList = () => {
         <span>Chưa có nơi làm việc nào. Thêm nơi làm việc để tiếp tục thêm ca mới.</span>
       </div>
       <button type="button" class="btn-morphic btn-morphic-sm btn-morphic-primary" id="btnBannerAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -1619,6 +1755,7 @@ const renderShiftsList = () => {
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
+            <span>Đặt lại bộ lọc</span>
           </button>
         </div>
       </div>
@@ -1642,7 +1779,7 @@ const renderShiftsList = () => {
 
   filteredShifts.forEach((shift) => {
     const card = document.createElement('div');
-    card.className = 'shift-card';
+    card.className = 'shift-ledger-row';
     
     const shiftEarnings = getShiftEarnings(shift, week);
     const displayType = getLocalizedShiftType(shift.type);
@@ -1653,43 +1790,70 @@ const renderShiftsList = () => {
     const breakTag = shift.breakMinutes ? ` • ${t('break_tag', 'nghỉ')} ${shift.breakMinutes}${t('unit_min', 'm')}` : '';
 
     const otRateVal = Number(shift.otRate) || 1.0;
-    const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">x${otRateVal}</span>` : '';
+    const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">OT x${otRateVal}</span>` : '';
     const allowanceVal = Number(shift.allowance) || 0;
     const allowanceBadge = allowanceVal > 0 ? `<span class="shift-allowance-badge font-mono">+${fmtCurrency(allowanceVal)}</span>` : '';
+    const wpCol = getWorkplaceColor(shift.workplace);
+    const shiftRate = getShiftRate(shift);
 
     card.innerHTML = `
-      <div class="shift-left">
-        <div class="day-badge font-mono ${getDayClass(shift.day)}">
-          <span class="day-badge-name">${dayLabel}</span>
-          ${shiftDateStr ? `<span class="day-badge-date font-mono">${shiftDateStr}</span>` : ''}
-        </div>
-        <div class="shift-info">
-          <div class="shift-title-row">
-            <span class="shift-time-range font-mono">${shift.start} – ${shift.end}</span>
-            <span class="shift-type-pill ${typeClass}">${escapeHtml(displayType)}</span>
-            ${otBadge}
-            ${allowanceBadge}
-            ${shift.workplace ? (() => {
-              const wpCol = getWorkplaceColor(shift.workplace);
-              return `<span class="workplace-pill font-mono" style="background:${wpCol.bg};color:${wpCol.color};border-color:${wpCol.border};">${escapeHtml(shift.workplace)}</span>`;
-            })() : ''}
-            <span class="shift-duration-badge font-mono">${shift.hours}h${breakTag}</span>
+      <!-- Column 1: Date Capsule -->
+      <div class="sl-date-capsule ${getDayClass(shift.day)} font-mono">
+        <span class="sl-day-tag">${dayLabel}</span>
+        <span class="sl-date-val">${shiftDateStr || '--/--'}</span>
+      </div>
+
+      <!-- Column 2: Information & Metadata -->
+      <div class="sl-info-col">
+        <div class="sl-primary-line">
+          <div class="sl-wp-badge">
+            <span class="sl-wp-dot" style="background:${wpCol.fill};"></span>
+            <span class="sl-wp-name">${escapeHtml(shift.workplace || 'Chung')}</span>
           </div>
-          ${shift.note ? `<div class="shift-subtext font-mono"><span class="shift-note font-sans" title="${escapeHtml(shift.note)}">${escapeHtml(shift.note)}</span></div>` : ''}
+          <span class="sl-type-pill ${typeClass}">${escapeHtml(displayType)}</span>
+          ${otBadge}
+          ${allowanceBadge}
+        </div>
+
+        <div class="sl-meta-line font-mono">
+          <div class="sl-meta-item sl-time-item">
+            <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="12" height="12">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>${shift.start} → ${shift.end}</span>
+          </div>
+          <span class="sl-bullet">•</span>
+          <span class="sl-meta-item sl-hours-item">${shift.hours}h${breakTag}</span>
+          ${shift.note ? `
+            <span class="sl-bullet">•</span>
+            <div class="sl-meta-item sl-note-item font-sans" title="${escapeHtml(shift.note)}">
+              <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="11" height="11">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span class="sl-note-text">${escapeHtml(shift.note)}</span>
+            </div>
+          ` : ''}
         </div>
       </div>
 
-      <div class="shift-right">
-        <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
-        <div class="shift-card-actions">
-          <button class="btn-morphic btn-morphic-sm" title="${t('btn_edit_shift', 'Sửa ca')}" data-edit-shift="${shift.id}" aria-label="${t('btn_edit_shift', 'Sửa')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+      <!-- Column 3: Financials & Micro Actions -->
+      <div class="sl-finance-col">
+        <div class="sl-earnings-wrap font-mono">
+          <span class="sl-earnings-val">+${fmtCurrency(shiftEarnings)}</span>
+          <span class="sl-rate-sub">@ ${fmtCurrency(shiftRate)} /h</span>
+        </div>
+
+        <div class="sl-actions-wrap">
+          <button type="button" class="btn-micro-action btn-edit-shift" title="${t('btn_edit_shift', 'Sửa ca')}" data-edit-shift="${shift.id}" aria-label="${t('btn_edit_shift', 'Sửa')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
-          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" title="${t('btn_delete_shift', 'Xóa ca')}" data-delete-shift="${shift.id}" aria-label="${t('btn_delete_shift', 'Xóa')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <button type="button" class="btn-micro-action btn-delete-shift" title="${t('btn_delete_shift', 'Xóa ca')}" data-delete-shift="${shift.id}" aria-label="${t('btn_delete_shift', 'Xóa')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -4104,6 +4268,10 @@ const bindEvents = () => {
   });
 
   window.addEventListener('resize', () => {
+    const curWeek = getCurrentWeek();
+    if (curWeek) {
+      drawDashboardWeekChart(curWeek);
+    }
     const modal = document.getElementById('allWeeksModal');
     const pane = document.getElementById('summaryTabPaneAnalytics');
     if (modal && modal.style.display !== 'none' && pane && pane.style.display !== 'none') {
