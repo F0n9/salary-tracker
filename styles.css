@@ -2046,35 +2046,7 @@ input[type="number"] {
   background-color: var(--border-subtle);
 }
 
-.stats-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.65rem;
-}
 
-.stat-cell {
-  background: #f8fafc;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.sc-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.sc-val {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
 
 .table-container {
   overflow-x: auto;
@@ -2602,9 +2574,7 @@ body.dark-mode .btn-submit-action:hover {
     padding-bottom: 0;
   }
 
-  .stats-overview-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+
 
   .form-grid-2 {
     grid-template-columns: 1fr;
@@ -3793,10 +3763,7 @@ body.dark-mode .empty-state-desc {
   color: #8b8d98;
 }
 
-body.dark-mode .stat-cell {
-  background: #0c0d12;
-  border-color: rgba(255, 255, 255, 0.08);
-}
+
 
 body.dark-mode .table-container {
   border-color: rgba(255, 255, 255, 0.08);

@@ -2576,12 +2576,14 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
     tbody.appendChild(tr);
   });
 
-  const avgWeekEarnings = state.weeks.length > 0 ? totalEarnings / state.weeks.length : 0;
-
-  document.getElementById('allTimeTotalEarnings').textContent = fmtCurrency(totalEarnings);
-  document.getElementById('allTimeTotalHours').textContent = fmtHours(totalHours);
-  document.getElementById('allTimeTotalShifts').textContent = `${totalShifts} ${t('unit_shift', 'ca')}`;
-  document.getElementById('allTimeAvgWeekEarnings').textContent = fmtCurrency(avgWeekEarnings);
+  const elTotalEarnings = document.getElementById('allTimeTotalEarnings');
+  if (elTotalEarnings) elTotalEarnings.textContent = fmtCurrency(totalEarnings);
+  const elTotalHours = document.getElementById('allTimeTotalHours');
+  if (elTotalHours) elTotalHours.textContent = fmtHours(totalHours);
+  const elTotalShifts = document.getElementById('allTimeTotalShifts');
+  if (elTotalShifts) elTotalShifts.textContent = `${totalShifts} ${t('unit_shift', 'ca')}`;
+  const elAvgWeek = document.getElementById('allTimeAvgWeekEarnings');
+  if (elAvgWeek) elAvgWeek.textContent = fmtCurrency(state.weeks.length > 0 ? totalEarnings / state.weeks.length : 0);
 
   document.getElementById('allWeeksModal').style.display = 'flex';
   switchSummaryTab(initialTab);
