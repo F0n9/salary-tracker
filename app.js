@@ -2657,10 +2657,10 @@ const drawTimelineChart = (data) => {
   const roundedMax = Math.ceil(maxVal / 100000) * 100000;
 
   const isDark = document.body.classList.contains('dark-mode');
-  const textColor = isDark ? '#f8fafc' : '#0f172a';
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
-  const subtextColor = isDark ? '#94a3b8' : '#64748b';
-  const emptyBarColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0';
+  const textColor = isDark ? '#ededef' : '#0f1115';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)';
+  const subtextColor = isDark ? '#8b8d98' : '#64666e';
+  const emptyBarColor = isDark ? 'rgba(255, 255, 255, 0.05)' : '#e5e7eb';
 
   ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
@@ -2702,11 +2702,11 @@ const drawTimelineChart = (data) => {
         grad.addColorStop(0, wpCol.fill);
         grad.addColorStop(1, wpCol.fill + '88');
       } else {
-        grad.addColorStop(0, '#4f46e5');
-        grad.addColorStop(1, '#818cf8');
+        grad.addColorStop(0, '#2563eb');
+        grad.addColorStop(1, '#3b82f6');
       }
       ctx.fillStyle = grad;
-      drawRoundedBar(ctx, barX, barY, barWidth, barHeight, 5);
+      drawRoundedBar(ctx, barX, barY, barWidth, barHeight, 4);
 
       ctx.fillStyle = textColor;
       ctx.font = 'bold 10px "JetBrains Mono", monospace';
@@ -2750,9 +2750,9 @@ const drawDonutChart = (data) => {
   const innerR = 52;
 
   const isDark = document.body.classList.contains('dark-mode');
-  const textColor = isDark ? '#f8fafc' : '#0f172a';
-  const subtextColor = isDark ? '#94a3b8' : '#64748b';
-  const emptyCircleColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
+  const textColor = isDark ? '#ededef' : '#0f1115';
+  const subtextColor = isDark ? '#8b8d98' : '#64666e';
+  const emptyCircleColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e5e7eb';
 
   if (data.totalSalary <= 0 || data.workplaceList.length === 0) {
     ctx.beginPath();
