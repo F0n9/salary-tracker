@@ -1976,6 +1976,8 @@ const openAddShiftModal = (prefill = null) => {
   form.reset();
 
   document.getElementById('shiftModalTitle').textContent = t('modal_add_shift', 'Thêm ca làm việc');
+  const shiftSubAdd = document.getElementById('shiftModalSubtitle');
+  if (shiftSubAdd) shiftSubAdd.textContent = 'Thông tin thời gian & địa điểm làm việc';
   document.getElementById('editShiftId').value = '';
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
@@ -2019,6 +2021,8 @@ const openAddShiftModal = (prefill = null) => {
 const openEditShiftModal = (shift) => {
   const modal = document.getElementById('shiftModal');
   document.getElementById('shiftModalTitle').textContent = t('modal_edit_shift', 'Chỉnh sửa ca làm việc');
+  const shiftSubEdit = document.getElementById('shiftModalSubtitle');
+  if (shiftSubEdit) shiftSubEdit.textContent = 'Cập nhật thời gian & phụ cấp';
   document.getElementById('editShiftId').value = shift.id;
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
