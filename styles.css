@@ -311,6 +311,68 @@ body.dark-mode .brand-badge {
   margin-top: 0.1rem;
 }
 
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.command-search-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.command-search-pill:hover {
+  border-color: var(--border-focus);
+  color: var(--text-main);
+  background: var(--bg-card-hover);
+}
+
+body.dark-mode .command-search-pill {
+  background: #14151c;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #8b8d98;
+}
+
+body.dark-mode .command-search-pill:hover {
+  background: #1a1b24;
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ededef;
+}
+
+.command-kbd {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+body.dark-mode .command-kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #8b8d98;
+}
+
+@media (max-width: 580px) {
+  .header-center {
+    display: none;
+  }
+}
+
 .header-nav {
   display: flex;
   align-items: center;
@@ -509,67 +571,98 @@ body.dark-mode .btn-morphic-danger:hover {
   border-radius: var(--radius-sm);
 }
 
-.week-nav-bar {
+/* ==========================================================================
+   DASHBOARD HERO PERIOD HEADER (Inspired by Ember's "October 2026")
+   ========================================================================== */
+.dashboard-hero-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  background: var(--bg-card-gradient);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 0.9rem 1.25rem;
-  box-shadow: var(--shadow-sm);
+  padding: 0.25rem 0 0.15rem;
 }
 
-.week-nav-left {
+.hero-header-left {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.15rem;
   flex: 1;
   min-width: 0;
 }
 
-.week-heading-group {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.week-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -0.015em;
-}
-
-.rate-tag {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  color: var(--text-muted);
-  font-size: 0.775rem;
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm);
+.hero-breadcrumb {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: var(--shadow-sm);
+  gap: 0.4rem;
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.rate-tag:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-focus);
+.breadcrumb-icon {
+  color: var(--primary);
+  opacity: 0.9;
+}
+
+.hero-period-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.hero-period-title {
+  font-size: 1.85rem;
+  font-weight: 700;
   color: var(--text-main);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+
+.hero-period-title:hover {
+  opacity: 0.85;
+}
+
+.hero-period-title .period-bold {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.hero-period-title .hero-period-year {
+  color: var(--text-dim);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+body.dark-mode .hero-period-title .hero-period-year {
+  color: #64748b;
+}
+
+.hero-date-range {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.hero-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .week-actions-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  gap: 0.45rem;
 }
 
 .week-wheel-container {
@@ -669,66 +762,267 @@ body.dark-mode .btn-morphic-danger:hover {
   border-radius: 999px;
 }
 
-.ledger-card {
+/* ==========================================================================
+   DASHBOARD KPI GRID (Executive Cards + Fintech Card Mockup)
+   ========================================================================== */
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1.15fr;
+  gap: 0.85rem;
+  cursor: pointer;
+}
+
+.kpi-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.15rem 1.45rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-
-.ledger-card.clickable-card:hover {
-  border-color: var(--border-default);
-  background: var(--bg-card-hover);
-}
-
-.ledger-cell {
+  padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  flex: 1;
+  justify-content: space-between;
+  gap: 0.45rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.ledger-cell.primary {
-  flex: 1.35;
+.kpi-card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-card-hover);
+  transform: translateY(-1px);
 }
 
-.cell-divider {
-  width: 1px;
-  height: 42px;
-  background-color: var(--border-subtle);
-  margin: 0 1.15rem;
+body.dark-mode .kpi-card {
+  background: #121319;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-.cell-label {
-  font-size: 0.7rem;
+body.dark-mode .kpi-card:hover {
+  background: #161720;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Card 1: Income Card with Mini Fintech Card */
+.kpi-card-income {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.kpi-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.kpi-card-label {
+  font-size: 0.725rem;
+  font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-.cell-number {
-  font-size: 1.55rem;
+.kpi-card-number {
+  font-size: 1.65rem;
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.025em;
   line-height: 1.2;
 }
 
-.ledger-cell.primary .cell-number {
-  font-size: 1.75rem;
-  color: var(--text-main);
+body.dark-mode .kpi-card-number {
+  color: #ffffff;
 }
 
-.cell-detail {
-  font-size: 0.75rem;
+.kpi-card-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 0.25rem;
+  width: fit-content;
+}
+
+/* Mini Fintech Debit Card Graphic (Inspired directly by Ember's credit card) */
+.mini-fintech-card {
+  width: 96px;
+  height: 60px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #1f2029 0%, #0d0e13 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.mini-fintech-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.mfc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mfc-chip {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  border: 1px solid rgba(217, 119, 6, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.mfc-contactless {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.mfc-bottom {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.mfc-dots {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+}
+
+.mfc-type {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.08em;
+}
+
+/* Card 2: Hours */
+.kpi-card-subinfo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.kpi-subpill {
+  font-size: 0.725rem;
   color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
+
+body.dark-mode .kpi-subpill {
+  background: #0c0d12;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #8b8d98;
+}
+
+/* Card 3: Workplaces Breakdown (Ember Plans list) */
+.kpi-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-shifts-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+}
+
+.kpi-workplaces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.kpi-wp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  gap: 0.5rem;
+}
+
+.kpi-wp-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.kpi-wp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kpi-wp-name {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+}
+
+.kpi-wp-hours {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.725rem;
+}
+
+.kpi-wp-empty {
+  font-size: 0.725rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 768px) {
+  .dashboard-hero-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .hero-header-right {
+    justify-content: space-between;
+  }
+  .dashboard-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .shifts-section {

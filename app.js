@@ -1203,7 +1203,21 @@ const renderWeekDetails = () => {
 
   const dateRange = getWeekDateRangeDisplay(week);
   const localizedName = getLocalizedWeekName(week.name);
-  document.getElementById('currentWeekTitle').textContent = dateRange ? `${localizedName} (${dateRange})` : localizedName;
+
+  // Modern Period Title (e.g. "Tuần 43 2026")
+  const titleEl = document.getElementById('currentWeekTitle');
+  if (titleEl) {
+    const yearMatch = (week.name || '').match(/20\d\d/) || (dateRange || '').match(/20\d\d/);
+    const yearStr = yearMatch ? yearMatch[0] : new Date().getFullYear();
+    const nameWithoutYear = localizedName.replace(/20\d\d/g, '').replace(/[()]/g, '').trim();
+    titleEl.innerHTML = `<span class="period-bold">${nameWithoutYear}</span> <span class="hero-period-year">${yearStr}</span>`;
+  }
+
+  const dateRangeEl = document.getElementById('currentWeekDateRange');
+  if (dateRangeEl) {
+    dateRangeEl.textContent = dateRange ? `${dateRange}` : '';
+  }
+
   const rateBadge = document.getElementById('currentWeekRateBadge');
   if (rateBadge) rateBadge.textContent = `${new Intl.NumberFormat('vi-VN').format(getShiftRate())} đ/h`;
 
@@ -1218,6 +1232,25 @@ const renderWeekDetails = () => {
   document.getElementById('kpiShiftCount').textContent = `${shiftCount} ${t('unit_shift', 'ca')}`;
   document.getElementById('kpiAvgHours').textContent = `${avgHours} ${t('unit_per_shift', 'h/ca')}`;
   document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ${t('unit_shift', 'ca')}`;
+
+  // Workplaces Breakdown List (Inspired by Ember's Plans List)
+  const wpListEl = document.getElementById('kpiWorkplacesList');
+  if (wpListEl) {
+    const wpHours = {};
+    (week.shifts || []).forEach(s => {
+      const wp = s.workplace || 'Chung';
+      wpHours[wp] = (wpHours[wp] || 0) + Number(s.hours || 0);
+    });
+    const entries = Object.entries(wpHours).sort((a, b) => b[1] - a[1]);
+    if (entries.length > 0) {
+      wpListEl.innerHTML = entries.slice(0, 3).map(([name, h]) => {
+        const col = getWorkplaceColor(name);
+        return `<div class="kpi-wp-row"><div class="kpi-wp-left"><span class="kpi-wp-dot" style="background:${col.fill}"></span><span class="kpi-wp-name">${name}</span></div><span class="kpi-wp-hours font-mono">${fmtHours(h)}</span></div>`;
+      }).join('');
+    } else {
+      wpListEl.innerHTML = `<span class="kpi-wp-empty font-mono">Chưa có ca</span>`;
+    }
+  }
 };
 
 const shiftsFilterState = {
@@ -1535,7 +1568,7 @@ const renderShiftsList = () => {
     banner.className = 'no-workplaces-banner font-mono';
     banner.innerHTML = `
       <div class="banner-text">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -1543,7 +1576,7 @@ const renderShiftsList = () => {
         <span>Chưa có nơi làm việc nào. Thêm nơi làm việc để tiếp tục thêm ca mới.</span>
       </div>
       <button type="button" class="btn-morphic btn-morphic-sm btn-morphic-primary" id="btnBannerAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -1582,7 +1615,7 @@ const renderShiftsList = () => {
         <p class="empty-state-desc">${t('filter_no_match_desc', 'Không có ca nào khớp với bộ lọc bạn đã chọn.')}</p>
         <div style="margin-top: 0.85rem; display: flex; justify-content: center;">
           <button class="btn-morphic btn-morphic-danger" id="btnResetShiftsFilter" title="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}" aria-label="${t('btn_clear_filters', 'Xóa toàn bộ bộ lọc')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -1650,13 +1683,13 @@ const renderShiftsList = () => {
         <div class="shift-earnings font-mono">${fmtCurrency(shiftEarnings)}</div>
         <div class="shift-card-actions">
           <button class="btn-morphic btn-morphic-sm" title="${t('btn_edit_shift', 'Sửa ca')}" data-edit-shift="${shift.id}" aria-label="${t('btn_edit_shift', 'Sửa')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
           <button class="btn-morphic btn-morphic-sm btn-morphic-danger" title="${t('btn_delete_shift', 'Xóa ca')}" data-delete-shift="${shift.id}" aria-label="${t('btn_delete_shift', 'Xóa')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -3965,16 +3998,33 @@ const bindEvents = () => {
 
   // Shifts Filter Tray & Custom Select Events
   const btnToggleFilter = document.getElementById('btnToggleShiftsFilter');
+  const btnHeaderSearch = document.getElementById('btnHeaderSearch');
   const shiftsFilterTray = document.getElementById('shiftsFilterBar');
+
+  const toggleFilterTray = () => {
+    if (!shiftsFilterTray) return;
+    const isHidden = shiftsFilterTray.style.display === 'none' || shiftsFilterTray.style.display === '';
+    shiftsFilterTray.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+      syncCustomSelect('filterWorkplaceSelect');
+      const dateInput = document.getElementById('filterDateInput');
+      if (dateInput) dateInput.focus();
+    }
+  };
+
   if (btnToggleFilter && shiftsFilterTray) {
-    btnToggleFilter.addEventListener('click', () => {
-      const isHidden = shiftsFilterTray.style.display === 'none' || shiftsFilterTray.style.display === '';
-      shiftsFilterTray.style.display = isHidden ? 'block' : 'none';
-      if (isHidden) {
-        syncCustomSelect('filterWorkplaceSelect');
-      }
-    });
+    btnToggleFilter.addEventListener('click', toggleFilterTray);
   }
+  if (btnHeaderSearch) {
+    btnHeaderSearch.addEventListener('click', toggleFilterTray);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      toggleFilterTray();
+    }
+  });
 
   const filterWpSelect = document.getElementById('filterWorkplaceSelect');
   if (filterWpSelect) {

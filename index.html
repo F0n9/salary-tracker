@@ -18,20 +18,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261028a">
+  <link rel="stylesheet" href="./styles.css?v=20261028b">
 </head>
 <body>
   
   <div class="app-layout">
     
-    
+    <!-- Top Bar / App Header (SaaS 2026 Clean Studio) -->
     <header class="app-header">
       <div class="header-left">
         <div class="brand-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20">
-            <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" fill="rgba(255, 255, 255, 0.22)" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M16 11h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z" fill="#ffffff" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-            <circle cx="18.5" cy="13" r="1" fill="#1d4ed8"></circle>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"></path>
+            <path d="M16 11h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z"></path>
+            <circle cx="18.5" cy="13" r="1" fill="currentColor"></circle>
           </svg>
         </div>
         <div>
@@ -40,9 +40,20 @@
         </div>
       </div>
 
+      <div class="header-center">
+        <div class="command-search-pill" id="btnHeaderSearch" role="button" tabindex="0" title="Tìm kiếm ca làm việc (Ctrl+K)" aria-label="Tìm kiếm ca làm việc">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span class="command-search-text">Tìm ca làm...</span>
+          <kbd class="command-kbd font-mono">⌘K</kbd>
+        </div>
+      </div>
+
       <nav class="header-nav">
         <button id="btnToggleTheme" class="btn-morphic" data-i18n-title="nav_toggle_theme" title="Đổi giao diện Sáng / Tối" aria-label="Đổi giao diện Sáng / Tối">
-          <svg id="iconThemeSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display: none;">
+          <svg id="iconThemeSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="display: none;">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -53,18 +64,18 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
-          <svg id="iconThemeMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display: block;">
+          <svg id="iconThemeMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="display: block;">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
         <button id="btnUserAuth" class="btn-morphic" data-i18n-title="nav_account" title="Tài khoản & Đăng nhập" aria-label="Tài khoản">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
         </button>
         <button id="btnSettings" class="btn-morphic" data-i18n-title="nav_settings" title="Cài đặt & Dữ liệu" aria-label="Cài đặt & Dữ liệu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
@@ -72,22 +83,34 @@
       </nav>
     </header>
 
-    
-    <section class="week-nav-bar">
-      <div class="week-nav-left">
-        <div class="week-heading-group">
-          <h2 id="currentWeekTitle" class="week-title" style="cursor: pointer;" title="Chỉnh sửa thông tin tuần">Tuần 1</h2>
+    <!-- Hero Period Header (Ember "October 2026" Dashboard Header) -->
+    <section class="dashboard-hero-header">
+      <div class="hero-header-left">
+        <div class="hero-breadcrumb">
+          <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+          <span>Tổng quan</span>
+        </div>
+        <div class="hero-period-row">
+          <h2 id="currentWeekTitle" class="hero-period-title" title="Chỉnh sửa thông tin tuần">Tuần 1 <span class="hero-period-year">2026</span></h2>
           <button id="btnEditWeekMeta" class="btn-morphic btn-morphic-sm" data-i18n-title="btn_edit_week_meta" title="Chỉnh sửa thông tin tuần" aria-label="Chỉnh sửa thông tin tuần">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
               <path d="M12 20h9"></path>
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
           </button>
         </div>
+        <span class="hero-date-range font-mono" id="currentWeekDateRange"></span>
+      </div>
 
+      <div class="hero-header-right">
         <div class="week-actions-group">
           <button id="btnNewWeek" class="btn-morphic btn-morphic-primary" data-i18n-title="btn_add_week" title="Tạo tuần mới" aria-label="Tạo tuần mới">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="18" height="18">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
               <rect x="3" y="4" width="18" height="18" rx="3"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -97,45 +120,78 @@
             </svg>
           </button>
           <button id="btnDeleteCurrentWeekBar" class="btn-morphic btn-morphic-danger" data-i18n-title="btn_delete_week" title="Xóa tuần này" aria-label="Xóa tuần này">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
           </button>
         </div>
-      </div>
 
-      <div class="week-wheel-container">
-        <div class="week-wheel-lens"></div>
-        <div class="week-wheel-track" id="weekPillsList"></div>
-      </div>
-    </section>
-
-    
-    <section class="ledger-card clickable-card" id="ledgerCardSummary" data-i18n-title="ledger_hint_click" title="Nhấn để xem biểu đồ thống kê">
-      <div class="ledger-cell primary">
-        <span class="cell-label font-mono" data-i18n="kpi_salary">Thu nhập tuần</span>
-        <span class="cell-number font-mono" id="kpiWeekSalary">0 đ</span>
-      </div>
-
-      <div class="cell-divider"></div>
-
-      <div class="ledger-cell">
-        <span class="cell-label font-mono" data-i18n="kpi_hours">Tổng thời gian</span>
-        <span class="cell-number font-mono" id="kpiWeekHours">0.00 h</span>
-        <span class="cell-detail font-mono" id="kpiWeekHoursDetail">0h 00m</span>
-      </div>
-
-      <div class="cell-divider"></div>
-
-      <div class="ledger-cell">
-        <span class="cell-label font-mono" data-i18n="kpi_shifts">Số ca làm việc</span>
-        <span class="cell-number font-mono" id="kpiShiftCount">0 ca</span>
-        <span class="cell-detail font-mono" id="kpiAvgHours">0.00 h/ca</span>
+        <div class="week-wheel-container">
+          <div class="week-wheel-lens"></div>
+          <div class="week-wheel-track" id="weekPillsList"></div>
+        </div>
       </div>
     </section>
 
-    
+    <!-- Executive KPI Dashboard Grid (Inspired by Ember's 2026 SaaS Dashboard) -->
+    <section class="dashboard-kpi-grid clickable-card" id="ledgerCardSummary" data-i18n-title="ledger_hint_click" title="Nhấn để xem biểu đồ thống kê">
+      <!-- Card 1: Thu nhập tuần (Fintech Debit Card Widget) -->
+      <div class="kpi-card kpi-card-income">
+        <div class="kpi-card-meta">
+          <span class="kpi-card-label" data-i18n="kpi_salary">Thu nhập tuần</span>
+          <div class="kpi-card-figure-row">
+            <span class="kpi-card-number font-mono" id="kpiWeekSalary">0 đ</span>
+          </div>
+          <div class="kpi-card-trend-badge">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            <span id="kpiSalaryTrendText">Đã tính theo ca</span>
+          </div>
+        </div>
+
+        <!-- Mini Fintech Salary Card Mockup (Inspired by Ember's credit card) -->
+        <div class="mini-fintech-card" aria-hidden="true">
+          <div class="mfc-top">
+            <div class="mfc-chip"></div>
+            <div class="mfc-contactless">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 16.5a5 5 0 0 1 0-9"></path>
+                <path d="M12 19a8.5 8.5 0 0 0 0-14"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mfc-bottom">
+            <span class="mfc-dots font-mono">•••• 2026</span>
+            <span class="mfc-type">SALARY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Tổng thời gian -->
+      <div class="kpi-card kpi-card-hours">
+        <span class="kpi-card-label" data-i18n="kpi_hours">Tổng thời gian</span>
+        <span class="kpi-card-number font-mono" id="kpiWeekHours">0.00 h</span>
+        <div class="kpi-card-subinfo">
+          <span class="kpi-subpill font-mono" id="kpiWeekHoursDetail">0h 00m</span>
+          <span class="kpi-subpill font-mono" id="kpiAvgHours">0.00 h/ca</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Cơ sở làm việc (Ember's Plans list breakdown) -->
+      <div class="kpi-card kpi-card-workplaces">
+        <div class="kpi-card-top-row">
+          <span class="kpi-card-label">Cơ sở làm việc</span>
+          <span class="kpi-shifts-badge font-mono" id="kpiShiftCount">0 ca</span>
+        </div>
+        <div class="kpi-workplaces-list" id="kpiWorkplacesList">
+          <span class="kpi-wp-empty font-mono">Chưa có ca</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shifts Section -->
     <section class="shifts-section">
       <div class="shifts-header">
         <div class="shifts-title-group">
@@ -192,13 +248,13 @@
     
     <nav class="floating-dock" data-i18n-title="nav_dock_label" aria-label="Điều hướng nhanh">
       <button id="dockPrevWeek" class="btn-morphic" data-i18n-title="dock_prev" title="Tuần trước" aria-label="Tuần trước">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
       <button id="dockShareSlip" class="btn-morphic" data-i18n-title="dock_slip" title="Ảnh phiếu chấm công" aria-label="Ảnh phiếu chấm công">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
@@ -206,14 +262,14 @@
       </button>
 
       <button id="dockAddShift" class="btn-morphic btn-morphic-primary btn-morphic-lg" data-i18n-title="dock_add" title="Thêm ca làm việc mới" aria-label="Thêm ca làm việc mới">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="24" height="24">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
 
       <button id="dockAllWeeks" class="btn-morphic" data-i18n-title="dock_reports" title="Thống kê" aria-label="Thống kê">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="19" height="19">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
           <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
           <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
           <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
@@ -222,7 +278,7 @@
       </button>
 
       <button id="dockNextWeek" class="btn-morphic" data-i18n-title="dock_next" title="Tuần sau" aria-label="Tuần sau">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
@@ -923,6 +979,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261027a"></script>
+  <script src="./app.js?v=20261028b"></script>
 </body>
 </html>
