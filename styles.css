@@ -2994,31 +2994,94 @@ body.dark-mode .wp-default-tag {
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
 }
 
-.analytics-kpi-grid {
+/* Modal Stats Redesign: Clean, Basic & Well-Structured */
+.modal-stats-redesign {
+  max-width: 600px;
+}
+
+.modal-body-stats {
+  padding: 1.15rem 1.25rem;
+  gap: 0.85rem;
+}
+
+.stats-time-toggle-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.15rem;
+  margin-bottom: 0.15rem;
+}
+
+.stats-time-pills {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 3px;
+}
+
+.stats-time-pills .filter-pill-btn {
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.725rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.stats-time-pills .filter-pill-btn:hover {
+  color: var(--text-main);
+}
+
+.stats-time-pills .filter-pill-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  font-weight: 600;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 3-Card Key Metrics Grid */
+.stats-summary-kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.65rem;
 }
 
-@media (max-width: 640px) {
-  .analytics-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 540px) {
+  .stats-summary-kpis {
+    grid-template-columns: 1fr;
+  }
+  .stat-kpi-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 }
 
-.analytics-kpi-card {
+.stat-kpi-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 0.75rem 0.95rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
   box-shadow: var(--shadow-xs);
   transition: border-color 0.15s ease;
 }
 
-.ak-label {
+.stat-kpi-primary {
+  background: #f0f7ff;
+  border-color: rgba(37, 99, 235, 0.22);
+}
+
+.sk-label {
   font-size: 0.68rem;
   color: var(--text-muted);
   font-weight: 600;
@@ -3026,78 +3089,61 @@ body.dark-mode .wp-default-tag {
   letter-spacing: 0.04em;
 }
 
-.ak-val {
+.sk-val {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.01em;
 }
 
-.ak-sub {
+.stat-kpi-primary .sk-val {
+  color: #1d4ed8;
+}
+
+.sk-meta {
   font-size: 0.68rem;
   color: var(--text-dim);
 }
 
-.chart-card-section {
+/* Chart & Breakdown Box */
+.stats-chart-box,
+.stats-breakdown-box {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.65rem;
+  box-shadow: var(--shadow-xs);
 }
 
-.chart-card-header {
+.stats-chart-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.chart-card-title {
-  font-size: 0.85rem;
+.stats-box-title {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-main);
 }
 
-.chart-canvas-container {
-  position: relative;
-  width: 100%;
-  height: 210px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.stats-box-tag {
+  font-size: 0.7rem;
+  color: var(--text-dim);
 }
 
-.chart-canvas {
+.stats-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 150px;
+}
+
+.stats-timeline-canvas {
   width: 100%;
   height: 100%;
-  display: block;
-}
-
-.analytics-dist-grid {
-  display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 1.25rem;
-  align-items: center;
-}
-
-@media (max-width: 640px) {
-  .analytics-dist-grid {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-}
-
-.donut-canvas-wrap {
-  width: 180px;
-  height: 180px;
-  position: relative;
-}
-
-.donut-canvas {
-  width: 180px;
-  height: 180px;
   display: block;
 }
 
@@ -3143,15 +3189,15 @@ body.dark-mode .wp-default-tag {
 
 .wb-bar-track {
   width: 100%;
-  height: 6px;
+  height: 4px;
   background: var(--bg-subtle);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .wb-bar-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 0.3s ease;
 }
 
@@ -3771,43 +3817,44 @@ body.dark-mode .minimal-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
-body.dark-mode .chart-card-section {
-  background: #121319;
+body.dark-mode .stats-time-pills {
+  background: #0d0e14;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body.dark-mode .analytics-kpi-card {
+body.dark-mode .stats-time-pills .filter-pill-btn {
+  color: #8b8d98;
+}
+
+body.dark-mode .stats-time-pills .filter-pill-btn:hover {
+  color: #ededef;
+}
+
+body.dark-mode .stats-time-pills .filter-pill-btn.active {
+  background: #1e202c;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .stat-kpi-card {
   background: #12131b;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body.dark-mode .analytics-kpi-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
+body.dark-mode .stat-kpi-primary {
+  background: #141724;
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
-body.dark-mode .ak-label {
-  color: #7b7e8d;
+body.dark-mode .stat-kpi-primary .sk-val {
+  color: #60a5fa;
 }
 
-body.dark-mode .ak-val {
-  color: #ffffff;
-}
-
-body.dark-mode .filter-pill-btn {
-  background: #0c0d12;
+body.dark-mode .stats-chart-box,
+body.dark-mode .stats-breakdown-box {
+  background: #12131b;
   border-color: rgba(255, 255, 255, 0.08);
-  color: #8b8d98;
-}
-
-body.dark-mode .filter-pill-btn:hover {
-  background: #171822;
-  color: #ededef;
-}
-
-body.dark-mode .filter-pill-btn.active {
-  background: #2563eb;
-  border-color: #3b82f6;
-  color: #ffffff;
 }
 
 body.dark-mode .wb-bar-track {

@@ -142,24 +142,24 @@ const I18N_VI = {
     title_workplace_list: 'Danh sách nơi làm việc',
 
     analytics_title: 'Thống kê',
-    tab_charts: 'Biểu đồ thống kê',
-    tab_weeks: 'Danh sách các tuần',
-    tab_months: 'Báo cáo theo tháng',
+    tab_charts: 'Tổng quan',
+    tab_weeks: 'Lịch sử tuần',
+    tab_months: 'Báo cáo tháng',
     lbl_time_range: 'Thời gian',
     time_this_week: 'Tuần này',
-    time_4_weeks: '4 tuần gần nhất',
-    time_all_weeks: 'Tất cả các tuần',
+    time_4_weeks: '4 tuần qua',
+    time_all_weeks: 'Tất cả',
     lbl_workplace: 'Nơi làm',
     kpi_total_income: 'Tổng thu nhập',
     kpi_total_hours: 'Tổng số giờ',
     kpi_total_shifts: 'Tổng số ca',
     kpi_top_workplace: 'Nơi làm cao nhất',
     kpi_avg_week: 'TB / Tuần',
-    chart_title_daily: 'Thu nhập theo ngày làm việc',
-    chart_title_weekly: 'Thu nhập theo từng tuần',
+    chart_title_daily: 'Thu nhập theo ngày',
+    chart_title_weekly: 'Thu nhập theo tuần',
     chart_sub_daily: 'Theo ngày (đ)',
     chart_sub_weekly: 'Theo tuần (đ)',
-    chart_title_workplace: 'Phân bổ thu nhập theo nơi làm việc',
+    chart_title_workplace: 'Nơi làm việc',
     no_shift_data: 'Chưa có dữ liệu ca làm việc.',
     no_shifts: 'Chưa có ca',
     lbl_total_revenue: 'tổng thu',
@@ -2683,8 +2683,8 @@ const drawTimelineChart = (data) => {
   if (!canvas) return;
   const parent = canvas.parentElement;
   const dpr = window.devicePixelRatio || 1;
-  const width = parent.clientWidth || 600;
-  const height = 210;
+  const width = parent.clientWidth || 560;
+  const height = 150;
 
   canvas.width = Math.floor(width * dpr);
   canvas.height = Math.floor(height * dpr);
@@ -2695,10 +2695,10 @@ const drawTimelineChart = (data) => {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, width, height);
 
-  const padLeft = 40;
-  const padRight = 16;
-  const padTop = 30;
-  const padBottom = 42;
+  const padLeft = 36;
+  const padRight = 14;
+  const padTop = 20;
+  const padBottom = 34;
   const chartW = width - padLeft - padRight;
   const chartH = height - padTop - padBottom;
 
@@ -2814,19 +2814,19 @@ const drawTimelineChart = (data) => {
     ctx.fillStyle = textColor;
     ctx.font = '600 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(p.label, cx, padTop + chartH + 16);
+    ctx.fillText(p.label, cx, padTop + chartH + 13);
 
     if (p.subLabel) {
       ctx.fillStyle = subtextColor;
       ctx.font = '500 9px "JetBrains Mono", monospace';
-      ctx.fillText(p.subLabel, cx, padTop + chartH + 28);
+      ctx.fillText(p.subLabel, cx, padTop + chartH + 24);
     }
   });
 };
 
 const drawDonutChart = (data) => {
   const canvas = document.getElementById('donutChartCanvas');
-  if (!canvas) return;
+  if (!canvas || canvas.style.display === 'none') return;
   const dpr = window.devicePixelRatio || 1;
   const size = 180;
   canvas.width = Math.floor(size * dpr);
