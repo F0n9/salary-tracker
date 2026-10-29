@@ -21,12 +21,39 @@ An offline-first shift and salary tracking platform featuring real-time multi-de
 
 ```text
 salary-tracker/
-├── icon.svg
+├── assets/
+│   └── icons/
+│       ├── apple-touch-icon.png
+│       ├── favicon.png
+│       ├── icon-192.png
+│       ├── icon-512.png
+│       ├── icon-1024.png
+│       └── icon.svg
+├── css/
+│   ├── base.css
+│   ├── components.css
+│   ├── modals.css
+│   └── main.css
+├── js/
+│   ├── config.js
+│   ├── i18n.js
+│   ├── theme.js
+│   ├── state.js
+│   ├── calculator.js
+│   ├── services/
+│   │   └── supabase.js
+│   ├── ui/
+│   │   ├── toast.js
+│   │   ├── select.js
+│   │   ├── chart.js
+│   │   ├── canvas-slip.js
+│   │   ├── export.js
+│   │   └── modals.js
+│   └── app.js
 ├── index.html
 ├── manifest.json
-├── styles.css
 ├── sw.js
-├── app.js
+├── package.json
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -36,8 +63,8 @@ salary-tracker/
 
 | Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend Core** | Vanilla HTML5 / ES6+ JavaScript | Zero-dependency application logic |
-| **Styling** | Modern CSS3 Custom Properties | Glassmorphic design system and fluid layouts |
+| **Frontend Core** | Vanilla HTML5 / ES6+ JavaScript (Native ES Modules) | Modular, zero-dependency application logic |
+| **Styling** | Modern CSS3 Custom Properties & Component Sheets | Glassmorphic design system and fluid layouts |
 | **Typography** | Outfit & JetBrains Mono | Numerical tabular display and ergonomic legibility |
 | **Database** | Supabase PostgreSQL Cloud | Encrypted cloud persistence and real-time updates |
 | **Access Control** | Supabase Row Level Security (RLS) | Per-user cryptographic row permissions |
@@ -47,12 +74,20 @@ salary-tracker/
 
 ### Local Setup
 
-Clone the repository and serve through any static HTTP server:
+Clone the repository:
 
 ```bash
 git clone https://github.com/F0n9/salary-tracker.git
 cd salary-tracker
 ```
+
+Start the application with npm:
+
+```bash
+npm start
+```
+
+Or serve via any static HTTP server (e.g. Python):
 
 ```bash
 python -m http.server 8080

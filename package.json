@@ -1,0 +1,25 @@
+{
+  "name": "salary-tracker",
+  "version": "1.0.0",
+  "description": "An offline-first shift and salary tracking platform with real-time Supabase cloud sync and PWA support.",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve -l 8080 .",
+    "check": "node --check js/app.js",
+    "test": "node --check js/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/F0n9/salary-tracker.git"
+  },
+  "keywords": [
+    "salary-tracker",
+    "pwa",
+    "vanilla-js",
+    "es-modules",
+    "supabase",
+    "offline-first"
+  ],
+  "author": "F0n9",
+  "license": "MIT"
+}
