@@ -833,8 +833,6 @@ body.dark-mode .hero-period-title .hero-period-year {
   border-radius: var(--radius-lg);
   padding: 0.95rem;
   box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
   position: relative;
   overflow: hidden;
 }
@@ -843,10 +841,6 @@ body.dark-mode .dashboard-stats-card {
   background: #0e0f15;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-mode .dashboard-stats-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .dashboard-kpi-grid {
@@ -1062,28 +1056,6 @@ body.dark-mode .dashboard-chart-strip {
 
 .dcs-title {
   font-size: 0.72rem;
-}
-
-.dcs-right {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--primary);
-  font-size: 0.7rem;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm);
-  background: var(--primary-subtle);
-  border: 1px solid var(--primary-border);
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.dcs-right:hover,
-.dashboard-stats-card:hover .dcs-right {
-  background: var(--primary);
-  color: #ffffff;
 }
 
 .dcs-canvas-wrap {
@@ -3278,20 +3250,6 @@ body.dark-mode .wp-default-tag {
   color: var(--text-dim);
 }
 
-.ledger-card.clickable-card {
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.ledger-card.clickable-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.ledger-card.clickable-card:active {
-  transform: translateY(0);
-}
-
 .summary-tab-nav {
   display: flex;
   background: var(--bg-subtle);
@@ -3496,11 +3454,6 @@ body.dark-mode .ledger-card {
   background: #121319;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.5);
-}
-
-body.dark-mode .ledger-card.clickable-card:hover {
-  background: #161720;
-  border-color: rgba(255, 255, 255, 0.16);
 }
 
 body.dark-mode .ledger-cell.primary .cell-number {

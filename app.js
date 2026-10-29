@@ -4014,14 +4014,6 @@ const bindEvents = () => {
     btnHeaderAnalytics.addEventListener('click', () => openAllWeeksModal('analytics'));
   }
 
-  const btnOpenAnalyticsDetailed = document.getElementById('btnOpenAnalyticsDetailed');
-  if (btnOpenAnalyticsDetailed) {
-    btnOpenAnalyticsDetailed.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openAllWeeksModal('analytics');
-    });
-  }
-
   const dockAllWeeks = document.getElementById('dockAllWeeks');
   if (dockAllWeeks) {
     dockAllWeeks.addEventListener('click', () => openAllWeeksModal('analytics'));
@@ -4030,11 +4022,6 @@ const bindEvents = () => {
   const dockAnalytics = document.getElementById('dockAnalytics');
   if (dockAnalytics) {
     dockAnalytics.addEventListener('click', () => openAllWeeksModal('analytics'));
-  }
-
-  const ledgerCard = document.getElementById('ledgerCardSummary');
-  if (ledgerCard) {
-    ledgerCard.addEventListener('click', () => openAllWeeksModal('analytics'));
   }
 
   const btnTabSummaryAnalytics = document.getElementById('tabBtnSummaryAnalytics');
