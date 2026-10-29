@@ -2496,6 +2496,7 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
     totalEarnings += weekEarnings;
     totalShifts += weekShifts;
 
+    const isCurrent = state.currentWeekId === week.id;
     const dateRange = getWeekDateRangeDisplay(week);
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -2505,13 +2506,15 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
       <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
       <td>
         <div class="table-actions">
-          <button class="btn-morphic btn-morphic-sm" data-jump-week="${week.id}" title="${t('view_this_week', 'Xem tuần này')}" aria-label="${t('view_this_week', 'Xem tuần này')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-          <button class="btn-morphic btn-morphic-sm btn-morphic-danger" data-delete-week="${week.id}" title="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}" aria-label="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          ${isCurrent ? `
+            <span class="active-week-badge font-mono">Đang chọn</span>
+          ` : `
+            <button class="btn-action-secondary btn-sm" data-jump-week="${week.id}" title="${t('view_this_week', 'Xem tuần này')}">
+              <span>Xem</span>
+            </button>
+          `}
+          <button class="btn-action-danger btn-sm" data-delete-week="${week.id}" title="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}" aria-label="${t('btn_delete_week', 'Xóa tuần')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -2520,11 +2523,14 @@ const openAllWeeksModal = (initialTab = 'analytics') => {
       </td>
     `;
 
-    tr.querySelector(`[data-jump-week="${week.id}"]`).addEventListener('click', () => {
-      state.currentWeekId = week.id;
-      closeModal('allWeeksModal');
-      renderApp();
-    });
+    const btnJump = tr.querySelector(`[data-jump-week="${week.id}"]`);
+    if (btnJump) {
+      btnJump.addEventListener('click', () => {
+        state.currentWeekId = week.id;
+        closeModal('allWeeksModal');
+        renderApp();
+      });
+    }
 
     tr.querySelector(`[data-delete-week="${week.id}"]`).addEventListener('click', () => {
       if (state.weeks.length <= 1) {
@@ -4001,6 +4007,19 @@ const bindEvents = () => {
   const dockAddShift = document.getElementById('dockAddShift');
   if (dockAddShift) {
     dockAddShift.addEventListener('click', () => openAddShiftModal());
+  }
+
+  const btnHeaderAnalytics = document.getElementById('btnHeaderAnalytics');
+  if (btnHeaderAnalytics) {
+    btnHeaderAnalytics.addEventListener('click', () => openAllWeeksModal('analytics'));
+  }
+
+  const btnOpenAnalyticsDetailed = document.getElementById('btnOpenAnalyticsDetailed');
+  if (btnOpenAnalyticsDetailed) {
+    btnOpenAnalyticsDetailed.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openAllWeeksModal('analytics');
+    });
   }
 
   const dockAllWeeks = document.getElementById('dockAllWeeks');

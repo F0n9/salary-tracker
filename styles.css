@@ -1097,16 +1097,25 @@ body.dark-mode .dashboard-chart-strip {
 }
 
 .dcs-right {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  color: var(--text-dim);
-  font-size: 0.68rem;
-  transition: color 0.15s ease;
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  transition: all 0.15s ease;
+  user-select: none;
 }
 
+.dcs-right:hover,
 .dashboard-stats-card:hover .dcs-right {
-  color: var(--primary);
+  background: var(--primary);
+  color: #ffffff;
 }
 
 .dcs-canvas-wrap {
@@ -2224,7 +2233,8 @@ input[type="number"] {
 .minimal-table th:last-child,
 .minimal-table td:last-child {
   text-align: center;
-  width: 75px;
+  width: 110px;
+  min-width: 110px;
 }
 
 .minimal-table tbody tr:hover {
@@ -2232,10 +2242,30 @@ input[type="number"] {
 }
 
 .table-actions {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+}
+
+.active-week-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  white-space: nowrap;
+}
+
+body.dark-mode .active-week-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.35);
 }
 
 .backup-actions-morphic {

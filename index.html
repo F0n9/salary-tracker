@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261029i">
+  <link rel="stylesheet" href="./styles.css?v=20261029j">
 </head>
 <body>
   
@@ -55,6 +55,13 @@
           </svg>
           <svg id="iconThemeMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="display: block;">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <button id="btnHeaderAnalytics" class="btn-morphic" data-i18n-title="dock_reports" title="Thống kê" aria-label="Thống kê">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
           </svg>
         </button>
         <button id="btnUserAuth" class="btn-morphic" data-i18n-title="nav_account" title="Tài khoản & Đăng nhập" aria-label="Tài khoản">
@@ -148,7 +155,7 @@
       <div class="dashboard-chart-strip">
         <div class="dcs-header">
           <span class="dcs-title">Xu hướng thu nhập trong tuần</span>
-          <span class="dcs-right font-mono">Chi tiết phân tích →</span>
+          <span class="dcs-right font-mono" id="btnOpenAnalyticsDetailed">Chi tiết phân tích →</span>
         </div>
         <div class="dcs-canvas-wrap">
           <canvas id="dashboardWeekCanvas" height="72"></canvas>
@@ -194,11 +201,10 @@
       </button>
 
       <button id="dockAllWeeks" class="btn-morphic" data-i18n-title="dock_reports" title="Thống kê" aria-label="Thống kê">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
-          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
         </svg>
       </button>
 
@@ -900,6 +906,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261029i"></script>
+  <script src="./app.js?v=20261029j"></script>
 </body>
 </html>
