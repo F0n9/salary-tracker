@@ -112,7 +112,7 @@ export const restoreJSON = (e) => {
   reader.readAsText(file);
 };
 
-export const downloadFile = (content, filename, type) => {
+const downloadFile = (content, filename, type) => {
   const blob = new Blob([content], { type: type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

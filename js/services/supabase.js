@@ -23,11 +23,11 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
   });
 }
 
-export const getPendingSyncKey = () => {
+const getPendingSyncKey = () => {
   return `${PENDING_SYNC_KEY}_${state.currentUser?.id || 'guest'}`;
 };
 
-export const hasPendingSync = () => {
+const hasPendingSync = () => {
   try {
     return localStorage.getItem(getPendingSyncKey()) === '1';
   } catch (_) {
@@ -35,14 +35,14 @@ export const hasPendingSync = () => {
   }
 };
 
-export const markPendingSync = () => {
+const markPendingSync = () => {
   try {
     localStorage.setItem(getPendingSyncKey(), '1');
     updateSyncStatusUI();
   } catch (_) {}
 };
 
-export const clearPendingSync = () => {
+const clearPendingSync = () => {
   try {
     localStorage.removeItem(getPendingSyncKey());
     updateSyncStatusUI();
@@ -194,7 +194,7 @@ export const loadState = async () => {
   }
 };
 
-export let cloudSyncTimer = null;
+let cloudSyncTimer = null;
 
 export const saveWeeks = () => {
   const weeksKey = getWeeksStorageKey();

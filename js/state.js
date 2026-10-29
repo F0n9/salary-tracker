@@ -73,3 +73,4 @@ export const getSettingsStorageKey = () => {
 export const getCurrentWeek = () => {
   return state.weeks.find(w => w.id === state.currentWeekId) || state.weeks[0];
 };
+

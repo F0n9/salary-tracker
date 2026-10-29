@@ -32,8 +32,7 @@ salary-tracker/
 ├── css/
 │   ├── base.css
 │   ├── components.css
-│   ├── modals.css
-│   └── main.css
+│   └── modals.css
 ├── js/
 │   ├── config.js
 │   ├── i18n.js

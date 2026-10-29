@@ -9,7 +9,7 @@ export const formatShiftType = (type) => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
-export const I18N_VI = {
+const I18N_VI = {
   app_title: 'Salary Tracker',
     nav_account: 'Tài khoản & Đăng nhập',
     nav_settings: 'Cài đặt & Dữ liệu',
@@ -310,9 +310,9 @@ export const I18N_VI = {
     toast_csv_all_exported: 'Đã xuất tổng hợp toàn bộ các tuần',
     nav_account_user: 'Tài khoản'
 };
-export const I18N = { vi: I18N_VI };
+const I18N = { vi: I18N_VI };
 
-export const getCurrentLang = () => 'vi';
+const getCurrentLang = () => 'vi';
 
 export const t = (key, fallback = '') => {
   return I18N_VI[key] || fallback || key;

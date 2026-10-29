@@ -15,7 +15,7 @@ setSupabaseAppRenderer(renderApp);
 setModalAppRenderer(renderApp);
 setExportAppRenderer(renderApp);
 setAllWeeksModalOpener(openAllWeeksModal);
-export const renderApp = () => {
+const renderApp = () => {
   renderDateDisplay();
   renderWeekPills();
   renderWeekDetails();
@@ -34,7 +34,7 @@ export const renderApp = () => {
   }
 };
 
-export const renderDateDisplay = () => {
+const renderDateDisplay = () => {
   const now = new Date();
   const daysVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
   const dayName = daysVi[now.getDay()];
@@ -44,10 +44,10 @@ export const renderDateDisplay = () => {
   if (headerDateEl) headerDateEl.textContent = `${dayName}, ${dateStr}`;
 };
 
-export let isProgrammaticWheelScroll = false;
-export let wheelScrollDebounceTimer = null;
+let isProgrammaticWheelScroll = false;
+let wheelScrollDebounceTimer = null;
 
-export const updateWheelItemsVisual = () => {
+const updateWheelItemsVisual = () => {
   const container = document.getElementById('weekPillsList');
   if (!container) return null;
   const items = container.querySelectorAll('.week-wheel-item');
@@ -89,8 +89,8 @@ export const updateWheelItemsVisual = () => {
   return closestItem;
 };
 
-export let wheelRafId = null;
-export const onWheelTrackScroll = () => {
+let wheelRafId = null;
+const onWheelTrackScroll = () => {
   if (wheelRafId) cancelAnimationFrame(wheelRafId);
   wheelRafId = requestAnimationFrame(() => {
     const closestItem = updateWheelItemsVisual();
@@ -111,7 +111,7 @@ export const onWheelTrackScroll = () => {
   });
 };
 
-export const scrollWheelToActive = (behavior = 'smooth') => {
+const scrollWheelToActive = (behavior = 'smooth') => {
   const container = document.getElementById('weekPillsList');
   if (!container) return;
   const activeItem = container.querySelector(`.week-wheel-item[data-week-id="${state.currentWeekId}"]`);
@@ -125,7 +125,7 @@ export const scrollWheelToActive = (behavior = 'smooth') => {
   }, 300);
 };
 
-export const renderWeekPills = () => {
+const renderWeekPills = () => {
   const container = document.getElementById('weekPillsList');
   container.innerHTML = '';
 
@@ -156,7 +156,7 @@ export const renderWeekPills = () => {
   scrollWheelToActive('auto');
 };
 
-export const renderWeekDetails = () => {
+const renderWeekDetails = () => {
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -212,7 +212,7 @@ export const renderWeekDetails = () => {
   drawDashboardWeekChart(week);
 };
 
-export const renderShiftsList = () => {
+const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
   listContainer.innerHTML = '';
 
@@ -399,7 +399,7 @@ export const renderShiftsList = () => {
   });
 };
 
-export const bindEvents = () => {
+const bindEvents = () => {
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
       const modalId = btn.getAttribute('data-close-modal');

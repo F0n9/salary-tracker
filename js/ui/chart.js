@@ -139,7 +139,7 @@ export let analyticsState = {
   workplaceFilter: 'all'
 };
 
-export const getAnalyticsData = () => {
+const getAnalyticsData = () => {
   let weeks = [];
   if (analyticsState.timeFilter === 'current') {
     const cur = getCurrentWeek();
@@ -204,14 +204,14 @@ export const getAnalyticsData = () => {
   };
 };
 
-export const compactCurrency = (val) => {
+const compactCurrency = (val) => {
   const num = Math.round(val || 0);
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
   if (num >= 1000) return Math.round(num / 1000) + 'k';
   return num.toString();
 };
 
-export const drawRoundedBar = (ctx, x, y, width, height, radius) => {
+const drawRoundedBar = (ctx, x, y, width, height, radius) => {
   if (height <= 0) return;
   const r = Math.min(radius, width / 2, height);
   ctx.beginPath();
@@ -225,7 +225,7 @@ export const drawRoundedBar = (ctx, x, y, width, height, radius) => {
   ctx.fill();
 };
 
-export const drawTimelineChart = (data) => {
+const drawTimelineChart = (data) => {
   const canvas = document.getElementById('timelineChartCanvas');
   if (!canvas) return;
   const parent = canvas.parentElement;
@@ -371,7 +371,7 @@ export const drawTimelineChart = (data) => {
   });
 };
 
-export const drawDonutChart = (data) => {
+const drawDonutChart = (data) => {
   const canvas = document.getElementById('donutChartCanvas');
   if (!canvas || canvas.style.display === 'none') return;
   const dpr = window.devicePixelRatio || 1;
@@ -531,6 +531,6 @@ export const renderAnalyticsDashboard = () => {
   }
 };
 
-export const openAnalyticsModal = () => {
+const openAnalyticsModal = () => {
   triggerOpenAllWeeksModal('analytics');
 };

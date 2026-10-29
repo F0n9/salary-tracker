@@ -14,7 +14,7 @@ export const setModalAppRenderer = (fn) => {
 const triggerAppRender = () => {
   if (typeof appRenderer === 'function') appRenderer();
 };
-export const updateShiftDayOptions = (week) => {
+const updateShiftDayOptions = (week) => {
   const select = document.getElementById('shiftDay');
   if (!select) return;
   const currentVal = select.value || 'T2';
@@ -33,7 +33,7 @@ export const updateShiftDayOptions = (week) => {
   setupCustomSelect('shiftDay');
 };
 
-export const getUniqueWorkplacesList = () => {
+const getUniqueWorkplacesList = () => {
   const set = new Set();
   if (Array.isArray(state.settings.workplaces)) {
     state.settings.workplaces.forEach(wp => { if (wp && wp.trim()) set.add(wp.trim()); });
@@ -48,7 +48,7 @@ export const getUniqueWorkplacesList = () => {
   return Array.from(set);
 };
 
-export const updateWorkplaceInputOptions = (currentVal = '') => {
+const updateWorkplaceInputOptions = (currentVal = '') => {
   const select = document.getElementById('shiftWorkplace');
   if (!select) return;
 
@@ -273,7 +273,7 @@ export const saveShiftFromModal = (e) => {
   triggerAppRender();
 };
 
-export let lastDeletedShiftRecord = null;
+let lastDeletedShiftRecord = null;
 
 export const deleteShift = (shiftId) => {
   const week = getCurrentWeek();
@@ -389,7 +389,7 @@ export const saveWeekMeta = (e) => {
   showToast('Đã cập nhật thông tin tuần');
 };
 
-export let lastDeletedWeekRecord = null;
+let lastDeletedWeekRecord = null;
 
 export const deleteCurrentWeek = () => {
   const week = getCurrentWeek();
