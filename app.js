@@ -32,8 +32,9 @@ const I18N_VI = {
     nav_account: 'Tài khoản & Đăng nhập',
     nav_settings: 'Cài đặt & Dữ liệu',
     btn_edit_week_meta: 'Chỉnh sửa thông tin tuần',
-    btn_add_week: 'Tạo tuần mới',
-    btn_delete_week: 'Xóa tuần này',
+    btn_add_week: 'Thêm tuần',
+    btn_delete_week: 'Xóa tuần',
+    btn_add_shift: 'Thêm ca',
     week_prefix: 'Tuần',
     rate_unit: 'đ/h',
     currency_unit: 'đ',
@@ -110,13 +111,13 @@ const I18N_VI = {
     confirm_delete_shift: 'Bạn có chắc chắn muốn xóa ca làm này không?',
 
     dock_prev: 'Tuần trước',
-    dock_slip: 'Ảnh phiếu chấm công',
-    dock_add: 'Thêm ca làm việc mới',
+    dock_slip: 'Phiếu chấm công',
+    dock_add: 'Thêm ca',
     dock_reports: 'Thống kê',
     dock_next: 'Tuần sau',
 
-    modal_add_shift: 'Thêm ca làm việc',
-    modal_edit_shift: 'Chỉnh sửa ca làm việc',
+    modal_add_shift: 'Thêm ca',
+    modal_edit_shift: 'Sửa ca',
     modal_day: 'Thứ',
     modal_type: 'Buổi ca',
     modal_start: 'Giờ vào',
@@ -130,9 +131,21 @@ const I18N_VI = {
     modal_prev_dur: 'Thời gian làm dự kiến',
     modal_prev_sal: 'Thành tiền dự kiến',
     modal_btn_cancel: 'Hủy',
-    modal_btn_save: 'Lưu ca làm việc',
-    modal_btn_delete: 'Xóa ca làm việc này',
+    modal_btn_save: 'Lưu ca',
+    modal_btn_delete: 'Xóa ca',
     modal_btn_close: 'Đóng',
+    btn_add_workplace: 'Thêm nơi làm',
+    btn_save_settings: 'Lưu cài đặt',
+    btn_export_excel: 'Xuất Excel',
+    btn_download_slip_img: 'Tải ảnh',
+    btn_copy_slip_img: 'Sao chép ảnh',
+    btn_update_week: 'Lưu tuần',
+    btn_login: 'Đăng nhập',
+    btn_register: 'Tạo tài khoản',
+    btn_update_pw: 'Đổi mật khẩu',
+    btn_logout: 'Đăng xuất',
+    btn_cancel: 'Hủy',
+    btn_close: 'Đóng',
     ph_break: 'Phút nghỉ',
     ph_workplace: 'Nơi làm việc',
     ph_note: 'Ghi chú',
@@ -1582,25 +1595,28 @@ const renderShiftsList = () => {
         <p class="es-desc">${hasWorkplaces() ? t('empty_shifts_desc', 'Thêm ca làm việc mới để bắt đầu theo dõi thu nhập và giờ giấc.') : t('no_workplaces_desc', 'Thêm nơi làm việc trong Cài đặt để bắt đầu tính lương.')}</p>
         <div class="es-actions">
           ${hasWorkplaces() ? `
-            <button type="button" class="btn-morphic btn-morphic-primary" id="btnEmptyAddShift" title="${t('btn_add_shift', 'Thêm ca làm việc mới')}" aria-label="${t('btn_add_shift', 'Thêm ca làm việc mới')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <button type="button" class="btn-action-primary" id="btnEmptyAddShift">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+              <span>${t('btn_add_shift', 'Thêm ca')}</span>
             </button>
           ` : `
-            <button type="button" class="btn-morphic btn-morphic-primary" id="btnEmptyAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <button type="button" class="btn-action-primary" id="btnEmptyAddWp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+              <span>${t('btn_add_workplace', 'Thêm nơi làm')}</span>
             </button>
           `}
-          <button type="button" class="btn-morphic btn-morphic-danger" id="btnEmptyDeleteWeek" title="${t('btn_delete_week', 'Xóa tuần này')}" aria-label="${t('btn_delete_week', 'Xóa tuần này')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <button type="button" class="btn-action-secondary" id="btnEmptyDeleteWeek">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
+            <span>${t('btn_delete_week', 'Xóa tuần')}</span>
           </button>
         </div>
       </div>
@@ -3907,6 +3923,13 @@ const bindEvents = () => {
   if (btnDeleteCurrentWeek) btnDeleteCurrentWeek.addEventListener('click', deleteCurrentWeek);
   const btnDeleteCurrentWeekBar = document.getElementById('btnDeleteCurrentWeekBar');
   if (btnDeleteCurrentWeekBar) btnDeleteCurrentWeekBar.addEventListener('click', deleteCurrentWeek);
+  const btnDeleteCurrentWeekInModal = document.getElementById('btnDeleteCurrentWeekInModal');
+  if (btnDeleteCurrentWeekInModal) {
+    btnDeleteCurrentWeekInModal.addEventListener('click', () => {
+      closeModal('editWeekModal');
+      deleteCurrentWeek();
+    });
+  }
 
  
   const btnUserAuth = document.getElementById('btnUserAuth');
