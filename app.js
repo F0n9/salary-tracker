@@ -2315,7 +2315,7 @@ const renderMonthlyReport = () => {
       const mKey = dObj ? dObj.monthKey : 'unknown';
       let mLabel = '';
       if (dObj) {
-        mLabel = `Tháng ${dObj.month}/${dObj.year}`;
+        mLabel = `Tháng ${String(dObj.month).padStart(2, '0')}/${dObj.year}`;
       } else {
         mLabel = 'Không rõ thời gian';
       }
@@ -2358,8 +2358,8 @@ const renderMonthlyReport = () => {
   if (monthKeys.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="padding: 2.5rem 1rem;">
-        <div class="empty-state-title">${t('empty_month_title', 'Chưa có dữ liệu theo tháng')}</div>
-        <p class="empty-state-desc">${t('empty_month_desc', 'Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.')}</p>
+        <div class="empty-state-title font-sans">${t('empty_month_title', 'Chưa có dữ liệu theo tháng')}</div>
+        <p class="empty-state-desc font-sans">${t('empty_month_desc', 'Hãy thêm ca làm việc vào các tuần để hệ thống tự động tổng hợp báo cáo tháng cho bạn.')}</p>
       </div>
     `;
     return;
@@ -2371,62 +2371,67 @@ const renderMonthlyReport = () => {
     card.className = 'monthly-report-card';
 
     const wpList = Object.values(data.workplaces).sort((a, b) => b.earnings - a.earnings);
+    const avgEarnings = data.shiftCount > 0 ? Math.round(data.totalEarnings / data.shiftCount) : 0;
+    const avgHours = data.shiftCount > 0 ? (data.totalHours / data.shiftCount).toFixed(1) : '0';
 
     let wpBreakdownHtml = '';
-    wpList.forEach(wp => {
-      const col = getWorkplaceColor(wp.name);
-      const percent = data.totalEarnings > 0 ? Math.round((wp.earnings / data.totalEarnings) * 100) : 0;
-      wpBreakdownHtml += `
-        <div class="wb-item" style="margin-top: 0.55rem;">
-          <div class="wb-header font-mono">
-            <div class="wb-name-group">
-              <span class="wb-color-dot" style="background:${col.fill};"></span>
-              <span>${escapeHtml(wp.name)}</span>
-              <span class="field-hint" style="font-size:0.75rem;">(${percent}%)</span>
-            </div>
-            <span class="wb-amount font-mono">${fmtCurrency(wp.earnings)}</span>
+    if (wpList.length > 0) {
+      wpBreakdownHtml = `
+        <div class="monthly-workplaces-section">
+          <div class="monthly-wp-title font-sans">${t('lbl_month_dist', 'Phân bổ thu nhập trong tháng')}</div>
+          <div class="workplace-breakdown-list">
+            ${wpList.map(wp => {
+              const col = getWorkplaceColor(wp.name);
+              const percent = data.totalEarnings > 0 ? Math.round((wp.earnings / data.totalEarnings) * 100) : 0;
+              return `
+                <div class="wb-item">
+                  <div class="wb-header">
+                    <div class="wb-name-group font-sans">
+                      <span class="wb-color-dot" style="background:${col.fill};"></span>
+                      <span>${escapeHtml(wp.name)}</span>
+                      <span class="font-mono" style="font-size:0.7rem;color:var(--text-dim);font-weight:400;">(${percent}%)</span>
+                    </div>
+                    <span class="wb-amount font-mono">${fmtCurrency(wp.earnings)}</span>
+                  </div>
+                  <div class="wb-bar-track">
+                    <div class="wb-bar-fill" style="width:${percent}%;background:${col.fill};"></div>
+                  </div>
+                  <div class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(2)}h</div>
+                </div>
+              `;
+            }).join('')}
           </div>
-          <div class="wb-bar-track">
-            <div class="wb-bar-fill" style="width:${percent}%;background:${col.fill};"></div>
-          </div>
-          <span class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(2)}h</span>
         </div>
       `;
-    });
+    }
 
     card.innerHTML = `
       <div class="monthly-card-header">
         <div class="monthly-header-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-          <span class="font-mono" style="font-size:1.05rem; font-weight:700;">${data.label}</span>
+          <span class="monthly-title-text font-sans">${data.label}</span>
         </div>
-        <span class="badge-count font-mono">${data.shiftCount} ${t('unit_shift', 'ca')}</span>
+        <span class="monthly-badge-pill font-mono">${data.shiftCount} ${t('unit_shift', 'ca')} • ${fmtHours(data.totalHours)}</span>
       </div>
 
-      <div class="monthly-kpi-row">
-        <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">${t('lbl_month_income', 'Thu nhập tháng')}</span>
-          <span class="cell-number font-mono text-bold-dark" style="color:var(--primary); font-size:1.15rem;">${fmtCurrency(data.totalEarnings)}</span>
+      <div class="monthly-kpis-grid">
+        <div class="stat-kpi-card stat-kpi-primary">
+          <span class="sk-label font-sans">${t('lbl_month_income', 'Thu nhập tháng')}</span>
+          <span class="sk-val font-mono">+${fmtCurrency(data.totalEarnings)}</span>
+          <span class="sk-meta font-mono">TB ${fmtCurrency(avgEarnings)} / ca</span>
         </div>
-        <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">${t('lbl_month_hours', 'Tổng thời gian')}</span>
-          <span class="cell-number font-mono">${fmtHours(data.totalHours)}</span>
+        <div class="stat-kpi-card">
+          <span class="sk-label font-sans">${t('lbl_month_hours', 'Tổng thời gian')}</span>
+          <span class="sk-val font-mono">${fmtHours(data.totalHours)}</span>
+          <span class="sk-meta font-mono">TB ${avgHours}h / ca</span>
         </div>
-        <div class="monthly-kpi-cell">
-          <span class="cell-label font-mono">${t('lbl_month_workplaces', 'Nơi làm việc')}</span>
-          <span class="cell-number font-mono">${wpList.length} ${t('unit_workplaces', 'nơi')}</span>
+        <div class="stat-kpi-card">
+          <span class="sk-label font-sans">${t('lbl_month_workplaces', 'Số ca & Cơ sở')}</span>
+          <span class="sk-val font-mono">${data.shiftCount} <span style="font-size:0.8rem;font-weight:500;">ca</span></span>
+          <span class="sk-meta font-sans">${wpList.length} ${t('unit_workplaces', 'nơi')}</span>
         </div>
       </div>
 
-      <div class="monthly-workplaces-section">
-        <span class="field-hint font-mono" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">${t('lbl_month_dist', 'Phân bổ thu nhập trong tháng')}</span>
-        ${wpBreakdownHtml}
-      </div>
+      ${wpBreakdownHtml}
     `;
 
     container.appendChild(card);
