@@ -491,7 +491,6 @@ body.dark-mode .btn-morphic-danger:hover {
 .btn-action-primary,
 .btn-action-secondary,
 .btn-action-danger,
-.btn-dock-hero,
 .btn-submit-full {
   height: 36px;
   min-height: 36px;
@@ -572,7 +571,6 @@ body.dark-mode .btn-morphic-danger:hover {
 .btn-action-primary svg,
 .btn-action-secondary svg,
 .btn-action-danger svg,
-.btn-dock-hero svg,
 .btn-submit-full svg {
   flex-shrink: 0;
   pointer-events: none;
@@ -581,7 +579,6 @@ body.dark-mode .btn-morphic-danger:hover {
 .btn-action-primary span,
 .btn-action-secondary span,
 .btn-action-danger span,
-.btn-dock-hero span,
 .btn-submit-full span {
   white-space: nowrap;
 }
@@ -600,29 +597,6 @@ body.dark-mode .btn-morphic-danger:hover {
 
 .modal-footer-spacer {
   flex: 1;
-}
-
-.btn-dock-hero {
-  height: 40px;
-  min-height: 40px;
-  padding: 0 1.15rem;
-  border-radius: var(--radius-pill);
-  background: var(--primary);
-  color: #ffffff;
-  border: 1px solid var(--primary-hover);
-  font-weight: 600;
-  font-size: 0.8125rem;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.btn-dock-hero:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
-}
-
-.btn-dock-hero:active {
-  transform: translateY(0);
 }
 
 body.dark-mode .btn-action-primary {
@@ -660,12 +634,6 @@ body.dark-mode .btn-action-danger:hover {
   background: rgba(239, 68, 68, 0.22);
   border-color: rgba(239, 68, 68, 0.5);
   color: #fecaca;
-}
-
-body.dark-mode .btn-dock-hero {
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .dashboard-hero-header {
