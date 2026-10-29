@@ -1,16 +1,16 @@
-const CACHE_NAME = 'salary-tracker-v90';
+const CACHE_NAME = 'salary-tracker-v91';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './styles.css?v=20261029d',
-  './app.js?v=20261029d',
+  './styles.css?v=20261029e',
+  './app.js?v=20261029e',
   './manifest.json',
-  './apple-touch-icon.png?v=20261029d',
+  './apple-touch-icon.png?v=20261029e',
   './apple-touch-icon.png',
-  './icon-192.png?v=20261029d',
+  './icon-192.png?v=20261029e',
   './icon-192.png',
   './icon-512.png',
-  './favicon.png?v=20261029d',
+  './favicon.png?v=20261029e',
   './favicon.png',
   './icon.svg'
 ];
@@ -50,7 +50,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Bỏ qua các API request tới Supabase database để không can thiệp vào auth/realtime
   if (event.request.url.includes('.supabase.co')) {
     return;
   }

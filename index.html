@@ -18,13 +18,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./styles.css?v=20261029d">
+  <link rel="stylesheet" href="./styles.css?v=20261029e">
 </head>
 <body>
   
   <div class="app-layout">
     
-    <!-- Top Bar / App Header (SaaS 2026 Clean Studio) -->
+    
     <header class="app-header">
       <div class="header-left">
         <div class="brand-badge" aria-hidden="true">
@@ -72,7 +72,7 @@
       </nav>
     </header>
 
-    <!-- Hero Period Header (Ember "October 2026" Dashboard Header) -->
+    
     <section class="dashboard-hero-header">
       <div class="hero-header-left">
         <div class="hero-breadcrumb">
@@ -123,11 +123,11 @@
       </div>
     </section>
 
-    <!-- Executive KPI Dashboard Grid -->
+    
     <section class="dashboard-stats-card clickable-card" id="ledgerCardSummary" data-i18n-title="ledger_hint_click" title="Nhấn để xem biểu đồ và phân tích chi tiết">
-      <!-- Top Row: 3-Card KPI Matrix (No Icons, No Black Card Mockup) -->
+      
       <div class="dashboard-kpi-grid">
-        <!-- Card 1: Thu nhập tuần -->
+        
         <div class="kpi-card kpi-card-income">
           <div class="kpi-card-meta">
             <span class="kpi-card-label" data-i18n="kpi_salary">Thu nhập tuần</span>
@@ -138,7 +138,7 @@
           </div>
         </div>
 
-        <!-- Card 2: Tổng thời gian -->
+        
         <div class="kpi-card kpi-card-hours">
           <div class="kpi-card-meta">
             <span class="kpi-card-label" data-i18n="kpi_hours">Tổng thời gian</span>
@@ -150,7 +150,7 @@
           </div>
         </div>
 
-        <!-- Card 3: Cơ sở làm việc -->
+        
         <div class="kpi-card kpi-card-workplaces">
           <div class="kpi-card-top-row">
             <span class="kpi-card-label">Cơ sở làm việc</span>
@@ -162,7 +162,7 @@
         </div>
       </div>
 
-      <!-- Bottom Row: Weekly Income Curve Strip -->
+      
       <div class="dashboard-chart-strip">
         <div class="dcs-header">
           <span class="dcs-title">Xu hướng thu nhập trong tuần</span>
@@ -174,7 +174,7 @@
       </div>
     </section>
 
-    <!-- Shifts Section (Clean, Streamlined Shift Ledger - No Filter / Search) -->
+    
     <section class="shifts-section" aria-label="Danh sách ca làm việc">
       <div class="shifts-header">
         <div class="shifts-title-group">
@@ -368,16 +368,16 @@
       </div>
 
       <div class="modal-body">
-        <!-- Segmented Tab Nav: Flat, Clean, Text-Only -->
+        
         <div class="summary-tab-nav">
           <button type="button" class="summary-tab-btn font-mono active" id="tabBtnSummaryAnalytics" data-summary-tab="analytics" data-i18n="tab_charts">Tổng quan</button>
           <button type="button" class="summary-tab-btn font-mono" id="tabBtnSummaryTable" data-summary-tab="table" data-i18n="tab_weeks">Lịch sử tuần</button>
           <button type="button" class="summary-tab-btn font-mono" id="tabBtnSummaryMonthly" data-summary-tab="monthly" data-i18n="tab_months">Báo cáo tháng</button>
         </div>
 
-        <!-- TAB 1: TỔNG QUAN -->
+        
         <div id="summaryTabPaneAnalytics" class="summary-tab-pane">
-          <!-- Time Scope Selector: Centered Minimal Pill Group -->
+          
           <div class="stats-time-toggle-row">
             <div class="stats-time-pills">
               <button type="button" class="filter-pill-btn font-mono active" data-time-filter="current" data-i18n="time_this_week">Tuần này</button>
@@ -386,23 +386,23 @@
             </div>
           </div>
 
-          <!-- Essential 3-Card KPI Summary -->
+          
           <div class="stats-summary-kpis">
-            <!-- Metric 1: Total Salary (Hero Highlight) -->
+            
             <div class="stat-kpi-card stat-kpi-primary">
               <span class="sk-label" data-i18n="kpi_total_income">Thu nhập</span>
               <span class="sk-val font-mono" id="akTotalSalary">0 đ</span>
               <span class="sk-meta font-mono" id="akSalaryPeriod">Tuần này</span>
             </div>
 
-            <!-- Metric 2: Total Hours & Average -->
+            
             <div class="stat-kpi-card">
               <span class="sk-label" data-i18n="kpi_total_hours">Tổng số giờ</span>
               <span class="sk-val font-mono" id="akTotalHours">0.00 h</span>
               <span class="sk-meta font-mono" id="akAvgHoursPerShift">0h / ca</span>
             </div>
 
-            <!-- Metric 3: Total Shifts & Top Workplace -->
+            
             <div class="stat-kpi-card">
               <span class="sk-label" data-i18n="kpi_total_shifts">Số ca làm</span>
               <span class="sk-val font-mono" id="akTotalShifts">0 ca</span>
@@ -414,7 +414,7 @@
             </div>
           </div>
 
-          <!-- Income Chart Section -->
+          
           <div class="stats-chart-box">
             <div class="stats-chart-header">
               <span class="stats-box-title font-mono" id="timelineChartTitle" data-i18n="chart_title_daily">Thu nhập theo ngày</span>
@@ -425,7 +425,7 @@
             </div>
           </div>
 
-          <!-- Workplace Distribution Section -->
+          
           <div class="stats-breakdown-box">
             <div class="stats-chart-header">
               <span class="stats-box-title font-mono" data-i18n="chart_title_workplace">Nơi làm việc</span>
@@ -456,7 +456,7 @@
 
         <div id="summaryTabPaneMonthly" class="summary-tab-pane" style="display: none;">
           <div class="monthly-reports-container" id="monthlyReportsContainer">
-            <!-- Render báo cáo tháng tự động -->
+            
           </div>
         </div>
       </div>
@@ -702,7 +702,7 @@
           </div>
         </form>
 
-        <!-- Form Đăng ký -->
+        
         <form id="formRegister" class="auth-form-panel" style="display: none;">
           <div class="form-item">
             <label class="form-label font-mono" for="regUsername" data-i18n="auth_username">Tên đăng nhập</label>
@@ -811,7 +811,7 @@
           </div>
         </div>
 
-        <!-- Phần Đổi Mật Khẩu -->
+        
         <div class="profile-change-pwd-box">
           <button type="button" class="btn-toggle-change-pwd" id="btnToggleChangePwdSection">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -890,6 +890,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20261029d"></script>
+  <script src="./app.js?v=20261029e"></script>
 </body>
 </html>

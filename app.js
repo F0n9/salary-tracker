@@ -1,5 +1,3 @@
-/*  */
-
 const SUPABASE_URL = 'https://vkrtqjghtgjnhuhiwlay.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrcnRxamdodGdqbmh1aGl3bGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NDA0MDQsImV4cCI6MjEwODMxNjQwNH0.GEZjiHjy7V7oNzG5CvRtwA2vOzeY7mx7Oh-A49SVKn4';
 
@@ -29,7 +27,6 @@ const LOCAL_CACHE_WEEKS_KEY = 'salary_cloud_cache_weeks';
 const LOCAL_CACHE_SETTINGS_KEY = 'salary_cloud_cache_settings';
 const PENDING_SYNC_KEY = 'salary_tracker_pending_sync';
 
-// ===== BẢN DỊCH & CHUỖI GIAO DIỆN TIẾNG VIỆT =====
 const I18N_VI = {
   app_title: 'Salary Tracker',
     nav_account: 'Tài khoản & Đăng nhập',
@@ -338,7 +335,6 @@ const getLocalizedDayName = (dayCode) => {
   return dayCode || '';
 };
 
-// ===== THEME & AUTO-SYNC HELPERS =====
 const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
   if (theme === 'auto') {
@@ -378,14 +374,12 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     }
   };
 
-  // If initial page load or no actual visual change between light/dark, apply instantly
   if (!isStateChange || !save) {
     performThemeChange();
     persistThemeSettings();
     return;
   }
 
-  // Determine origin point (x, y) - lock directly to center of #btnToggleTheme
   const toggleBtn = document.getElementById('btnToggleTheme');
   let targetBtn = toggleBtn;
   if (clickEvent && clickEvent.target) {
@@ -405,26 +399,20 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
     y = clickEvent.clientY;
   }
 
-  // Calculate radius to encompass all 4 corners + 15% overshoot + 60px buffer
-  // This guarantees all 4 corners are 100% inside the new theme by ~80% of the duration,
-  // completely eliminating any snapping, stuttering, or freezing at the end.
   const maxCornerDist = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
   );
   const endRadius = Math.ceil(maxCornerDist * 1.15) + 60;
 
-  // Detect mobile or touch devices (high-DPI mobile screens bottleneck on clip-path stencil rasterization)
   const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-  // Reduced motion preference
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     performThemeChange();
     persistThemeSettings();
     return;
   }
 
-  // View Transitions API
   if (typeof document.startViewTransition === 'function') {
     try {
       if (isMobileDevice) {
@@ -440,7 +428,6 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
       if (transition && typeof transition.ready?.then === 'function') {
         transition.ready.then(() => {
           if (!isMobileDevice) {
-            // Desktop: Circular reveal with corner overshoot radius
             try {
               document.documentElement.animate(
                 {
@@ -456,7 +443,6 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
                 }
               );
             } catch (waapiErr) {
-              // Safari (WebKit) desktop fallback: dynamically inject exact pixel keyframe
               let styleTag = document.getElementById('_vtThemeStyle');
               if (!styleTag) {
                 styleTag = document.createElement('style');
@@ -477,8 +463,7 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
               }, 560);
             }
           }
-          // On mobile, the transition runs 100% via GPU-composited CSS keyframes on html.theme-vt-mobile (0 layout, 0 repaint, 120fps)
-        }).catch(() => {});
+  }).catch(() => {});
       }
 
       const cleanupVT = () => {
@@ -494,11 +479,9 @@ const applyTheme = (theme, save = true, clickEvent = null) => {
       return;
     } catch (e) {
       document.documentElement.classList.remove('theme-vt-mobile', 'theme-vt-desktop');
-      // Fallback below
-    }
+  }
   }
 
-  // Fallback smooth color fade for non-supporting browsers
   document.body.classList.add('theme-transitioning');
   performThemeChange();
   persistThemeSettings();
@@ -897,7 +880,6 @@ const loadState = async () => {
     const isPending = hasPendingSync();
     if (state.currentUser && supabaseClient) {
       if (isPending) {
-        // Có dữ liệu chỉnh sửa offline chưa đồng bộ, ưu tiên cache local để không bị ghi đè dữ liệu cũ
         const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
         const cachedSettings = localStorage.getItem(getSettingsStorageKey());
         if (cachedWeeks) {
@@ -1204,7 +1186,6 @@ const renderWeekDetails = () => {
   const dateRange = getWeekDateRangeDisplay(week);
   const localizedName = getLocalizedWeekName(week.name);
 
-  // Modern Period Title (e.g. "Tuần 43 2026")
   const titleEl = document.getElementById('currentWeekTitle');
   if (titleEl) {
     const yearMatch = (week.name || '').match(/20\d\d/) || (dateRange || '').match(/20\d\d/);
@@ -1233,7 +1214,6 @@ const renderWeekDetails = () => {
   document.getElementById('kpiAvgHours').textContent = `${avgHours} ${t('unit_per_shift', 'h/ca')}`;
   document.getElementById('shiftsCountBadge').textContent = `${shiftCount} ${t('unit_shift', 'ca')}`;
 
-  // Workplaces Breakdown List (Inspired by Ember's Plans List)
   const wpListEl = document.getElementById('kpiWorkplacesList');
   if (wpListEl) {
     const wpHours = {};
@@ -1252,7 +1232,6 @@ const renderWeekDetails = () => {
     }
   }
 
-  // Draw Dashboard Weekly Spline Curve Chart (Ember Style)
   drawDashboardWeekChart(week);
 };
 
@@ -1298,7 +1277,6 @@ const drawDashboardWeekChart = (week) => {
 
   const isDark = document.body.classList.contains('dark-mode');
 
-  // Hairline subtle grid
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.05)';
   ctx.lineWidth = 1;
 
@@ -1312,7 +1290,6 @@ const drawDashboardWeekChart = (week) => {
   ctx.lineTo(width - padRight, padTop + chartH / 2);
   ctx.stroke();
 
-  // Compute points
   const points = days.map((d, i) => {
     const x = padLeft + (i / (days.length - 1)) * chartW;
     const norm = values[i] / maxVal;
@@ -1321,7 +1298,6 @@ const drawDashboardWeekChart = (week) => {
   });
 
   if (points.length > 0) {
-    // Fill area under spline curve
     const areaGrad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
     if (isDark) {
       areaGrad.addColorStop(0, 'rgba(59, 130, 246, 0.22)');
@@ -1348,7 +1324,6 @@ const drawDashboardWeekChart = (week) => {
     ctx.fillStyle = areaGrad;
     ctx.fill();
 
-    // Smooth stroke
     const strokeGrad = ctx.createLinearGradient(padLeft, 0, width - padRight, 0);
     strokeGrad.addColorStop(0, '#3b82f6');
     strokeGrad.addColorStop(0.5, '#10b981');
@@ -1366,7 +1341,6 @@ const drawDashboardWeekChart = (week) => {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Day labels & dots
     points.forEach((pt) => {
       ctx.fillStyle = pt.val > 0 ? (isDark ? '#e2e8f0' : '#0f172a') : '#64748b';
       ctx.font = '500 10px Inter, -apple-system, sans-serif';
@@ -1385,8 +1359,6 @@ const drawDashboardWeekChart = (week) => {
     });
   }
 };
-
-
 
 const setupCustomSelect = (selectId) => {
   const select = document.getElementById(selectId);
@@ -1584,8 +1556,7 @@ const closeAllCustomSelects = () => {
   document.querySelectorAll('.has-open-dropdown').forEach(el => {
     el.classList.remove('has-open-dropdown');
   });
-
-};
+  };
 
 const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
@@ -1695,13 +1666,11 @@ const renderShiftsList = () => {
     const shiftRate = getShiftRate(shift);
 
     card.innerHTML = `
-      <!-- Column 1: Date Capsule -->
       <div class="sl-date-capsule ${getDayClass(shift.day)} font-mono">
         <span class="sl-day-tag">${dayLabel}</span>
         <span class="sl-date-val">${shiftDateStr || '--/--'}</span>
       </div>
 
-      <!-- Column 2: Information & Metadata -->
       <div class="sl-info-col">
         <div class="sl-primary-line">
           <div class="sl-wp-badge">
@@ -1736,7 +1705,6 @@ const renderShiftsList = () => {
         </div>
       </div>
 
-      <!-- Column 3: Financials & Micro Actions -->
       <div class="sl-finance-col">
         <div class="sl-earnings-wrap font-mono">
           <span class="sl-earnings-val">+${fmtCurrency(shiftEarnings)}</span>
@@ -1854,7 +1822,6 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
 };
 
 const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
-  // 1. Giờ kết thúc: mặc định là thời điểm hiện tại khi người dùng bấm vào hộp thoại (làm tròn 15 phút gần nhất)
   let endMin = Math.round(now.getMinutes() / 15) * 15;
   let endHour = now.getHours();
   if (endMin === 60) {
@@ -1864,7 +1831,6 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
   const endTotalMins = endHour * 60 + endMin;
   const defaultEnd = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
 
-  // 2. Thu thập toàn bộ lịch sử ca làm từ trước đến nay trong state.weeks
   const allPastShifts = [];
   if (Array.isArray(state.weeks)) {
     state.weeks.forEach(w => {
@@ -1878,13 +1844,11 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
     });
   }
 
-  // 3. Phân tích thông minh: tìm thời gian làm việc (duration) và loại ca phù hợp
-  let durationMinutes = 4 * 60; // Mặc định chuẩn 4 tiếng nếu chưa có bất kỳ dữ liệu gì
+  let durationMinutes = 4 * 60;
   let detectedType = '';
   let detectedBreak = 0;
 
   if (allPastShifts.length > 0) {
-    // Ưu tiên các ca làm kết thúc quanh khung giờ này (trong vòng 90 phút)
     const similarEndShifts = allPastShifts.filter(s => {
       const sEndMins = parseTimeToMinutes(s.end);
       let diff = Math.abs(sEndMins - endTotalMins);
@@ -1894,7 +1858,6 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
 
     const candidateShifts = similarEndShifts.length > 0 ? similarEndShifts : allPastShifts;
 
-    // Tính thời lượng làm việc phổ biến nhất (median duration)
     const durations = candidateShifts.map(s => {
       const sStart = parseTimeToMinutes(s.start);
       let sEnd = parseTimeToMinutes(s.end);
@@ -1907,7 +1870,6 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
       durationMinutes = durations[Math.floor(durations.length / 2)];
     }
 
-    // Xác định loại ca phổ biến nhất từ các ca tương đồng
     if (similarEndShifts.length > 0) {
       const typeCounts = {};
       similarEndShifts.forEach(s => {
@@ -1916,7 +1878,6 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
       const topType = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a])[0];
       if (topType) detectedType = topType;
 
-      // Tìm thời gian nghỉ phổ biến nhất
       const breakCounts = {};
       similarEndShifts.forEach(s => {
         const b = Number(s.breakMinutes) || 0;
@@ -1927,13 +1888,11 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
     }
   }
 
-  // 4. Tính giờ bắt đầu tự động: lùi lại bằng đúng duration từ giờ kết thúc
   let startTotalMins = (endTotalMins - durationMinutes + 24 * 60) % (24 * 60);
   let startHour = Math.floor(startTotalMins / 60);
   let startMin = startTotalMins % 60;
   let defaultStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
 
-  // 5. Nếu chưa có loại ca từ lịch sử, tự động suy luận loại ca dựa trên khung giờ
   if (!detectedType) {
     if (endHour >= 18 || endHour < 5 || startHour >= 16) {
       detectedType = 'Tối';
@@ -1944,10 +1903,8 @@ const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
     }
   }
 
-  // 6. Ngày trong tuần: mặc định hôm nay
   const defaultDay = prefill?.day || getVietnameseDayOfWeek(now);
 
-  // 7. Ghi đè nếu có prefill từ preset tiles
   if (prefill) {
     if (prefill.start) defaultStart = prefill.start;
     if (prefill.end) defaultEnd = prefill.end;
@@ -1983,14 +1940,11 @@ const openAddShiftModal = (prefill = null) => {
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'none';
 
-
-
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
   const defaultWp = getDefaultWorkplace();
   updateWorkplaceInputOptions(defaultWp);
 
-  // Tính toán thông minh dựa trên lịch sử dữ liệu và thời điểm tan ca hiện tại
   const smartDefaults = calculateSmartShiftDefaults(prefill, new Date());
 
   document.getElementById('shiftDay').value = smartDefaults.day;
@@ -2027,8 +1981,6 @@ const openEditShiftModal = (shift) => {
 
   const btnDel = document.getElementById('btnDeleteShiftModal');
   if (btnDel) btnDel.style.display = 'inline-flex';
-
-
 
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
@@ -2101,7 +2053,6 @@ const saveShiftFromModal = (e) => {
   const week = getCurrentWeek();
   if (!week) return;
 
-  // Cảnh báo trùng lặp giờ làm (Shift Overlapping Alert)
   const curStartMins = parseTimeToMinutes(start);
   let curEndMins = parseTimeToMinutes(end);
   if (curEndMins <= curStartMins) curEndMins += 24 * 60;
@@ -2256,7 +2207,6 @@ const createNewWeek = () => {
 };
 
 const openEditWeekModal = () => {
-
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -2292,7 +2242,6 @@ const saveWeekMeta = (e) => {
 let lastDeletedWeekRecord = null;
 
 const deleteCurrentWeek = () => {
-
   const week = getCurrentWeek();
   if (!week) return;
 
@@ -2341,7 +2290,6 @@ const undoLastDeleteWeek = () => {
 };
 
 const navigateWeek = (direction) => {
-
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
   if (currentIndex === -1) return;
 
@@ -3673,8 +3621,6 @@ const handleChangePasswordSubmit = async (e) => {
   }
 };
 
-
-
 const openShareSlipModal = () => {
   const week = getCurrentWeek();
   if (!week) return;
@@ -3818,7 +3764,6 @@ const restoreJSON = (e) => {
   reader.readAsText(file);
 };
 
-
 const downloadFile = (content, filename, type) => {
   const blob = new Blob([content], { type: type });
   const url = URL.createObjectURL(blob);
@@ -3846,7 +3791,6 @@ const closeModal = (modalId) => {
 };
 
 const bindEvents = () => {
- 
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
       const modalId = btn.getAttribute('data-close-modal');
@@ -4005,8 +3949,6 @@ const bindEvents = () => {
     formChangePwd.addEventListener('submit', handleChangePasswordSubmit);
   }
 
-
-
  
   document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
@@ -4068,7 +4010,6 @@ const bindEvents = () => {
     shiftWpSelect.addEventListener('change', updateModalComputedPreview);
   }
 
-  // Global dismiss for Custom Selects
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.custom-select-wrapper')) {
       closeAllCustomSelects();
@@ -4081,7 +4022,6 @@ const bindEvents = () => {
     }
   });
 
-  // Khởi tạo các Custom Dropdowns đồng bộ giao diện
   setupCustomSelect('shiftDay');
   setupCustomSelect('shiftType');
   setupCustomSelect('shiftOtRate');
@@ -4149,8 +4089,6 @@ const bindEvents = () => {
     }, { passive: false });
   }
 
- 
-  // Service Worker: Tải mượt mà 1 lần duy nhất, dọn dẹp đăng ký cũ có query string và không bao giờ ép reload trang
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     window.addEventListener('load', async () => {
       try {
@@ -4192,7 +4130,6 @@ const setupRealtimeSync = () => {
         { event: 'UPDATE', schema: 'public', table: 'user_salary_data' },
         (payload) => {
           if (state.currentUser && payload.new && payload.new.user_id === state.currentUser.id) {
-            // Không ghi đè nếu máy đang có chỉnh sửa offline chưa đồng bộ
             if (!hasPendingSync() && Array.isArray(payload.new.weeks)) {
               state.weeks = payload.new.weeks;
               if (payload.new.settings) state.settings = { ...state.settings, ...payload.new.settings };
@@ -4240,7 +4177,6 @@ const setupAutoSync = () => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Khởi tạo Theme trước khi vẽ UI
   const savedTheme = localStorage.getItem('salary_tracker_theme') || 'light';
   applyTheme(savedTheme, false);
 
