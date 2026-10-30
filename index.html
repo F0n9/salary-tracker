@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261030n">
-  <link rel="stylesheet" href="./css/components.css?v=20261030n">
-  <link rel="stylesheet" href="./css/modals.css?v=20261030n">
+  <link rel="stylesheet" href="./css/base.css?v=20261030o">
+  <link rel="stylesheet" href="./css/components.css?v=20261030o">
+  <link rel="stylesheet" href="./css/modals.css?v=20261030o">
 </head>
 <body>
   
@@ -444,7 +444,7 @@
       <div class="modal-header">
         <div class="modal-title-wrap">
           <h3 class="modal-title" data-i18n="settings_title">Cài đặt</h3>
-          <span class="modal-subtitle">Nơi làm việc, đơn giá &amp; dữ liệu đồng bộ</span>
+          <span class="modal-subtitle">Nơi làm việc, đơn giá &amp; sao lưu</span>
         </div>
         <button type="button" class="btn-morphic modal-close" data-close-modal="settingsModal" data-i18n-title="btn_close" title="Đóng" aria-label="Đóng">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
@@ -475,21 +475,6 @@
         <div class="settings-section">
           <div class="settings-section-header">
             <div class="settings-section-label" data-i18n="setting_data">Dữ liệu &amp; Sao lưu</div>
-          </div>
-          <div class="cloud-sync-status-box" id="cloudSyncStatusBox">
-            <div class="sync-status-left">
-              <span class="sync-status-dot" id="cloudSyncStatusDot"></span>
-              <div class="sync-status-info">
-                <span class="sync-status-title">Đồng bộ đám mây</span>
-                <span class="sync-status-text" id="cloudSyncStatusText">Đã đồng bộ đám mây</span>
-              </div>
-            </div>
-            <button type="button" class="btn-morphic btn-sync-now" id="btnSyncNow" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-              </svg>
-              <span>Đồng bộ</span>
-            </button>
           </div>
           <div class="settings-backup-grid">
             <button type="button" id="btnBackupJson" class="settings-backup-card" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
@@ -880,6 +865,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261030n"></script>
+  <script type="module" src="./js/app.js?v=20261030o"></script>
 </body>
 </html>

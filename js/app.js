@@ -579,11 +579,6 @@ const bindEvents = () => {
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
 
-  const btnSyncNow = document.getElementById('btnSyncNow');
-  if (btnSyncNow) {
-    btnSyncNow.addEventListener('click', () => syncPendingToCloud(true));
-  }
-
   const dockShareSlip = document.getElementById('dockShareSlip');
   if (dockShareSlip) {
     dockShareSlip.addEventListener('click', openShareSlipModal);
