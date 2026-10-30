@@ -79,3 +79,4 @@ Công cụ chấm công và tính lương cá nhân Progressive Web App (PWA) v�
 - Hỗ trợ tối ưu song song hai giao diện Sáng (ban ngày) và Tối (làm việc đêm), không gây mỏi mắt.
 - Toàn bộ hiệu ứng hover được bảo vệ qua `@media (hover: hover)` tránh hiện tượng kẹt dính trạng thái trên màn hình cảm ứng di động.
 - Hệ thống thông báo toast phản hồi xúc giác nhẹ nhàng kèm nút "Hoàn tác" kịp thời bảo vệ người dùng khỏi thao tác vô tình xóa ca hay xóa tuần.
+

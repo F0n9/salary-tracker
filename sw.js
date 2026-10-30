@@ -1,12 +1,12 @@
-const CACHE_NAME = 'salary-tracker-v99';
+const CACHE_NAME = 'salary-tracker-v100';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/base.css?v=20261030b',
-  './css/components.css?v=20261030b',
-  './css/modals.css?v=20261030b',
-  './js/app.js?v=20261030b',
+  './css/base.css?v=20261030c',
+  './css/components.css?v=20261030c',
+  './css/modals.css?v=20261030c',
+  './js/app.js?v=20261030c',
   './js/config.js',
   './js/i18n.js',
   './js/theme.js',
@@ -19,12 +19,12 @@ const CORE_ASSETS = [
   './js/ui/canvas-slip.js',
   './js/ui/export.js',
   './js/ui/modals.js',
-  './assets/icons/apple-touch-icon.png?v=20261030b',
+  './assets/icons/apple-touch-icon.png?v=20261030c',
   './assets/icons/apple-touch-icon.png',
-  './assets/icons/icon-192.png?v=20261030b',
+  './assets/icons/icon-192.png?v=20261030c',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './assets/icons/favicon.png?v=20261030b',
+  './assets/icons/favicon.png?v=20261030c',
   './assets/icons/favicon.png',
   './assets/icons/icon.svg'
 ];
