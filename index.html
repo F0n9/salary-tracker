@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261030m">
-  <link rel="stylesheet" href="./css/components.css?v=20261030m">
-  <link rel="stylesheet" href="./css/modals.css?v=20261030m">
+  <link rel="stylesheet" href="./css/base.css?v=20261030n">
+  <link rel="stylesheet" href="./css/components.css?v=20261030n">
+  <link rel="stylesheet" href="./css/modals.css?v=20261030n">
 </head>
 <body>
   
@@ -444,7 +444,7 @@
       <div class="modal-header">
         <div class="modal-title-wrap">
           <h3 class="modal-title" data-i18n="settings_title">Cài đặt</h3>
-          <span class="modal-subtitle">Tùy chỉnh hệ thống & nơi làm việc</span>
+          <span class="modal-subtitle">Nơi làm việc, đơn giá &amp; dữ liệu đồng bộ</span>
         </div>
         <button type="button" class="btn-morphic modal-close" data-close-modal="settingsModal" data-i18n-title="btn_close" title="Đóng" aria-label="Đóng">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
@@ -456,7 +456,10 @@
 
       <div class="modal-body settings-modal-body">
         <div class="settings-section">
-          <div class="settings-section-label" data-i18n="setting_workplaces">Nơi làm việc & Đơn giá</div>
+          <div class="settings-section-header">
+            <div class="settings-section-label" data-i18n="setting_workplaces">Nơi làm việc &amp; Đơn giá</div>
+            <span class="settings-section-count" id="settingsWpCount"></span>
+          </div>
           <div class="settings-workplaces-list" id="settingsWorkplacesList"></div>
           <div class="settings-add-workplace-row">
             <input type="text" id="newWorkplaceInput" class="form-input" placeholder="Tên nơi làm việc mới..." data-i18n-placeholder="ph_new_workplace">
@@ -470,23 +473,50 @@
         </div>
 
         <div class="settings-section">
-          <div class="settings-section-label" data-i18n="setting_data">Dữ liệu & Sao lưu</div>
-          <div class="settings-backup-row">
-            <button type="button" id="btnBackupJson" class="btn-backup-action" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" x2="12" y1="15" y2="3"></line>
+          <div class="settings-section-header">
+            <div class="settings-section-label" data-i18n="setting_data">Dữ liệu &amp; Sao lưu</div>
+          </div>
+          <div class="cloud-sync-status-box" id="cloudSyncStatusBox">
+            <div class="sync-status-left">
+              <span class="sync-status-dot" id="cloudSyncStatusDot"></span>
+              <div class="sync-status-info">
+                <span class="sync-status-title">Đồng bộ đám mây</span>
+                <span class="sync-status-text" id="cloudSyncStatusText">Đã đồng bộ đám mây</span>
+              </div>
+            </div>
+            <button type="button" class="btn-morphic btn-sync-now" id="btnSyncNow" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
               </svg>
-              <span>Xuất JSON</span>
+              <span>Đồng bộ</span>
             </button>
-            <label class="btn-backup-action upload-label" data-i18n-title="btn_import_json" title="Nhập file JSON" aria-label="Nhập file JSON">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" x2="12" y1="3" y2="15"></line>
-              </svg>
-              <span>Nhập JSON</span>
+          </div>
+          <div class="settings-backup-grid">
+            <button type="button" id="btnBackupJson" class="settings-backup-card" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
+              <div class="settings-backup-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+              </div>
+              <div class="settings-backup-text-wrap">
+                <span class="settings-backup-title">Xuất file JSON</span>
+                <span class="settings-backup-sub">Tải bản sao lưu máy</span>
+              </div>
+            </button>
+            <label class="settings-backup-card upload-label" data-i18n-title="btn_import_json" title="Nhập file JSON" aria-label="Nhập file JSON">
+              <div class="settings-backup-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" x2="12" y1="3" y2="15"></line>
+                </svg>
+              </div>
+              <div class="settings-backup-text-wrap">
+                <span class="settings-backup-title">Nhập file JSON</span>
+                <span class="settings-backup-sub">Khôi phục từ tệp</span>
+              </div>
               <input type="file" id="fileRestoreJson" accept=".json" style="display: none;">
             </label>
           </div>
@@ -850,6 +880,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261030m"></script>
+  <script type="module" src="./js/app.js?v=20261030n"></script>
 </body>
 </html>

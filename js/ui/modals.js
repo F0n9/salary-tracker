@@ -722,10 +722,14 @@ export const renderSettingsWorkplaces = () => {
   if (!container) return;
   container.innerHTML = '';
 
+  const countEl = document.getElementById('settingsWpCount');
+  if (countEl) {
+    countEl.textContent = `${state.settings.workplaces.length} nơi làm`;
+  }
+
   if (state.settings.workplaces.length === 0) {
     const emptyRow = document.createElement('div');
     emptyRow.className = 'empty-wp-hint';
-    emptyRow.style.cssText = 'padding: 0.75rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;';
     emptyRow.textContent = t('empty_workplaces_hint', 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.');
     container.appendChild(emptyRow);
     return;
@@ -743,15 +747,17 @@ export const renderSettingsWorkplaces = () => {
     const row = document.createElement('div');
     row.className = 'settings-workplace-row';
     row.innerHTML = `
-      <div class="settings-wp-name-wrap">
-        <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
-        <span class="settings-wp-name">${escapeHtml(wp)}</span>
+      <div class="settings-wp-left">
+        <div class="settings-wp-info">
+          <span class="settings-wp-dot" style="background:${wpCol.fill};"></span>
+          <span class="settings-wp-name" title="${escapeHtml(wp)}">${escapeHtml(wp)}</span>
+        </div>
         ${isDefault ? `
-          <span class="wp-default-tag">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="10" height="10" style="margin-right:2px;">
+          <span class="wp-default-tag" title="${t('tag_default_workplace', 'Nơi làm mặc định')}">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-            ${t('tag_default_workplace', 'Mặc định')}
+            <span>${t('tag_default_workplace', 'Mặc định')}</span>
           </span>` : (hasMultipleWp ? `
           <button type="button" class="btn-set-default-wp btn-morphic" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}" aria-label="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
@@ -759,7 +765,7 @@ export const renderSettingsWorkplaces = () => {
             </svg>
           </button>` : '')}
       </div>
-      <div class="settings-wp-rate-wrap">
+      <div class="settings-wp-right">
         <div class="settings-wp-rate-box">
           <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="0" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá (đ/h)')}">
           <span class="settings-wp-rate-tag font-mono">${t('rate_unit', 'đ/h')}</span>
