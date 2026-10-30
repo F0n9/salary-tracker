@@ -632,20 +632,33 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
     const dateRange = getWeekDateRangeDisplay(week);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escapeHtml(week.name)} ${dateRange ? `<span class="field-hint" style="font-size:0.75rem;">(${dateRange})</span>` : ''}</td>
+      <td>
+        <div class="table-week-cell">
+          <span class="table-week-title">${escapeHtml(week.name)}</span>
+          ${dateRange ? `<span class="table-week-dates font-mono">${dateRange}</span>` : ''}
+        </div>
+      </td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
       <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
       <td>
         <div class="table-actions">
           ${isCurrent ? `
-            <span class="active-week-badge font-mono">Đang chọn</span>
+            <button type="button" class="btn-table-action btn-table-current" disabled title="${t('week_currently_selected', 'Tuần đang chọn')}" aria-label="${t('week_currently_selected', 'Tuần đang chọn')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="14" height="14">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
           ` : `
-            <button class="btn-action-secondary btn-sm" data-jump-week="${week.id}" title="${t('view_this_week', 'Xem tuần này')}">
-              <span>Xem</span>
+            <button type="button" class="btn-table-action btn-table-view" data-jump-week="${week.id}" title="${t('view_this_week', 'Xem tuần này')}" aria-label="${t('view_this_week', 'Xem tuần này')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="14" height="14">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
           `}
-          <button class="btn-action-danger btn-sm" data-delete-week="${week.id}" title="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}" aria-label="${t('btn_delete_week', 'Xóa tuần')}">
+          <button type="button" class="btn-table-action btn-table-delete" data-delete-week="${week.id}" title="${t('btn_delete_week', 'Xóa tuần')} ${escapeHtml(getLocalizedWeekName(week.name))}" aria-label="${t('btn_delete_week', 'Xóa tuần')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

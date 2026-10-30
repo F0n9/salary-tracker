@@ -162,6 +162,7 @@ const I18N_VI = {
     th_income: 'Tổng thu',
     th_actions: 'Thao tác',
     view_this_week: 'Xem tuần này',
+    week_currently_selected: 'Tuần đang chọn',
     confirm_delete_week: 'Bạn có chắc chắn muốn xóa tuần này không?',
     alert_cannot_delete_only_week: 'Không thể xóa tuần duy nhất còn lại.',
     btn_export_excel: 'Xuất tất cả ra Excel',

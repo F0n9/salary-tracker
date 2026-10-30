@@ -475,6 +475,14 @@ input[type="number"] {
 
 .table-container {
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.table-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .minimal-table {
@@ -485,7 +493,7 @@ input[type="number"] {
 }
 
 .minimal-table th, .minimal-table td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.55rem 0.65rem;
   border-bottom: 1px solid var(--border-subtle);
   white-space: nowrap;
 }
@@ -510,9 +518,7 @@ input[type="number"] {
 .minimal-table th:nth-child(3),
 .minimal-table td:nth-child(3),
 .minimal-table th:nth-child(4),
-.minimal-table td:nth-child(4),
-.minimal-table th:nth-child(5),
-.minimal-table td:nth-child(5) {
+.minimal-table td:nth-child(4) {
   text-align: right;
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
@@ -521,12 +527,35 @@ input[type="number"] {
 .minimal-table th:last-child,
 .minimal-table td:last-child {
   text-align: center;
-  width: 110px;
-  min-width: 110px;
+  width: 76px;
+  min-width: 76px;
+  max-width: 80px;
 }
 
 .minimal-table tbody tr:hover {
   background: var(--bg-subtle);
+}
+
+.table-week-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.table-week-title {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+body.dark-mode .table-week-title {
+  color: #ffffff;
+}
+
+.table-week-dates {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .table-actions {
@@ -536,24 +565,99 @@ input[type="number"] {
   gap: 0.35rem;
 }
 
-.active-week-badge {
+.btn-table-action {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--primary-subtle);
-  color: var(--primary);
-  border: 1px solid var(--primary-border);
-  white-space: nowrap;
+  user-select: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
-body.dark-mode .active-week-badge {
+.btn-table-action svg {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.btn-table-current {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #ffffff;
+  cursor: default;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-mode .btn-table-current {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.btn-table-view {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.btn-table-view:hover {
+  background: var(--primary-subtle);
+  border-color: var(--primary-border);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.btn-table-view:active {
+  transform: scale(0.96);
+}
+
+body.dark-mode .btn-table-view {
+  background: #171822;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-table-view:hover {
   background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
   border-color: rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+.btn-table-delete {
+  background: var(--danger-subtle);
+  border: 1px solid var(--danger-border);
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.btn-table-delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #991b1b;
+  transform: translateY(-1px);
+}
+
+.btn-table-delete:active {
+  transform: scale(0.96);
+}
+
+body.dark-mode .btn-table-delete {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+body.dark-mode .btn-table-delete:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fecaca;
 }
 
 .backup-actions-morphic {
