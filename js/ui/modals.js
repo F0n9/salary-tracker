@@ -78,12 +78,6 @@ const updateWorkplaceInputOptions = (currentVal = '') => {
 };
 
 export const openAddShiftModal = (prefill = null) => {
-  if (!hasWorkplaces()) {
-    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
-    openSettingsModal();
-    return;
-  }
-
   const modal = document.getElementById('shiftModal');
   const form = document.getElementById('shiftForm');
   form.reset();
@@ -100,6 +94,12 @@ export const openAddShiftModal = (prefill = null) => {
   updateShiftDayOptions(week);
   const defaultWp = getDefaultWorkplace();
   updateWorkplaceInputOptions(defaultWp);
+
+  const manageBox = document.getElementById('shiftWorkplaceManageBox');
+  if (manageBox) {
+    manageBox.style.display = (!hasWorkplaces()) ? 'flex' : 'none';
+  }
+  renderShiftWorkplacesList();
 
   const smartDefaults = calculateSmartShiftDefaults(prefill, new Date());
 
@@ -141,6 +141,10 @@ export const openEditShiftModal = (shift) => {
   const week = getCurrentWeek();
   updateShiftDayOptions(week);
   updateWorkplaceInputOptions(shift.workplace || '');
+
+  const manageBox = document.getElementById('shiftWorkplaceManageBox');
+  if (manageBox) manageBox.style.display = 'none';
+  renderShiftWorkplacesList();
 
   document.getElementById('shiftDay').value = shift.day;
   document.getElementById('shiftType').value = shift.type;
@@ -189,8 +193,10 @@ export const updateModalComputedPreview = () => {
 export const saveShiftFromModal = (e) => {
   e.preventDefault();
   if (!hasWorkplaces()) {
-    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
-    openSettingsModal();
+    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trước!'));
+    const manageBox = document.getElementById('shiftWorkplaceManageBox');
+    if (manageBox) manageBox.style.display = 'flex';
+    document.getElementById('shiftNewWpName')?.focus();
     return;
   }
 
@@ -319,12 +325,6 @@ export const undoLastDeleteShift = () => {
 };
 
 export const createNewWeek = () => {
-  if (!hasWorkplaces()) {
-    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trong Cài đặt trước!'));
-    openSettingsModal();
-    return;
-  }
-
   const nextNum = state.weeks.length + 1;
   const newWeekId = `week-${Date.now()}`;
   const newWeekName = `Tuần ${nextNum}`;
@@ -773,69 +773,57 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
   switchSummaryTab(initialTab);
 };
 
-export const renderSettingsWorkplaces = () => {
-  normalizeWorkplacesAndRates();
-  const container = document.getElementById('settingsWorkplacesList');
+export const renderShiftWorkplacesList = () => {
+  const container = document.getElementById('shiftWpQuickList');
   if (!container) return;
   container.innerHTML = '';
-
-  const countEl = document.getElementById('settingsWpCount');
-  if (countEl) {
-    countEl.textContent = `${state.settings.workplaces.length} nơi làm`;
-  }
-
-  if (state.settings.workplaces.length === 0) {
-    const emptyRow = document.createElement('div');
-    emptyRow.className = 'empty-wp-hint';
-    emptyRow.textContent = t('empty_workplaces_hint', 'Chưa có nơi làm việc nào. Thêm nơi làm việc mới ở ô bên dưới.');
-    container.appendChild(emptyRow);
-    return;
-  }
+  normalizeWorkplacesAndRates();
 
   const currentDefaultWp = getDefaultWorkplace();
-  const hasMultipleWp = state.settings.workplaces.length > 1;
+  const hasMultiple = state.settings.workplaces.length > 1;
 
   state.settings.workplaces.forEach((wp, idx) => {
     const wpCol = getWorkplaceColor(wp);
-    const customRate = (state.settings.workplaceRates && state.settings.workplaceRates[wp] !== undefined)
+    const rate = (state.settings.workplaceRates && state.settings.workplaceRates[wp] !== undefined)
       ? state.settings.workplaceRates[wp]
       : '';
     const isDefault = (wp === currentDefaultWp);
+
     const row = document.createElement('div');
-    row.className = 'settings-workplace-row';
+    row.className = 'shift-wp-quick-row';
     row.innerHTML = `
-      <div class="settings-wp-left">
-        <div class="settings-wp-info">
-          <span class="settings-wp-dot" style="background:${wpCol.fill};"></span>
-          <span class="settings-wp-name" title="${escapeHtml(wp)}">${escapeHtml(wp)}</span>
-        </div>
+      <div class="swq-left">
+        <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+        <span class="swq-name" title="${escapeHtml(wp)}">${escapeHtml(wp)}</span>
         ${isDefault ? `
-          <span class="wp-default-tag" title="${t('tag_default_workplace', 'Nơi làm mặc định')}">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
+          <span class="wp-default-tag">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" width="10" height="10">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
             <span>${t('tag_default_workplace', 'Mặc định')}</span>
-          </span>` : (hasMultipleWp ? `
-          <button type="button" class="btn-set-default-wp btn-morphic" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}" aria-label="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+          </span>
+        ` : (hasMultiple ? `
+          <button type="button" class="btn-set-default-wp btn-morphic" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm mặc định')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="11" height="11">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-          </button>` : '')}
+          </button>
+        ` : '')}
       </div>
-      <div class="settings-wp-right">
-        <div class="settings-wp-rate-box">
-          <input type="number" class="settings-wp-rate-input font-mono" data-wp-name="${escapeHtml(wp)}" value="${customRate}" placeholder="0" step="1000" min="0" title="${t('custom_wp_rate', 'Đơn giá (đ/h)')}">
-          <span class="settings-wp-rate-tag font-mono">${t('rate_unit', 'đ/h')}</span>
+      <div class="swq-right">
+        <div class="swq-rate-box">
+          <input type="number" class="swq-rate-input font-mono" data-wp="${escapeHtml(wp)}" value="${rate}" placeholder="0" step="1000" min="0">
+          <span class="swq-rate-tag font-mono">đ/h</span>
         </div>
-        <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}" aria-label="${t('btn_delete_wp', 'Xóa nơi làm')} ${escapeHtml(wp)}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-            <path d="M3 6h18"></path>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-            <line x1="10" x2="10" y1="11" y2="17"></line>
-            <line x1="14" x2="14" y1="11" y2="17"></line>
-          </svg>
-        </button>
+        ${hasMultiple ? `
+          <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+          </button>
+        ` : ''}
       </div>
     `;
 
@@ -844,7 +832,9 @@ export const renderSettingsWorkplaces = () => {
       setDefaultBtn.addEventListener('click', () => {
         state.settings.defaultWorkplace = wp;
         saveSettings();
-        renderSettingsWorkplaces();
+        renderShiftWorkplacesList();
+        updateWorkplaceInputOptions(wp);
+        updateModalComputedPreview();
         triggerAppRender();
         showToast(`Đã đặt "${wp}" làm nơi làm việc mặc định`);
       });
@@ -858,20 +848,20 @@ export const renderSettingsWorkplaces = () => {
           state.settings.defaultWorkplace = state.settings.workplaces[0] || '';
         }
         saveSettings();
-        renderSettingsWorkplaces();
+        renderShiftWorkplacesList();
+        updateWorkplaceInputOptions();
+        updateModalComputedPreview();
         triggerAppRender();
         showToast(`Đã xóa nơi làm: ${removed}`);
       });
     }
 
-    row.querySelector('.settings-wp-rate-input').addEventListener('input', (e) => {
+    row.querySelector('.swq-rate-input')?.addEventListener('input', (e) => {
       const val = Number(e.target.value);
-      if (!isNaN(val) && val >= 0) {
-        state.settings.workplaceRates[wp] = val;
-      } else {
-        state.settings.workplaceRates[wp] = 0;
-      }
+      state.settings.workplaceRates[wp] = (!isNaN(val) && val >= 0) ? val : 0;
       saveSettings();
+      updateWorkplaceInputOptions(document.getElementById('shiftWorkplace')?.value);
+      updateModalComputedPreview();
       triggerAppRender();
     });
 
@@ -879,58 +869,52 @@ export const renderSettingsWorkplaces = () => {
   });
 };
 
-export const addWorkplaceFromSetting = () => {
-  const input = document.getElementById('newWorkplaceInput');
-  if (!input) return;
-  const val = input.value.trim();
-  if (!val) return;
-  normalizeWorkplacesAndRates();
-  if (!state.settings.workplaces.includes(val)) {
-    const isFirst = state.settings.workplaces.length === 0;
-    state.settings.workplaces.push(val);
-    if (isFirst || !state.settings.defaultWorkplace) {
-      state.settings.defaultWorkplace = val;
-    }
-    if (state.settings.workplaceRates[val] === undefined) {
-      const defWp = getDefaultWorkplace();
-      state.settings.workplaceRates[val] = state.settings.workplaceRates[defWp] || 0;
-    }
-    saveSettings();
-    renderSettingsWorkplaces();
-    triggerAppRender();
-    input.value = '';
-    showToast(`Đã thêm nơi làm: ${val}`);
+export const addWorkplaceFromShiftModal = () => {
+  const nameInput = document.getElementById('shiftNewWpName');
+  const rateInput = document.getElementById('shiftNewWpRate');
+  if (!nameInput) return;
+  const val = nameInput.value.trim();
+  if (!val) {
+    showToast('Vui lòng nhập tên nơi làm việc mới');
+    nameInput.focus();
+    return;
   }
-};
-
-export const openSettingsModal = () => {
   normalizeWorkplacesAndRates();
-  const defRateEl = document.getElementById('settingDefaultRate');
-  if (defRateEl) defRateEl.value = state.settings.defaultRate ? state.settings.defaultRate : '';
-  renderSettingsWorkplaces();
-
-  updateSyncStatusUI();
-
-  document.getElementById('settingsModal').style.display = 'flex';
-};
-
-export const saveSettingsFromModal = () => {
-  const defRateEl = document.getElementById('settingDefaultRate');
-  if (defRateEl) {
-    const rateInputVal = defRateEl.value.trim();
-    if (rateInputVal === '') {
-      state.settings.defaultRate = 0;
-    } else {
-      const rate = Number(rateInputVal);
-      if (!isNaN(rate) && rate >= 0) {
-        state.settings.defaultRate = rate;
-      }
-    }
+  if (state.settings.workplaces.includes(val)) {
+    showToast('Nơi làm việc này đã tồn tại');
+    return;
   }
+
+  const isFirst = state.settings.workplaces.length === 0;
+  state.settings.workplaces.push(val);
+  if (isFirst || !state.settings.defaultWorkplace) {
+    state.settings.defaultWorkplace = val;
+  }
+
+  const customRate = rateInput && rateInput.value.trim() !== '' ? Number(rateInput.value) : 0;
+  state.settings.workplaceRates[val] = (!isNaN(customRate) && customRate >= 0) ? customRate : 0;
+
   saveSettings();
-  closeModal('settingsModal');
+  nameInput.value = '';
+  if (rateInput) rateInput.value = '';
+
+  renderShiftWorkplacesList();
+  updateWorkplaceInputOptions(val);
+  updateModalComputedPreview();
   triggerAppRender();
-  showToast('Đã lưu cài đặt');
+  showToast(`Đã thêm nơi làm việc: ${val}`);
+};
+
+export const toggleWorkplacePanel = () => {
+  const box = document.getElementById('shiftWorkplaceManageBox');
+  if (!box) return;
+  const isHidden = box.style.display === 'none' || !box.style.display;
+  box.style.display = isHidden ? 'flex' : 'none';
+  if (isHidden) {
+    renderShiftWorkplacesList();
+    const nameInput = document.getElementById('shiftNewWpName');
+    if (nameInput) nameInput.focus();
+  }
 };
 
 export const openAuthModal = (defaultTab = 'login') => {

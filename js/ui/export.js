@@ -107,7 +107,7 @@ export const restoreJSON = (e) => {
         state.currentWeekId = state.weeks[state.weeks.length - 1].id;
         saveWeeks();
         saveSettings();
-        closeModal('settingsModal');
+        closeModal('allWeeksModal');
         triggerAppRender();
         showToast(t('toast_imported_success', 'Đã nhập dữ liệu thành công!'));
       } else {

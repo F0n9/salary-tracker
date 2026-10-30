@@ -8,7 +8,7 @@ import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui
 import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboard, analyticsState } from './ui/chart.js';
 import { renderSlipCanvas, openShareSlipModal, downloadSlipImage, copySlipImageToClipboard } from './ui/canvas-slip.js';
 import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setExportAppRenderer } from './ui/export.js';
-import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderSettingsWorkplaces, addWorkplaceFromSetting, openSettingsModal, saveSettingsFromModal, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
+import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
 
 const updateWheelIndicator = () => {};
 
@@ -272,7 +272,7 @@ const renderShiftsList = () => {
     if (btnAdd) btnAdd.addEventListener('click', () => openAddShiftModal());
 
     const btnWp = document.getElementById('btnEmptyAddWp');
-    if (btnWp) btnWp.addEventListener('click', openSettingsModal);
+    if (btnWp) btnWp.addEventListener('click', () => openAddShiftModal());
 
     const btnDel = document.getElementById('btnEmptyDeleteWeek');
     if (btnDel) btnDel.addEventListener('click', deleteCurrentWeek);
@@ -300,7 +300,7 @@ const renderShiftsList = () => {
       </button>
     `;
     const btnBannerWp = banner.querySelector('#btnBannerAddWp');
-    if (btnBannerWp) btnBannerWp.addEventListener('click', openSettingsModal);
+    if (btnBannerWp) btnBannerWp.addEventListener('click', () => openAddShiftModal());
     listContainer.appendChild(banner);
   }
 
@@ -428,9 +428,6 @@ const bindEvents = () => {
   });
 
  
-  const btnSettings = document.getElementById('btnSettings');
-  if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
-
   const btnToggleTheme = document.getElementById('btnToggleTheme');
   if (btnToggleTheme) {
     btnToggleTheme.addEventListener('click', (e) => {
@@ -574,7 +571,6 @@ const bindEvents = () => {
   }
 
  
-  document.getElementById('btnSaveSettings').addEventListener('click', saveSettingsFromModal);
   document.getElementById('btnBackupJson').addEventListener('click', backupJSON);
   document.getElementById('fileRestoreJson').addEventListener('change', restoreJSON);
   document.getElementById('btnExportAllExcel').addEventListener('click', exportAllWeeksCSV);
@@ -652,16 +648,29 @@ const bindEvents = () => {
   setupCustomSelect('shiftWorkplace');
   setupCustomSelect('filterWorkplaceSelect');
 
-  const btnAddWp = document.getElementById('btnAddWorkplaceSetting');
-  if (btnAddWp) {
-    btnAddWp.addEventListener('click', addWorkplaceFromSetting);
+  const btnToggleWp = document.getElementById('btnToggleWorkplacePanel');
+  if (btnToggleWp) {
+    btnToggleWp.addEventListener('click', toggleWorkplacePanel);
   }
-  const newWpInput = document.getElementById('newWorkplaceInput');
-  if (newWpInput) {
-    newWpInput.addEventListener('keydown', (e) => {
+  const btnShiftAddWp = document.getElementById('btnShiftAddWp');
+  if (btnShiftAddWp) {
+    btnShiftAddWp.addEventListener('click', addWorkplaceFromShiftModal);
+  }
+  const shiftNewWpName = document.getElementById('shiftNewWpName');
+  if (shiftNewWpName) {
+    shiftNewWpName.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        addWorkplaceFromSetting();
+        addWorkplaceFromShiftModal();
+      }
+    });
+  }
+  const shiftNewWpRate = document.getElementById('shiftNewWpRate');
+  if (shiftNewWpRate) {
+    shiftNewWpRate.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addWorkplaceFromShiftModal();
       }
     });
   }
