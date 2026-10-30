@@ -372,7 +372,7 @@ const renderShiftsList = () => {
 
       <div class="sl-finance-col">
         <div class="sl-earnings-wrap font-mono">
-          <span class="sl-earnings-val">+${fmtCurrency(shiftEarnings)}</span>
+          <span class="sl-earnings-val">${fmtCurrency(shiftEarnings)}</span>
           <span class="sl-rate-sub">@ ${fmtCurrency(shiftRate)} /h</span>
         </div>
 

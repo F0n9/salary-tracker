@@ -485,8 +485,12 @@ input[type="number"] {
 .calc-val#previewSalary {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--color-money);
   letter-spacing: -0.01em;
+}
+
+body.dark-mode .calc-val#previewSalary {
+  color: var(--color-money);
 }
 
 .calc-val#previewDuration {
@@ -1881,7 +1885,7 @@ body.dark-mode .stats-summary-kpis {
 }
 
 .stat-kpi-primary .sk-val {
-  color: var(--primary);
+  color: var(--color-money);
 }
 
 .sk-meta {
@@ -1967,7 +1971,11 @@ body.dark-mode .stats-summary-kpis {
 
 .wb-amount {
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--color-money);
+}
+
+body.dark-mode .wb-amount {
+  color: var(--color-money);
 }
 
 .wb-bar-track {
@@ -2108,7 +2116,7 @@ body.dark-mode .stats-summary-kpis {
 .monthly-total-val {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #10b981;
+  color: var(--color-money);
 }
 
 .monthly-summary-strip {
@@ -2227,7 +2235,11 @@ body.dark-mode .stats-summary-kpis {
 .mw-earnings {
   font-size: 0.825rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--color-money);
+}
+
+body.dark-mode .mw-earnings {
+  color: var(--color-money);
 }
 
 .monthly-workplaces-section {
@@ -2524,7 +2536,7 @@ body.dark-mode .monthly-card-header {
 }
 
 body.dark-mode .monthly-total-val {
-  color: #34d399;
+  color: var(--color-money);
 }
 
 body.dark-mode .monthly-summary-strip {
@@ -2725,7 +2737,7 @@ body.dark-mode .stat-kpi-primary {
 }
 
 body.dark-mode .stat-kpi-primary .sk-val {
-  color: var(--primary);
+  color: var(--color-money);
 }
 
 body.dark-mode .stats-chart-box,

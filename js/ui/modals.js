@@ -609,14 +609,14 @@ export const renderMonthlyReport = () => {
         </div>
         <div class="monthly-header-right">
           <span class="monthly-total-label font-sans">${t('lbl_total_income', 'Tổng thu nhập')}</span>
-          <span class="monthly-total-val font-mono">+${fmtCurrency(data.totalEarnings)}</span>
+          <span class="monthly-total-val font-mono">${fmtCurrency(data.totalEarnings)}</span>
         </div>
       </div>
 
       <div class="monthly-summary-strip">
         <div class="mss-item">
           <span class="mss-label font-sans">${t('lbl_avg_per_shift', 'Trung bình / ca')}</span>
-          <span class="mss-val font-mono">${fmtCurrency(avgEarnings)} <span class="mss-sub font-mono">(${avgHours}h)</span></span>
+          <span class="mss-val font-mono text-money">${fmtCurrency(avgEarnings)} <span class="mss-sub font-mono">(${avgHours}h)</span></span>
         </div>
         <div class="mss-item">
           <span class="mss-label font-sans">${t('lbl_workplace', 'Cơ sở làm việc')}</span>
@@ -697,7 +697,7 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
       </td>
       <td>${weekShifts} ca</td>
       <td>${weekHours.toFixed(2)} h</td>
-      <td class="text-bold-dark">${fmtCurrency(weekEarnings)}</td>
+      <td class="text-bold-dark text-money">${fmtCurrency(weekEarnings)}</td>
       <td>
         <div class="table-actions">
           ${isCurrent ? `

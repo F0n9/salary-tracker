@@ -637,6 +637,14 @@ body.dark-mode .kpi-card-number {
   color: #ffffff;
 }
 
+.kpi-card-number#kpiWeekSalary {
+  color: var(--color-money);
+}
+
+body.dark-mode .kpi-card-number#kpiWeekSalary {
+  color: var(--color-money);
+}
+
 .kpi-card-trend-badge {
   display: inline-flex;
   align-items: center;
@@ -1148,14 +1156,14 @@ body.dark-mode .sl-note-item {
 .sl-earnings-val {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--color-money);
   letter-spacing: -0.02em;
   display: block;
   line-height: 1.15;
 }
 
 body.dark-mode .sl-earnings-val {
-  color: #ffffff;
+  color: var(--color-money);
 }
 
 .sl-rate-sub {
