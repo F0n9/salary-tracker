@@ -5,7 +5,7 @@ import { applyTheme, toggleTheme } from './theme.js';
 import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
 import { showToast, showToastWithAction } from './ui/toast.js';
 import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui/select.js';
-import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboard } from './ui/chart.js';
+import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboard, analyticsState } from './ui/chart.js';
 import { renderSlipCanvas, openShareSlipModal, downloadSlipImage, copySlipImageToClipboard } from './ui/canvas-slip.js';
 import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setExportAppRenderer } from './ui/export.js';
 import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderSettingsWorkplaces, addWorkplaceFromSetting, openSettingsModal, saveSettingsFromModal, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';

@@ -459,6 +459,9 @@ export const renderAnalyticsDashboard = () => {
     'recent': t('time_4_weeks', '4 tuần gần nhất'),
     'all': t('time_all_weeks', 'Tất cả các tuần')
   };
+  document.querySelectorAll('[data-time-filter]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-time-filter') === analyticsState.timeFilter);
+  });
   document.getElementById('akSalaryPeriod').textContent = periodNames[analyticsState.timeFilter] || '';
 
   const subtitle = document.getElementById('timelineChartSubtitle');

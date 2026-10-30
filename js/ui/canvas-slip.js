@@ -61,13 +61,6 @@ export const renderSlipCanvas = () => {
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  const accentGrad = ctx.createLinearGradient(padX, 0, padX + contentWidth, 0);
-  accentGrad.addColorStop(0, '#2563eb');
-  accentGrad.addColorStop(1, '#3b82f6');
-  drawRoundedRect(ctx, padX + 30, 0.5, contentWidth - 60, 3, { tl: 0, tr: 0, br: 2, bl: 2 });
-  ctx.fillStyle = accentGrad;
-  ctx.fill();
-
   const weekTitle = (getLocalizedWeekName(week.name) || t('week_prefix', 'Tuần')).toUpperCase();
   ctx.fillStyle = '#0f172a';
   ctx.font = '700 16px "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -102,11 +95,14 @@ export const renderSlipCanvas = () => {
     colX.push(colX[i] + colWidths[i]);
   }
 
+  const thGrad = ctx.createLinearGradient(padX, tableY, padX + contentWidth, tableY);
+  thGrad.addColorStop(0, '#2563eb');
+  thGrad.addColorStop(1, '#3b82f6');
   drawRoundedRect(ctx, padX, tableY, contentWidth, thHeight, { tl: 8, tr: 8, br: 0, bl: 0 });
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = thGrad;
   ctx.fill();
 
-  ctx.fillStyle = '#f8fafc';
+  ctx.fillStyle = '#ffffff';
   ctx.font = '600 11.5px "Be Vietnam Pro", sans-serif';
   for (let i = 0; i < thTitles.length; i++) {
     const isRight = (includeMoney && i === 4);
@@ -164,29 +160,36 @@ export const renderSlipCanvas = () => {
   });
 
   drawRoundedRect(ctx, padX, curY, contentWidth, totalRowHeight, { tl: 0, tr: 0, br: 8, bl: 8 });
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#eff6ff';
   ctx.fill();
 
-  ctx.fillStyle = '#f8fafc';
+  ctx.strokeStyle = '#bfdbfe';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padX, curY + 0.5);
+  ctx.lineTo(padX + contentWidth, curY + 0.5);
+  ctx.stroke();
+
+  ctx.fillStyle = '#1e40af';
   ctx.font = '700 13px "Be Vietnam Pro", sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText(t('slip_total', 'Tổng'), colX[0] + 12, curY + 25);
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#1e40af';
   ctx.font = '700 13px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(hoursToColonFormat(totalHours), colX[3] + colWidths[3] / 2, curY + 25);
 
   if (includeMoney) {
     const totalSalary = shifts.reduce((acc, s) => acc + getShiftEarnings(s, week), 0);
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#2563eb';
     ctx.font = '700 13.5px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     ctx.fillText(fmtCurrency(totalSalary), colX[4] + colWidths[4] - 12, curY + 25);
   }
 
   drawRoundedRect(ctx, padX, tableY, contentWidth, thHeight + (shifts.length * rowHeight) + totalRowHeight, 8);
-  ctx.strokeStyle = '#e2e8f0';
+  ctx.strokeStyle = '#bfdbfe';
   ctx.lineWidth = 1;
   ctx.stroke();
 
