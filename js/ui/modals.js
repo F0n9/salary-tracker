@@ -475,7 +475,8 @@ export const renderMonthlyReport = () => {
           totalHours: 0,
           totalEarnings: 0,
           shiftCount: 0,
-          workplaces: {}
+          workplaces: {},
+          weeks: {}
         };
       }
 
@@ -498,6 +499,21 @@ export const renderMonthlyReport = () => {
       monthMap[mKey].workplaces[wp].hours += shiftHours;
       monthMap[mKey].workplaces[wp].earnings += shiftEarnings;
       monthMap[mKey].workplaces[wp].count += 1;
+
+      if (!monthMap[mKey].weeks[week.id]) {
+        monthMap[mKey].weeks[week.id] = {
+          id: week.id,
+          name: week.name,
+          startDate: week.startDate,
+          weekObj: week,
+          hours: 0,
+          earnings: 0,
+          shiftCount: 0
+        };
+      }
+      monthMap[mKey].weeks[week.id].hours += shiftHours;
+      monthMap[mKey].weeks[week.id].earnings += shiftEarnings;
+      monthMap[mKey].weeks[week.id].shiftCount += 1;
     });
   });
 
@@ -519,14 +535,20 @@ export const renderMonthlyReport = () => {
     card.className = 'monthly-report-card';
 
     const wpList = Object.values(data.workplaces).sort((a, b) => b.earnings - a.earnings);
+    const weekList = Object.values(data.weeks).sort((a, b) => {
+      const dateA = a.startDate || '';
+      const dateB = b.startDate || '';
+      return dateB.localeCompare(dateA);
+    });
+
     const avgEarnings = data.shiftCount > 0 ? Math.round(data.totalEarnings / data.shiftCount) : 0;
     const avgHours = data.shiftCount > 0 ? (data.totalHours / data.shiftCount).toFixed(1) : '0';
 
     let wpBreakdownHtml = '';
-    if (wpList.length > 0) {
+    if (wpList.length > 1) {
       wpBreakdownHtml = `
         <div class="monthly-workplaces-section">
-          <div class="monthly-wp-title font-sans">${t('lbl_month_dist', 'Phân bổ thu nhập trong tháng')}</div>
+          <div class="monthly-section-subhead font-sans">${t('lbl_month_dist', 'Phân bổ theo nơi làm')}</div>
           <div class="workplace-breakdown-list">
             ${wpList.map(wp => {
               const col = getWorkplaceColor(wp.name);
@@ -537,14 +559,40 @@ export const renderMonthlyReport = () => {
                     <div class="wb-name-group font-sans">
                       <span class="wb-color-dot" style="background:${col.fill};"></span>
                       <span>${escapeHtml(wp.name)}</span>
-                      <span class="font-mono" style="font-size:0.7rem;color:var(--text-dim);font-weight:400;">(${percent}%)</span>
+                      <span class="font-mono wb-percent" style="font-size:0.7rem;color:var(--text-dim);font-weight:400;">(${percent}%)</span>
                     </div>
                     <span class="wb-amount font-mono">${fmtCurrency(wp.earnings)}</span>
                   </div>
                   <div class="wb-bar-track">
                     <div class="wb-bar-fill" style="width:${percent}%;background:${col.fill};"></div>
                   </div>
-                  <div class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(2)}h</div>
+                  <div class="wb-sub font-mono">${wp.count} ca • ${wp.hours.toFixed(1)}h</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let weeksBreakdownHtml = '';
+    if (weekList.length > 0) {
+      weeksBreakdownHtml = `
+        <div class="monthly-weeks-section">
+          <div class="monthly-section-subhead font-sans">${t('lbl_month_weeks', 'Chi tiết các tuần')}</div>
+          <div class="monthly-weeks-list">
+            ${weekList.map(w => {
+              const dateRange = getWeekDateRangeDisplay(w.weekObj);
+              return `
+                <div class="monthly-week-row" data-jump-week="${w.id}" title="${t('view_this_week', 'Xem tuần này')}">
+                  <div class="mw-left">
+                    <span class="mw-name font-sans">${escapeHtml(w.name)}</span>
+                    ${dateRange ? `<span class="mw-range font-mono">${dateRange}</span>` : ''}
+                  </div>
+                  <div class="mw-right">
+                    <span class="mw-meta font-mono">${w.shiftCount} ca • ${fmtHours(w.hours)}</span>
+                    <span class="mw-earnings font-mono">${fmtCurrency(w.earnings)}</span>
+                  </div>
                 </div>
               `;
             }).join('')}
@@ -555,32 +603,41 @@ export const renderMonthlyReport = () => {
 
     card.innerHTML = `
       <div class="monthly-card-header">
-        <div class="monthly-header-title">
+        <div class="monthly-header-left">
           <span class="monthly-title-text font-sans">${data.label}</span>
+          <span class="monthly-title-meta font-mono">${data.shiftCount} ca • ${fmtHours(data.totalHours)}</span>
         </div>
-        <span class="monthly-badge-pill font-mono">${data.shiftCount} ${t('unit_shift', 'ca')} • ${fmtHours(data.totalHours)}</span>
-      </div>
-
-      <div class="monthly-kpis-grid">
-        <div class="stat-kpi-card stat-kpi-primary">
-          <span class="sk-label font-sans">${t('lbl_month_income', 'Thu nhập tháng')}</span>
-          <span class="sk-val font-mono">+${fmtCurrency(data.totalEarnings)}</span>
-          <span class="sk-meta font-mono">TB ${fmtCurrency(avgEarnings)} / ca</span>
-        </div>
-        <div class="stat-kpi-card">
-          <span class="sk-label font-sans">${t('lbl_month_hours', 'Tổng thời gian')}</span>
-          <span class="sk-val font-mono">${fmtHours(data.totalHours)}</span>
-          <span class="sk-meta font-mono">TB ${avgHours}h / ca</span>
-        </div>
-        <div class="stat-kpi-card">
-          <span class="sk-label font-sans">${t('lbl_month_workplaces', 'Số ca & Cơ sở')}</span>
-          <span class="sk-val font-mono">${data.shiftCount} <span style="font-size:0.8rem;font-weight:500;">ca</span></span>
-          <span class="sk-meta font-sans">${wpList.length} ${t('unit_workplaces', 'nơi')}</span>
+        <div class="monthly-header-right">
+          <span class="monthly-total-label font-sans">${t('lbl_total_income', 'Tổng thu nhập')}</span>
+          <span class="monthly-total-val font-mono">+${fmtCurrency(data.totalEarnings)}</span>
         </div>
       </div>
 
+      <div class="monthly-summary-strip">
+        <div class="mss-item">
+          <span class="mss-label font-sans">${t('lbl_avg_per_shift', 'Trung bình / ca')}</span>
+          <span class="mss-val font-mono">${fmtCurrency(avgEarnings)} <span class="mss-sub font-mono">(${avgHours}h)</span></span>
+        </div>
+        <div class="mss-item">
+          <span class="mss-label font-sans">${t('lbl_workplace', 'Cơ sở làm việc')}</span>
+          <span class="mss-val font-sans">${wpList.length === 1 ? escapeHtml(wpList[0].name) : `${wpList.length} cơ sở`}</span>
+        </div>
+      </div>
+
+      ${weeksBreakdownHtml}
       ${wpBreakdownHtml}
     `;
+
+    card.querySelectorAll('[data-jump-week]').forEach(el => {
+      el.addEventListener('click', () => {
+        const targetId = el.getAttribute('data-jump-week');
+        if (targetId) {
+          state.currentWeekId = targetId;
+          closeModal('allWeeksModal');
+          triggerAppRender();
+        }
+      });
+    });
 
     container.appendChild(card);
   });
