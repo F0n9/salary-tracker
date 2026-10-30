@@ -1,109 +1,98 @@
-# ⏱️ Salary Tracker
+# Salary Tracker
 
 [![Platform: Web / PWA](https://img.shields.io/badge/Platform-Web%20%2F%20PWA-0d1117?style=flat-square&logo=googlechrome&logoColor=white)](https://f0n9.github.io/salary-tracker/)
 [![Database: Supabase](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 [![Security: RLS Protected](https://img.shields.io/badge/Security-Row_Level_Security-blue?style=flat-square)](https://supabase.com/docs/guides/auth)
 [![PWA: Offline First](https://img.shields.io/badge/PWA-Offline_First-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](./LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](https://f0n9.github.io/salary-tracker/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-**Ứng dụng quản lý ca làm và tính lương thông minh**, thiết kế tinh giản, hỗ trợ PWA offline-first và đồng bộ dữ liệu đám mây đa thiết bị theo thời gian thực qua Supabase PostgreSQL.
+A lightweight, offline-first shift scheduling and earnings tracking Progressive Web Application (PWA). Built with standard browser APIs, vanilla JavaScript (ES modules), and Supabase PostgreSQL with Row Level Security (RLS) for real-time cross-device synchronization.
 
----
+## Features
 
-## ✨ Tính năng nổi bật
+- **Shift & Earnings Calculation:** Automated computation of work hours, overtime rates, and allowances, with support for overnight shifts spanning past midnight.
+- **Multi-Workplace Management:** Per-workplace wage configuration with custom hourly rates and commission tiers.
+- **Cross-Device Synchronization:** Automatic cloud synchronization backed by Supabase PostgreSQL and secured by Row Level Security (RLS) policies scoped to authenticated user IDs.
+- **Offline-First PWA:** Native service worker caching and local storage persistence enabling complete functionality without network access. Installable on iOS, Android, Windows, and macOS.
+- **Canvas Slip Export:** Client-side HTML5 Canvas rendering for high-resolution payroll summary images with one-click clipboard copy and file download.
+- **Analytics Dashboard:** Multi-period metrics (current week, last 4 weeks, all-time) with earnings aggregation, hours distribution, and workplace breakdowns.
+- **Design System:** Responsive layout optimized for desktop and mobile form factors, high-contrast typography using Be Vietnam Pro and JetBrains Mono, and instant theme switching.
 
-- ⚡ **Chấm công tức thì & Động cơ 24h:** Giao diện nhập ca trực quan, tự động tính toán tổng số giờ và tiền lương chính xác. Hỗ trợ xử lý trơn tru các ca làm xuyên đêm vượt qua mốc 00:00.
-- 🏢 **Quản lý đa cơ sở làm việc:** Dễ dàng thêm, sửa, đổi vị trí làm việc với mức lương theo giờ và tỷ lệ hoa hồng riêng biệt cho từng cơ sở.
-- ☁️ **Đồng bộ đám mây Supabase đa thiết bị:** Dữ liệu được mã hóa và bảo vệ bằng Row Level Security (RLS). Tự động đồng bộ ngay lập tức (Realtime Sync) và tự động kéo dữ liệu mới nhất khi chuyển qua lại giữa điện thoại và máy tính (`syncOnFocus`).
-- 📱 **PWA Offline-First:** Hoạt động mượt mà kể cả khi không có mạng thông qua Service Worker. Cài đặt trực tiếp lên màn hình chính trên iOS, Android, Windows và macOS.
-- 🧾 **Xuất phiếu lương Canvas HD:** Tạo ảnh bảng lương gọn gàng, độ phân giải cao được render trực tiếp từ Canvas, hỗ trợ sao chép nhanh vào clipboard để gửi qua Zalo/Telegram hoặc lưu về máy.
-- 📊 **Thống kê & Phân tích trực quan:** Bảng điều khiển KPI theo dõi tổng thu nhập, số giờ công, biểu đồ xu hướng và phân bố tỷ trọng làm việc theo từng cơ sở qua các mốc thời gian.
-- 🎨 **Giao diện Impeccable chuẩn xác:** Trải nghiệm thị giác tinh gọn, chuyển đổi Light/Dark mode mượt mà với hoạt ảnh ripple mở rộng, viền 1px sắc nét và hiển thị số liệu tối ưu với font `Outfit` & `JetBrains Mono`.
-
----
-
-## 📁 Cấu trúc dự án
+## Directory Structure
 
 ```text
 salary-tracker/
 ├── assets/
-│   └── icons/               # 🎨 Biểu tượng ứng dụng và favicon PWA
+│   └── icons/
 ├── css/
-│   ├── base.css             # 🧱 Design tokens, CSS variables, typography & reset
-│   ├── components.css       # 🧩 Header, navigation dock, card và bảng ca làm
-│   └── modals.css           # 🪟 Hộp thoại, form nhập liệu, toast notification & chart
+│   ├── base.css
+│   ├── components.css
+│   └── modals.css
 ├── js/
-│   ├── config.js            # ⚙️ Cấu hình Supabase client và hằng số toàn cục
-│   ├── i18n.js              # 🌐 Bộ đa ngôn ngữ (Tiếng Việt / English)
-│   ├── theme.js             # 🌓 Quản lý chủ đề Light / Dark và hiệu ứng chuyển đổi
-│   ├── state.js             # 📦 Quản lý trạng thái ứng dụng & LocalStorage fallback
-│   ├── calculator.js        # 🧮 Thuật toán tính giờ, ca qua đêm và tổng lương
 │   ├── services/
-│   │   └── supabase.js      # ☁️ Dịch vụ xác thực, Realtime sync & Cloud backup
+│   │   ├── auth.js
+│   │   └── supabase.js
 │   ├── ui/
-│   │   ├── toast.js         # 🔔 Hệ thống thông báo toast hiện đại
-│   │   ├── select.js        # 🔽 Dropdown tùy chỉnh cao cấp
-│   │   ├── chart.js         # 📈 Biểu đồ thống kê thu nhập và giờ công
-│   │   ├── canvas-slip.js   # 🧾 Render phiếu lương HD từ Canvas
-│   │   ├── export.js        # 📤 Xuất dữ liệu JSON và hình ảnh
-│   │   └── modals.js        # 💬 Điều khiển đóng mở và tương tác hộp thoại
-│   └── app.js               # 🚀 File khởi chạy trung tâm (Native ES Modules)
-├── index.html               # 📄 Điểm vào HTML chính
-├── manifest.json            # 📱 Cấu hình Web App Manifest cho PWA
-├── sw.js                    # 🔄 Service Worker phục vụ offline caching
-├── package.json             # 📦 Cấu hình dự án & scripts
-├── .gitignore               # 🙈 Quy tắc bỏ qua file của Git
-├── LICENSE                  # ⚖️ Giấy phép mã nguồn mở MIT
-└── README.md                # 📖 Tài liệu hướng dẫn sử dụng
+│   │   ├── canvas-slip.js
+│   │   ├── chart.js
+│   │   ├── modals.js
+│   │   ├── render.js
+│   │   └── toast.js
+│   ├── app.js
+│   ├── calculator.js
+│   ├── config.js
+│   ├── i18n.js
+│   ├── state.js
+│   └── theme.js
+├── index.html
+├── manifest.json
+├── sw.js
+├── package.json
+├── LICENSE
+└── README.md
 ```
 
----
+## Tech Stack
 
-## 🛠️ Công nghệ sử dụng
-
-| Tầng công nghệ | Công nghệ | Mục đích |
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend Core** | HTML5 / Modern JavaScript (ES Modules) | Kiến trúc thuần chuẩn web, không phụ thuộc bundler cồng kềnh |
-| **Design System** | Modern CSS3 Custom Properties | Hệ thống token màu sắc, typography và bố cục co giãn linh hoạt |
-| **Typography** | `Outfit` & `JetBrains Mono` | Tối ưu khả năng đọc số liệu tài chính và thời gian |
-| **Cloud Database** | Supabase (PostgreSQL 15) | Lưu trữ đám mây bảo mật, phát hiện xung đột và đồng bộ realtime |
-| **Bảo mật truy cập**| Supabase Row Level Security (RLS) | Phân quyền truy cập độc lập đến từng dòng bản ghi theo `auth.uid()` |
-| **Bộ nhớ đệm** | Service Worker Cache API & LocalStorage | Đảm bảo ứng dụng sẵn sàng mở tức thì 100% khi offline |
+| **Frontend Runtime** | Vanilla JavaScript (ES Modules) | Standard browser architecture without build steps or bundlers |
+| **Styling** | Modern CSS3 Custom Properties | Design tokens, fluid layout, and CSS-driven theme transitions |
+| **Typography** | Be Vietnam Pro & JetBrains Mono | High-legibility text and tabular financial data rendering |
+| **Backend & Database** | Supabase (PostgreSQL 15) | Relational storage, user authentication, and realtime sync |
+| **Security Layer** | Row Level Security (RLS) | Granular data isolation enforced at the database level |
+| **Storage & Cache** | Service Worker Cache API & LocalStorage | Offline capability and optimistic UI updates |
+| **Export Engine** | HTML5 Canvas API | High-DPI image generation for shift summary slips |
 
----
+## Getting Started
 
-## 🚀 Khởi chạy cục bộ (Quick Start)
+### Prerequisites
 
-### Yêu cầu hệ thống
-- Trình duyệt web hiện đại hỗ trợ ES Modules (Chrome, Edge, Safari, Firefox).
-- [Node.js](https://nodejs.org/) (tùy chọn) hoặc bất kỳ static server nào.
+- Modern web browser with ES module support (Chrome, Edge, Safari, Firefox).
+- Any standard static file server.
 
-### 1. Clone repository
-```bash
-git clone https://github.com/F0n9/salary-tracker.git
-cd salary-tracker
-```
+### Local Development
 
-### 2. Khởi chạy ứng dụng
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/F0n9/salary-tracker.git
+   cd salary-tracker
+   ```
 
-Sử dụng `npm`:
-```bash
-npm start
-```
+2. Start a local HTTP server:
+   ```bash
+   # Using Python
+   python -m http.server 8080
 
-Hoặc dùng Python tích hợp sẵn:
-```bash
-python -m http.server 8080
-```
+   # Or using Node.js
+   npx serve .
+   ```
 
-Mở trình duyệt tại địa chỉ: `http://localhost:8080`.
+3. Open `http://localhost:8080` in your browser.
 
----
+## Database Setup
 
-## 🔐 Cấu hình Supabase & Row Level Security
-
-Để kết nối với hệ thống lưu trữ đám mây của bạn, mở **SQL Editor** trong bảng điều khiển Supabase và thực thi câu lệnh khởi tạo bảng cùng chính sách bảo mật:
+To configure Supabase storage, execute the following SQL migration in the Supabase SQL Editor:
 
 ```sql
 create table if not exists public.user_salary_data (
@@ -116,37 +105,35 @@ create table if not exists public.user_salary_data (
 
 alter table public.user_salary_data enable row level security;
 
-create policy "Users can view own data" 
-  on public.user_salary_data for select 
+create policy "Users can view own data"
+  on public.user_salary_data for select
   using (auth.uid() = user_id);
 
-create policy "Users can insert own data" 
-  on public.user_salary_data for insert 
+create policy "Users can insert own data"
+  on public.user_salary_data for insert
   with check (auth.uid() = user_id);
 
-create policy "Users can update own data" 
-  on public.user_salary_data for update 
+create policy "Users can update own data"
+  on public.user_salary_data for update
   using (auth.uid() = user_id);
 ```
 
-Cập nhật thông tin `SUPABASE_URL` và `SUPABASE_ANON_KEY` trong file `js/config.js` để hoàn tất cấu hình.
+Set the database connection parameters in `js/config.js`:
 
----
+```javascript
+export const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+export const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+```
 
-## 📲 Cài đặt Progressive Web App (PWA)
+## PWA Installation
 
-### Trên điện thoại (iOS / Android)
-1. Mở liên kết ứng dụng trên trình duyệt Safari (iOS) hoặc Chrome (Android).
-2. Nhấn vào biểu tượng **Chia sẻ** (Safari) hoặc dấu **3 chấm** (Chrome).
-3. Chọn **Thêm vào màn hình chính** (**Add to Home Screen**).
+### Mobile (iOS / Android)
+- **iOS (Safari):** Tap the Share button and select "Add to Home Screen".
+- **Android (Chrome):** Tap the browser menu and select "Install app" or "Add to Home screen".
 
-### Trên máy tính (Windows / macOS)
-1. Truy cập ứng dụng trên Chrome hoặc Edge.
-2. Nhấn vào biểu tượng **Cài đặt ứng dụng** (nằm ở thanh địa chỉ phía trên bên phải).
-3. Ứng dụng sẽ chạy trong cửa sổ độc lập như phần mềm native.
+### Desktop (Windows / macOS / Linux)
+- In Chrome or Edge, click the install icon located on the right side of the omnibox and select "Install".
 
----
+## License
 
-## 📄 Giấy phép
-
-Phát hành dưới giấy phép mã nguồn mở [MIT License](./LICENSE).
+This project is licensed under the [MIT License](LICENSE).
