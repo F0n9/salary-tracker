@@ -14,13 +14,6 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
   const performThemeChange = () => {
     document.documentElement.classList.toggle('dark-mode', isDark);
     document.body.classList.toggle('dark-mode', isDark);
-
-    const sunIcon = document.getElementById('iconThemeSun');
-    const moonIcon = document.getElementById('iconThemeMoon');
-    if (sunIcon && moonIcon) {
-      sunIcon.style.display = isDark ? 'block' : 'none';
-      moonIcon.style.display = isDark ? 'none' : 'block';
-    }
   };
 
   const persistThemeSettings = () => {

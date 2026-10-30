@@ -35,6 +35,7 @@ const I18N_VI = {
 
     toast_online_syncing: 'Đã có kết nối mạng. Đang tự động đồng bộ lên đám mây...',
     toast_synced_success: 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây!',
+    toast_synced_from_other_device: 'Dữ liệu vừa được đồng bộ từ thiết bị khác!',
     toast_offline_mode: 'Bạn đang ngoại tuyến. Dữ liệu sẽ lưu cục bộ và tự động đồng bộ khi online.',
     toast_sync_manual_done: 'Đã đồng bộ thành công dữ liệu đám mây!',
     toast_sync_manual_fail: 'Không thể kết nối máy chủ để đồng bộ.',

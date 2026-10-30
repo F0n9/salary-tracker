@@ -531,14 +531,23 @@ export const setupRealtimeSync = () => {
       .channel('salary_realtime_changes')
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'user_salary_data' },
+        { event: '*', schema: 'public', table: 'user_salary_data' },
         (payload) => {
           if (state.currentUser && payload.new && payload.new.user_id === state.currentUser.id) {
             if (!hasPendingSync() && Array.isArray(payload.new.weeks)) {
               state.weeks = payload.new.weeks;
               if (payload.new.settings) state.settings = { ...state.settings, ...payload.new.settings };
+              localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
+              localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
+              normalizeWorkplacesAndRates();
+              if (state.weeks.length > 0) {
+                state.weeks.forEach((w, idx) => ensureWeekStartDate(w, idx));
+                if (!state.weeks.some(w => w.id === state.currentWeekId)) {
+                  state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+                }
+              }
               triggerAppRender();
-              showToast('Dữ liệu vừa được đồng bộ từ thiết bị khác!');
+              showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác!'));
             }
           }
         }
@@ -569,6 +578,46 @@ export const setupAutoSync = () => {
     updateSyncStatusUI('offline');
     showToast(t('toast_offline_mode', 'Bạn đang ngoại tuyến. Dữ liệu sẽ lưu cục bộ và tự động đồng bộ khi online.'));
   });
+
+  let lastFocusSyncTime = 0;
+  const syncOnFocus = async () => {
+    const now = Date.now();
+    if (now - lastFocusSyncTime < 10000) return;
+    lastFocusSyncTime = now;
+
+    if (document.visibilityState === 'visible' && navigator.onLine && state.currentUser && supabaseClient && !hasPendingSync()) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_salary_data')
+          .select('weeks, settings, updated_at')
+          .eq('user_id', state.currentUser.id)
+          .maybeSingle();
+
+        if (!error && data && Array.isArray(data.weeks)) {
+          const localWeeksStr = localStorage.getItem(getWeeksStorageKey());
+          const remoteWeeksStr = JSON.stringify(data.weeks);
+          if (localWeeksStr !== remoteWeeksStr) {
+            state.weeks = data.weeks;
+            if (data.settings) state.settings = { ...state.settings, ...data.settings };
+            localStorage.setItem(getWeeksStorageKey(), remoteWeeksStr);
+            if (data.settings) localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
+            normalizeWorkplacesAndRates();
+            if (state.weeks.length > 0) {
+              state.weeks.forEach((w, idx) => ensureWeekStartDate(w, idx));
+              if (!state.weeks.some(w => w.id === state.currentWeekId)) {
+                state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+              }
+            }
+            triggerAppRender();
+            showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác!'));
+          }
+        }
+      } catch (_) {}
+    }
+  };
+
+  document.addEventListener('visibilitychange', syncOnFocus);
+  window.addEventListener('focus', syncOnFocus);
 
   if (window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
