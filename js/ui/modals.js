@@ -738,13 +738,13 @@ export const renderSettingsWorkplaces = () => {
       : '';
     const isDefault = (wp === currentDefaultWp);
     const row = document.createElement('div');
-    row.className = 'settings-workplace-row font-mono';
+    row.className = 'settings-workplace-row';
     row.innerHTML = `
       <div class="settings-wp-name-wrap">
         <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
         <span class="settings-wp-name">${escapeHtml(wp)}</span>
         ${isDefault ? `
-          <span class="wp-default-tag font-mono">
+          <span class="wp-default-tag">
             <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10" style="margin-right:2px;">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>

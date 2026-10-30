@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261030c">
-  <link rel="stylesheet" href="./css/components.css?v=20261030g">
-  <link rel="stylesheet" href="./css/modals.css?v=20261030g">
+  <link rel="stylesheet" href="./css/base.css?v=20261030h">
+  <link rel="stylesheet" href="./css/components.css?v=20261030h">
+  <link rel="stylesheet" href="./css/modals.css?v=20261030h">
 </head>
 <body>
   
@@ -29,9 +29,12 @@
     
     <header class="app-header">
       <div class="header-left">
-        <div>
-          <h1 class="brand-title">Salary Tracker</h1>
-          <span class="brand-date font-mono" id="currentDateDisplay">Đang tải...</span>
+        <div class="brand-identity">
+          <img src="./assets/icons/icon.svg" alt="Salary Tracker" class="brand-logo-img" width="32" height="32">
+          <div class="brand-text-wrap">
+            <h1 class="brand-title">Salary Tracker</h1>
+            <span class="brand-date font-mono" id="currentDateDisplay">Đang tải...</span>
+          </div>
         </div>
       </div>
 
@@ -193,7 +196,7 @@
 
   
   <div class="modal-backdrop" id="shiftModal" style="display: none;">
-    <form id="shiftForm" class="modal-surface modal-surface-sm">
+    <form id="shiftForm" class="modal-surface modal-surface-sm modal-surface-no-scroll">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <h3 class="modal-title" id="shiftModalTitle" data-i18n="modal_add_shift">Thêm ca làm việc</h3>
@@ -207,7 +210,7 @@
         </button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body shift-modal-body">
         <input type="hidden" id="editShiftId">
 
         <div class="form-grid-2">
@@ -445,7 +448,7 @@
 
   
   <div class="modal-backdrop" id="settingsModal" style="display: none;">
-    <div class="modal-surface modal-surface-sm">
+    <div class="modal-surface modal-surface-sm modal-surface-settings">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <h3 class="modal-title" data-i18n="settings_title">Cài đặt</h3>
@@ -462,16 +465,21 @@
       <div class="modal-body settings-modal-body">
         <div class="settings-section">
           <div class="settings-section-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M9 11h2M9 15h2M13 11h2M13 15h2"></path>
-            </svg>
-            <span class="settings-section-title" data-i18n="setting_workplaces">Nơi làm việc & Đơn giá (đ/h)</span>
+            <div class="settings-section-icon-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M9 11h2M9 15h2M13 11h2M13 15h2"></path>
+              </svg>
+            </div>
+            <div class="settings-section-text">
+              <span class="settings-section-title" data-i18n="setting_workplaces">Nơi làm việc & Đơn giá</span>
+              <span class="settings-section-desc">Quản lý cơ sở và mức lương theo giờ (đ/h)</span>
+            </div>
           </div>
           <div class="settings-workplaces-list" id="settingsWorkplacesList"></div>
           <div class="settings-add-workplace-row">
             <input type="text" id="newWorkplaceInput" class="form-input" placeholder="Tên nơi làm việc mới..." data-i18n-placeholder="ph_new_workplace">
             <button type="button" id="btnAddWorkplaceSetting" class="btn-action-add" data-i18n-title="btn_add_workplace" title="Thêm nơi làm" aria-label="Thêm nơi làm">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
@@ -482,18 +490,23 @@
 
         <div class="settings-section">
           <div class="settings-section-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-            </svg>
-            <span class="settings-section-title" id="labelSettingSync">Đồng bộ đám mây</span>
+            <div class="settings-section-icon-badge sync-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+              </svg>
+            </div>
+            <div class="settings-section-text">
+              <span class="settings-section-title" id="labelSettingSync">Đồng bộ đám mây</span>
+              <span class="settings-section-desc">Kết nối cơ sở dữ liệu Supabase Realtime</span>
+            </div>
           </div>
-          <div class="cloud-sync-status-box font-mono">
+          <div class="cloud-sync-status-box">
             <div class="sync-status-left">
               <span class="sync-status-dot" id="syncStatusDot"></span>
-              <span id="syncStatusText">Trực tuyến (Đã đồng bộ)</span>
+              <span id="syncStatusText" class="sync-status-text font-mono">Trực tuyến (Đã đồng bộ)</span>
             </div>
             <button type="button" class="btn-sync-action" id="btnManualCloudSync" data-i18n-title="cloud_btn_sync" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
               </svg>
               <span>Đồng bộ</span>
@@ -503,34 +516,43 @@
 
         <div class="settings-section">
           <div class="settings-section-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span class="settings-section-title" data-i18n="setting_data">Dữ liệu & Sao lưu</span>
-          </div>
-          <div class="backup-actions-cards">
-            <button type="button" id="btnBackupJson" class="backup-card-btn" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <div class="settings-section-icon-badge data-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
+            </div>
+            <div class="settings-section-text">
+              <span class="settings-section-title" data-i18n="setting_data">Dữ liệu & Sao lưu</span>
+              <span class="settings-section-desc">Xuất và khôi phục dữ liệu ca làm việc</span>
+            </div>
+          </div>
+          <div class="backup-actions-cards">
+            <button type="button" id="btnBackupJson" class="backup-card-btn" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
+              <div class="backup-card-icon-wrap export-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
               <div class="backup-card-text">
                 <span class="backup-card-title">Xuất JSON</span>
                 <span class="backup-card-sub">Lưu file về máy</span>
               </div>
             </button>
             <label class="backup-card-btn upload-label" data-i18n-title="btn_import_json" title="Nhập file JSON" aria-label="Nhập file JSON" style="cursor: pointer;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+              <div class="backup-card-icon-wrap import-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
               <div class="backup-card-text">
                 <span class="backup-card-title">Nhập JSON</span>
-                <span class="backup-card-sub">Khôi phục dữ liệu</span>
+                <span class="backup-card-sub">Khôi phục tệp</span>
               </div>
               <input type="file" id="fileRestoreJson" accept=".json" style="display: none;">
             </label>
