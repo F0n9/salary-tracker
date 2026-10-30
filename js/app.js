@@ -228,10 +228,10 @@ const renderShiftsList = () => {
       <div class="empty-shifts-box">
         <div class="es-icon-ring">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-            <rect x="3" y="4" width="18" height="18" rx="3"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+            <line x1="16" x2="16" y1="2" y2="6"></line>
+            <line x1="8" x2="8" y1="2" y2="6"></line>
+            <line x1="3" x2="21" y1="10" y2="10"></line>
           </svg>
         </div>
         <div class="es-title">${hasWorkplaces() ? t('empty_shifts_title', 'Chưa có ca làm việc nào trong tuần này') : t('no_workplaces_title', 'Chưa có nơi làm việc')}</div>
@@ -239,25 +239,28 @@ const renderShiftsList = () => {
         <div class="es-actions">
           ${hasWorkplaces() ? `
             <button type="button" class="btn-action-primary" id="btnEmptyAddShift">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
               </svg>
               <span>${t('btn_add_shift', 'Thêm ca')}</span>
             </button>
           ` : `
             <button type="button" class="btn-action-primary" id="btnEmptyAddWp">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
               </svg>
               <span>${t('btn_add_workplace', 'Thêm nơi làm')}</span>
             </button>
           `}
           <button type="button" class="btn-action-secondary" id="btnEmptyDeleteWeek">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" x2="10" y1="11" y2="17"></line>
+              <line x1="14" x2="14" y1="11" y2="17"></line>
             </svg>
             <span>${t('btn_delete_week', 'Xóa tuần')}</span>
           </button>
@@ -291,8 +294,8 @@ const renderShiftsList = () => {
       </div>
       <button type="button" class="btn-morphic btn-morphic-sm btn-morphic-primary" id="btnBannerAddWp" title="${t('btn_add_workplace', 'Thêm nơi làm việc')}" aria-label="${t('btn_add_workplace', 'Thêm nơi làm việc')}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
         </svg>
       </button>
     `;
@@ -343,7 +346,7 @@ const renderShiftsList = () => {
 
         <div class="sl-meta-line font-mono">
           <div class="sl-meta-item sl-time-item">
-            <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="12" height="12">
+            <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -354,9 +357,12 @@ const renderShiftsList = () => {
           ${shift.note ? `
             <span class="sl-bullet">•</span>
             <div class="sl-meta-item sl-note-item font-sans" title="${escapeHtml(shift.note)}">
-              <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="11" height="11">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
+              <svg class="sl-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                <path d="M10 9H8"></path>
+                <path d="M16 13H8"></path>
+                <path d="M16 17H8"></path>
               </svg>
               <span class="sl-note-text">${escapeHtml(shift.note)}</span>
             </div>
@@ -373,14 +379,17 @@ const renderShiftsList = () => {
         <div class="sl-actions-wrap">
           <button type="button" class="btn-micro-action btn-edit-shift" title="${t('btn_edit_shift', 'Sửa ca')}" data-edit-shift="${shift.id}" aria-label="${t('btn_edit_shift', 'Sửa')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+              <path d="m15 5 4 4"></path>
             </svg>
           </button>
           <button type="button" class="btn-micro-action btn-delete-shift" title="${t('btn_delete_shift', 'Xóa ca')}" data-delete-shift="${shift.id}" aria-label="${t('btn_delete_shift', 'Xóa')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" x2="10" y1="11" y2="17"></line>
+              <line x1="14" x2="14" y1="11" y2="17"></line>
             </svg>
           </button>
         </div>

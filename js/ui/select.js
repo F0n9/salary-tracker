@@ -24,7 +24,7 @@ export const setupCustomSelect = (selectId) => {
 
     const chevron = document.createElement('span');
     chevron.className = 'custom-select-chevron-icon';
-    chevron.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+    chevron.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m6 9 6 6 6-6"></path></svg>`;
 
     trigger.appendChild(label);
     trigger.appendChild(chevron);
@@ -120,8 +120,8 @@ export const setupCustomSelect = (selectId) => {
         <div class="workplace-item-right">
           <span class="workplace-item-rate font-mono">${fmtCurrency(rate)}/h</span>
           <span class="custom-select-check">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-              <polyline points="20 6 9 17 4 12"></polyline>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <path d="M20 6 9 17l-5-5"></path>
             </svg>
           </span>
         </div>
@@ -132,7 +132,7 @@ export const setupCustomSelect = (selectId) => {
 
       const checkIcon = document.createElement('span');
       checkIcon.className = 'custom-select-check';
-      checkIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      checkIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M20 6 9 17l-5-5"></path></svg>`;
 
       item.appendChild(textSpan);
       item.appendChild(checkIcon);

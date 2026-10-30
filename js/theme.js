@@ -1,6 +1,13 @@
 import { state, getSettingsStorageKey } from './state.js';
 import { t } from './i18n.js';
 import { renderAnalyticsDashboard } from './ui/chart.js';
+import { defineMorphIcon } from './vendor/morphicons/element.js';
+
+defineMorphIcon();
+
+export const SUN_PATH = 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
+export const MOON_PATH = 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z';
+
 export const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
   if (theme === 'auto') {
@@ -14,6 +21,10 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
   const performThemeChange = () => {
     document.documentElement.classList.toggle('dark-mode', isDark);
     document.body.classList.toggle('dark-mode', isDark);
+    const morphIcon = document.getElementById('themeMorphIcon');
+    if (morphIcon) {
+      morphIcon.setAttribute('icon', isDark ? MOON_PATH : SUN_PATH);
+    }
   };
 
   const persistThemeSettings = () => {
