@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261030h">
-  <link rel="stylesheet" href="./css/components.css?v=20261030h">
-  <link rel="stylesheet" href="./css/modals.css?v=20261030h">
+  <link rel="stylesheet" href="./css/base.css?v=20261030j">
+  <link rel="stylesheet" href="./css/components.css?v=20261030j">
+  <link rel="stylesheet" href="./css/modals.css?v=20261030j">
 </head>
 <body>
   
@@ -213,10 +213,15 @@
       <div class="modal-body shift-modal-body">
         <input type="hidden" id="editShiftId">
 
+        <div class="form-item">
+          <label class="form-label" for="shiftWorkplace" data-i18n="modal_workplace">Nơi làm việc</label>
+          <select id="shiftWorkplace" class="form-select" required></select>
+        </div>
+
         <div class="form-grid-2">
           <div class="form-item">
             <label class="form-label" for="shiftDay" data-i18n="modal_day">Thứ</label>
-            <select id="shiftDay" class="form-select font-mono" required>
+            <select id="shiftDay" class="form-select" required>
               <option value="T2">T2</option>
               <option value="T3">T3</option>
               <option value="T4">T4</option>
@@ -228,25 +233,6 @@
           </div>
 
           <div class="form-item">
-            <label class="form-label" for="shiftWorkplace" data-i18n="modal_workplace">Nơi làm việc</label>
-            <select id="shiftWorkplace" class="form-select" required></select>
-          </div>
-        </div>
-
-        <div class="form-grid-2">
-          <div class="form-item">
-            <label class="form-label" for="shiftStart" data-i18n="modal_start">Giờ vào</label>
-            <input type="time" lang="en-GB" id="shiftStart" class="form-input font-mono" required value="17:00" step="60">
-          </div>
-
-          <div class="form-item">
-            <label class="form-label" for="shiftEnd" data-i18n="modal_end">Giờ ra</label>
-            <input type="time" lang="en-GB" id="shiftEnd" class="form-input font-mono" required value="20:00" step="60">
-          </div>
-        </div>
-
-        <div class="form-grid-2">
-          <div class="form-item">
             <label class="form-label" for="shiftType" data-i18n="modal_type">Buổi ca</label>
             <select id="shiftType" class="form-select" required>
               <option value="Sáng" data-i18n-opt="shift_morning">Sáng</option>
@@ -255,17 +241,26 @@
               <option value="Khác" data-i18n-opt="shift_other">Khác</option>
             </select>
           </div>
-
-          <div class="form-item">
-            <label class="form-label" for="shiftBreak" data-i18n="modal_break">Nghỉ giữa ca (phút)</label>
-            <input type="number" id="shiftBreak" class="form-input font-mono" value="0" min="0" step="5" placeholder="Phút nghỉ" data-i18n-placeholder="ph_break">
-          </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-item">
+            <label class="form-label" for="shiftStart" data-i18n="modal_start">Giờ vào</label>
+            <input type="time" lang="en-GB" id="shiftStart" class="form-input" required value="17:00" step="60">
+          </div>
+
+          <div class="form-item">
+            <label class="form-label" for="shiftEnd" data-i18n="modal_end">Giờ ra</label>
+            <input type="time" lang="en-GB" id="shiftEnd" class="form-input" required value="20:00" step="60">
+          </div>
+        </div>
+
+        <input type="hidden" id="shiftBreak" value="0">
+
+        <div class="form-grid-2">
+          <div class="form-item">
             <label class="form-label" for="shiftOtRate" data-i18n="modal_ot">Hệ số tăng ca</label>
-            <select id="shiftOtRate" class="form-select font-mono">
+            <select id="shiftOtRate" class="form-select">
               <option value="1.0">1.0x</option>
               <option value="1.2">1.2x</option>
               <option value="1.5">1.5x</option>
@@ -277,8 +272,8 @@
           <div class="form-item">
             <label class="form-label" for="shiftAllowance" data-i18n="modal_allowance">Phụ cấp / Thưởng (đ)</label>
             <div class="input-with-tag">
-              <input type="number" id="shiftAllowance" class="form-input font-mono" value="0" min="0" step="1000" placeholder="0">
-              <span class="tag font-mono" data-i18n="currency_unit">đ</span>
+              <input type="number" id="shiftAllowance" class="form-input" value="0" min="0" step="1000" placeholder="0">
+              <span class="tag" data-i18n="currency_unit">đ</span>
             </div>
           </div>
         </div>
@@ -297,26 +292,23 @@
             <span data-i18n="modal_preview_est">Dự tính thu nhập</span>
           </div>
           <div class="calc-strip-right">
-            <span id="previewDuration" class="calc-val font-mono">0.00h</span>
-            <span id="previewSalary" class="calc-val font-mono">0 đ</span>
+            <span id="previewDuration" class="calc-val">0.00h</span>
+            <span id="previewSalary" class="calc-val">0 đ</span>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-action-danger" id="btnDeleteShiftModal" style="display: none;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" class="btn-action-danger btn-icon-only" id="btnDeleteShiftModal" style="display: none;" data-i18n-title="btn_delete_shift" title="Xóa ca" aria-label="Xóa ca">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
-          <span>Xóa ca</span>
         </button>
-        <div class="modal-footer-spacer"></div>
-        <button type="submit" class="btn-action-primary" id="btnSaveShift">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+        <button type="submit" class="btn-action-primary btn-icon-only" id="btnSaveShift" data-i18n-title="modal_save_shift" title="Lưu ca" aria-label="Lưu ca">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          <span>Lưu ca</span>
         </button>
       </div>
     </form>
@@ -433,14 +425,12 @@
       </div>
 
       <div class="modal-footer">
-        <div class="modal-footer-spacer"></div>
-        <button type="button" id="btnExportAllExcel" class="btn-action-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" id="btnExportAllExcel" class="btn-action-primary btn-icon-only" data-i18n-title="btn_export_all_excel" title="Xuất Excel" aria-label="Xuất Excel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          <span>Xuất Excel</span>
         </button>
       </div>
     </div>
@@ -478,38 +468,11 @@
           <div class="settings-workplaces-list" id="settingsWorkplacesList"></div>
           <div class="settings-add-workplace-row">
             <input type="text" id="newWorkplaceInput" class="form-input" placeholder="Tên nơi làm việc mới..." data-i18n-placeholder="ph_new_workplace">
-            <button type="button" id="btnAddWorkplaceSetting" class="btn-action-add" data-i18n-title="btn_add_workplace" title="Thêm nơi làm" aria-label="Thêm nơi làm">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14">
+            <button type="button" id="btnAddWorkplaceSetting" class="btn-action-add btn-icon-only" data-i18n-title="btn_add_workplace" title="Thêm nơi làm" aria-label="Thêm nơi làm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span>Thêm</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-section-header">
-            <div class="settings-section-icon-badge sync-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-              </svg>
-            </div>
-            <div class="settings-section-text">
-              <span class="settings-section-title" id="labelSettingSync">Đồng bộ đám mây</span>
-              <span class="settings-section-desc">Kết nối cơ sở dữ liệu Supabase Realtime</span>
-            </div>
-          </div>
-          <div class="cloud-sync-status-box">
-            <div class="sync-status-left">
-              <span class="sync-status-dot" id="syncStatusDot"></span>
-              <span id="syncStatusText" class="sync-status-text font-mono">Trực tuyến (Đã đồng bộ)</span>
-            </div>
-            <button type="button" class="btn-sync-action" id="btnManualCloudSync" data-i18n-title="cloud_btn_sync" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
-              </svg>
-              <span>Đồng bộ</span>
             </button>
           </div>
         </div>
@@ -561,12 +524,10 @@
       </div>
 
       <div class="modal-footer">
-        <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-primary" id="btnSaveSettings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+        <button type="button" class="btn-action-primary btn-icon-only" id="btnSaveSettings" data-i18n-title="btn_save_settings" title="Lưu cài đặt" aria-label="Lưu cài đặt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          <span>Lưu cài đặt</span>
         </button>
       </div>
     </div>
@@ -590,30 +551,27 @@
 
       <div class="modal-body">
         <div class="form-item">
-          <label class="form-label font-mono" for="editWeekNameInput" data-i18n="modal_week_name">Tên tuần</label>
+          <label class="form-label" for="editWeekNameInput" data-i18n="modal_week_name">Tên tuần</label>
           <input type="text" id="editWeekNameInput" class="form-input" placeholder="Tên tuần" data-i18n-placeholder="ph_week_name" required>
         </div>
 
         <div class="form-item">
-          <label class="form-label font-mono" for="editWeekStartDateInput" data-i18n="modal_week_start">Ngày bắt đầu tuần (T2)</label>
+          <label class="form-label" for="editWeekStartDateInput" data-i18n="modal_week_start">Ngày bắt đầu tuần (T2)</label>
           <input type="date" id="editWeekStartDateInput" class="form-input font-mono" required>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-action-danger" id="btnDeleteCurrentWeekInModal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" class="btn-action-danger btn-icon-only" id="btnDeleteCurrentWeekInModal" data-i18n-title="btn_delete_week" title="Xóa tuần" aria-label="Xóa tuần">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
-          <span>Xóa tuần</span>
         </button>
-        <div class="modal-footer-spacer"></div>
-        <button type="submit" class="btn-action-primary" id="btnUpdateWeekMeta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+        <button type="submit" class="btn-action-primary btn-icon-only" id="btnUpdateWeekMeta" data-i18n-title="btn_save_week" title="Lưu tuần" aria-label="Lưu tuần">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          <span>Lưu tuần</span>
         </button>
       </div>
     </form>
@@ -651,21 +609,18 @@
       </div>
 
       <div class="modal-footer">
-        <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" id="btnCopySlipImage">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" class="btn-action-secondary btn-icon-only" id="btnCopySlipImage" data-i18n-title="btn_copy_slip" title="Sao chép ảnh" aria-label="Sao chép ảnh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          <span>Sao chép ảnh</span>
         </button>
-        <button type="button" class="btn-action-primary" id="btnDownloadSlipImage">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" class="btn-action-primary btn-icon-only" id="btnDownloadSlipImage" data-i18n-title="btn_download_slip" title="Tải ảnh" aria-label="Tải ảnh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          <span>Tải ảnh</span>
         </button>
       </div>
     </div>
@@ -724,13 +679,12 @@
           </div>
           <div class="auth-error-msg font-mono" id="loginError" style="display: none;"></div>
           <div class="auth-actions-group">
-            <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitLogin">
+            <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitLogin" data-i18n-title="btn_login" title="Đăng nhập" aria-label="Đăng nhập">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                 <polyline points="10 17 15 12 10 7"></polyline>
                 <line x1="15" y1="12" x2="3" y2="12"></line>
               </svg>
-              <span>Đăng nhập</span>
             </button>
           </div>
         </form>
@@ -784,12 +738,11 @@
           </label>
           <div class="auth-error-msg font-mono" id="regError" style="display: none;"></div>
           <div class="auth-actions-group">
-            <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitRegister">
+            <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitRegister" data-i18n-title="btn_register" title="Tạo tài khoản" aria-label="Tạo tài khoản">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="8.5" cy="7" r="4"></circle>
               </svg>
-              <span>Tạo tài khoản</span>
             </button>
           </div>
         </form>
@@ -895,11 +848,10 @@
             <div class="auth-error-msg font-mono" id="changePasswordMsg" style="display: none;"></div>
 
             <div class="auth-actions-group">
-              <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitChangePassword">
+              <button type="submit" class="btn-action-primary btn-submit-full" id="btnSubmitChangePassword" data-i18n-title="btn_change_pw" title="Đổi mật khẩu" aria-label="Đổi mật khẩu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span>Đổi mật khẩu</span>
               </button>
             </div>
           </form>
@@ -907,15 +859,13 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-action-danger" id="btnLogoutUser">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
+        <button type="button" class="btn-action-danger btn-icon-only" id="btnLogoutUser" data-i18n-title="btn_logout" title="Đăng xuất" aria-label="Đăng xuất">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
-          <span>Đăng xuất</span>
         </button>
-        <div class="modal-footer-spacer"></div>
       </div>
     </div>
   </div>
@@ -925,6 +875,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261030g"></script>
+  <script type="module" src="./js/app.js?v=20261030j"></script>
 </body>
 </html>

@@ -1173,36 +1173,61 @@ body.dark-mode .sl-rate-sub {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
 }
 
-body.dark-mode .btn-micro-action {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: #94a3b8;
+.btn-micro-action.btn-edit-shift {
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  color: #2563eb;
 }
 
-.btn-micro-action:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-default);
-  color: var(--text-main);
+.btn-micro-action.btn-edit-shift:hover {
+  background: rgba(37, 99, 235, 0.16);
+  border-color: rgba(37, 99, 235, 0.4);
+  color: #1d4ed8;
+  transform: scale(1.06);
 }
 
-body.dark-mode .btn-edit-shift:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+.btn-micro-action.btn-delete-shift {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  color: #dc2626;
 }
 
-body.dark-mode .btn-delete-shift:hover {
+.btn-micro-action.btn-delete-shift:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+  transform: scale(1.06);
+}
+
+body.dark-mode .btn-micro-action.btn-edit-shift {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  color: #60a5fa;
+}
+
+body.dark-mode .btn-micro-action.btn-edit-shift:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #93c5fd;
+  transform: scale(1.06);
+}
+
+body.dark-mode .btn-micro-action.btn-delete-shift {
   background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.28);
   color: #f87171;
+}
+
+body.dark-mode .btn-micro-action.btn-delete-shift:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  transform: scale(1.06);
 }
 
 .empty-shifts-box {
