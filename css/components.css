@@ -374,7 +374,7 @@ body.dark-mode .btn-action-danger:hover {
 
 .hero-period-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.55rem;
   flex-wrap: wrap;
 }

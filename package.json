@@ -21,6 +21,8 @@
     "offline-first"
   ],
   "author": "F0n9",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "morphicons": "^2.0.2"
+  }
 }
-

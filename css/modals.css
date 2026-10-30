@@ -1387,68 +1387,52 @@ body.dark-mode .settings-section {
   border-color: rgba(255, 255, 255, 0.07);
 }
 
-.settings-section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+.settings-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.settings-section-icon-badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: inline-flex;
+.settings-backup-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.btn-backup-action {
+  display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  user-select: none;
+  text-align: left;
+}
+
+.btn-backup-action:hover {
+  border-color: var(--primary);
   background: var(--primary-subtle);
   color: var(--primary);
-  flex-shrink: 0;
 }
 
-.settings-section-icon-badge.sync-badge {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+body.dark-mode .btn-backup-action {
+  background: #0d0e14;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.settings-section-icon-badge.data-badge {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
-}
-
-body.dark-mode .settings-section-icon-badge {
-  background: rgba(37, 99, 235, 0.15);
+body.dark-mode .btn-backup-action:hover {
+  border-color: #60a5fa;
+  background: rgba(37, 99, 235, 0.12);
   color: #60a5fa;
-}
-
-body.dark-mode .settings-section-icon-badge.sync-badge {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-}
-
-body.dark-mode .settings-section-icon-badge.data-badge {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-}
-
-.settings-section-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.settings-section-title {
-  font-size: 0.825rem;
-  font-weight: 600;
-  color: var(--text-main);
-  letter-spacing: -0.01em;
-}
-
-.settings-section-desc {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-weight: 400;
-  line-height: 1.2;
 }
 
 .settings-workplaces-list {
@@ -1686,100 +1670,6 @@ body.dark-mode .btn-sync-action:hover {
   background: rgba(37, 99, 235, 0.15);
 }
 
-.backup-actions-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-}
-
-.backup-card-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.65rem 0.8rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm, 6px);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-  user-select: none;
-}
-
-body.dark-mode .backup-card-btn {
-  background: #0d0e14;
-  border-color: rgba(255, 255, 255, 0.06);
-}
-
-.backup-card-btn:hover {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-body.dark-mode .backup-card-btn:hover {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: rgba(96, 165, 250, 0.3);
-}
-
-.backup-card-btn:active {
-  transform: scale(0.98);
-}
-
-.backup-card-icon-wrap {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-
-.backup-card-btn:hover .backup-card-icon-wrap {
-  transform: scale(1.08);
-}
-
-.backup-card-icon-wrap.export-wrap {
-  background: rgba(37, 99, 235, 0.12);
-  color: #2563eb;
-}
-
-.backup-card-icon-wrap.import-wrap {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
-}
-
-body.dark-mode .backup-card-icon-wrap.export-wrap {
-  background: rgba(37, 99, 235, 0.2);
-  color: #60a5fa;
-}
-
-body.dark-mode .backup-card-icon-wrap.import-wrap {
-  background: rgba(139, 92, 246, 0.2);
-  color: #a78bfa;
-}
-
-.backup-card-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.backup-card-title {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-main);
-  line-height: 1.25;
-}
-
-.backup-card-sub {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  line-height: 1.25;
-}
 
 .analytics-filter-bar {
   display: flex;
