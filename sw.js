@@ -1,12 +1,12 @@
-const CACHE_NAME = 'salary-tracker-v104';
+const CACHE_NAME = 'salary-tracker-v105';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/base.css?v=20261030c',
-  './css/components.css?v=20261030g',
-  './css/modals.css?v=20261030f',
-  './js/app.js?v=20261030g',
+  './css/base.css?v=20261030p',
+  './css/components.css?v=20261030p',
+  './css/modals.css?v=20261030p',
+  './js/app.js?v=20261030p',
   './js/config.js',
   './js/i18n.js',
   './js/theme.js',
@@ -68,6 +68,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
@@ -78,9 +93,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => {
-          return cachedResponse || (event.request.mode === 'navigate' ? caches.match('./index.html') : null);
-        });
+        .catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
     })

@@ -181,7 +181,6 @@ const I18N_VI = {
     btn_clear_data: 'Xóa toàn bộ dữ liệu',
     setting_theme: 'Giao diện (Theme)',
     setting_language: 'Ngôn ngữ (Language)',
-    setting_cloud_sync: 'Đồng bộ đám mây (Cloud Sync)',
     btn_save_settings: 'Lưu cài đặt',
     empty_workplaces_hint: 'Chưa có nơi làm việc. Thêm ở ô bên dưới.',
     custom_wp_rate: 'Đơn giá (đ/h)',
