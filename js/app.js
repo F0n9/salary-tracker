@@ -440,9 +440,6 @@ const bindEvents = () => {
   const btnEditWeekMeta = document.getElementById('btnEditWeekMeta');
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
-  const currentWeekTitle = document.getElementById('currentWeekTitle');
-  if (currentWeekTitle) currentWeekTitle.addEventListener('click', openEditWeekModal);
-
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
   document.getElementById('shiftStart').addEventListener('input', () => {
     const val = document.getElementById('shiftStart').value;

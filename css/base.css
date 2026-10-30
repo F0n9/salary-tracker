@@ -162,10 +162,16 @@ body.theme-transitioning .app-header,
 body.theme-transitioning .dashboard-card,
 body.theme-transitioning .card-base,
 body.theme-transitioning .btn-morphic,
+body.theme-transitioning .btn-morphic-sm,
+body.theme-transitioning .btn-action-secondary,
+body.theme-transitioning .btn-action-primary,
+body.theme-transitioning .btn-action-danger,
+body.theme-transitioning #btnNewWeek,
+body.theme-transitioning #btnEditWeekMeta,
 body.theme-transitioning .modal-box,
 body.theme-transitioning .morphic-pill-capsule,
 body.theme-transitioning .theme-btn-toggle {
-  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease !important;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease !important;
 }
 
 .font-mono {

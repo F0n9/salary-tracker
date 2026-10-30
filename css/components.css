@@ -236,6 +236,7 @@ body.dark-mode .btn-morphic-danger:hover {
   color: var(--text-main);
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-sm);
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease, transform 0.1s ease;
 }
 
 .btn-action-secondary:hover {
@@ -384,16 +385,11 @@ body.dark-mode .btn-action-danger:hover {
   color: var(--text-main);
   letter-spacing: -0.03em;
   line-height: 1.15;
-  cursor: pointer;
+  cursor: default;
   display: inline-flex;
   align-items: baseline;
   gap: 0.45rem;
-  user-select: none;
-  transition: opacity 0.15s ease;
-}
-
-.hero-period-title:hover {
-  opacity: 0.85;
+  user-select: text;
 }
 
 .hero-period-title .period-bold {
