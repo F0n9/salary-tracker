@@ -11,11 +11,8 @@ import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setEx
 import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderSettingsWorkplaces, addWorkplaceFromSetting, openSettingsModal, saveSettingsFromModal, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
 
 const updateWheelIndicator = () => {};
-setSupabaseAppRenderer(renderApp);
-setModalAppRenderer(renderApp);
-setExportAppRenderer(renderApp);
-setAllWeeksModalOpener(openAllWeeksModal);
-const renderApp = () => {
+
+function renderApp() {
   renderDateDisplay();
   renderWeekPills();
   renderWeekDetails();
@@ -32,7 +29,12 @@ const renderApp = () => {
     dockAddShift.classList.toggle('disabled-state', !canAct);
     dockAddShift.title = canAct ? t('dock_add', 'Thêm ca làm việc mới') : t('warn_no_workplace_action', 'Cần thêm nơi làm việc để tiếp tục');
   }
-};
+}
+
+setSupabaseAppRenderer(renderApp);
+setModalAppRenderer(renderApp);
+setExportAppRenderer(renderApp);
+setAllWeeksModalOpener(openAllWeeksModal);
 
 const renderDateDisplay = () => {
   const now = new Date();
