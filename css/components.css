@@ -1339,6 +1339,14 @@ body.dark-mode .no-workplaces-banner {
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.slip-canvas-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .slip-canvas {
@@ -1346,8 +1354,8 @@ body.dark-mode .no-workplaces-banner {
   max-width: 510px;
   height: auto !important;
   display: block;
-  border-radius: var(--radius-xs);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 #shareSlipModal .modal-surface {

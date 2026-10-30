@@ -33,7 +33,14 @@ export const exportCurrentWeekCSV = () => {
   const totalSalary = calculateWeekTotalSalary(week);
   csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
 
-  downloadFile(csvContent, `${slugify(week.name)}_salary.csv`, 'text/csv;charset=utf-8;');
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const weekSlug = slugify(week.name).replace(/-/g, '_').toUpperCase();
+  const fileName = `Bang_Luong_${weekSlug}_${y}${m}${d}.csv`;
+
+  downloadFile(csvContent, fileName, 'text/csv;charset=utf-8;');
   showToast(`${t('toast_csv_exported', 'Đã xuất file CSV cho')} ${getLocalizedWeekName(week.name)}`);
 };
 
@@ -62,7 +69,8 @@ export const exportAllWeeksCSV = () => {
 
   csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
 
-  downloadFile(csvContent, `tong_hop_luong_cac_tuan.csv`, 'text/csv;charset=utf-8;');
+  const allWeeksFileName = `Bang_Luong_Tong_Hop_Tat_Ca_Cac_Tuan_${y}${m}${d}.csv`;
+  downloadFile(csvContent, allWeeksFileName, 'text/csv;charset=utf-8;');
   showToast(t('toast_csv_all_exported', 'Đã xuất tổng hợp toàn bộ các tuần'));
 };
 
