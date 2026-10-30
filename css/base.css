@@ -46,7 +46,7 @@ html.dark-mode,
 body.dark-mode {
   --bg-app: #0a0b0e;
   --bg-card: #121319;
-  --bg-card-gradient: linear-gradient(180deg, #13141a 0%, #101117 100%);
+  --bg-card-gradient: #121319;
   --bg-card-hover: #171821;
   --bg-card-active: #1c1d27;
   --bg-input: #0c0d12;
@@ -122,32 +122,39 @@ body.dark-mode {
 
 ::view-transition-old(root) {
   z-index: 1;
+  animation: none !important;
 }
 
 ::view-transition-new(root) {
   z-index: 99999;
+  animation: none !important;
 }
 
-html.theme-vt-desktop::view-transition-old(root),
-html.theme-vt-desktop::view-transition-new(root) {
-  animation: none;
+html.theme-vt-active::view-transition-old(root) {
+  z-index: 1;
+  animation: none !important;
 }
 
-html.theme-vt-mobile::view-transition-old(root) {
-  animation: vtMobileFadeOut 0.22s cubic-bezier(0.2, 0, 0, 1) forwards !important;
-}
-html.theme-vt-mobile::view-transition-new(root) {
-  animation: vtMobileFadeIn 0.22s cubic-bezier(0.2, 0, 0, 1) forwards !important;
+html.theme-vt-active::view-transition-new(root) {
+  z-index: 99999;
+  animation: vtThemeRipple 0.54s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
 }
 
-@keyframes vtMobileFadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+html.theme-vt-to-dark::view-transition-new(root) {
+  filter: drop-shadow(0 0 1.5px #2563eb) drop-shadow(0 0 4px rgba(37, 99, 235, 0.7));
 }
 
-@keyframes vtMobileFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+html.theme-vt-to-light::view-transition-new(root) {
+  filter: drop-shadow(0 0 2px #38bdf8) drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+}
+
+@keyframes vtThemeRipple {
+  0% {
+    clip-path: circle(0px at var(--vt-x, 100% 0px) var(--vt-y, 0px));
+  }
+  100% {
+    clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 100% 0px) var(--vt-y, 0px));
+  }
 }
 
 body.theme-transitioning,

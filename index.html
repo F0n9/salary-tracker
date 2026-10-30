@@ -29,13 +29,6 @@
     
     <header class="app-header">
       <div class="header-left">
-        <div class="brand-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"></path>
-            <path d="M16 11h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z"></path>
-            <circle cx="18.5" cy="13" r="1" fill="currentColor"></circle>
-          </svg>
-        </div>
         <div>
           <h1 class="brand-title">Salary Tracker</h1>
           <span class="brand-date font-mono" id="currentDateDisplay">Đang tải...</span>
@@ -57,13 +50,6 @@
           </svg>
           <svg id="iconThemeMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="display: block;">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
-        <button id="btnHeaderAnalytics" class="btn-morphic" data-i18n-title="dock_reports" title="Thống kê" aria-label="Thống kê">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
           </svg>
         </button>
         <button id="btnUserAuth" class="btn-morphic" data-i18n-title="nav_account" title="Tài khoản & Đăng nhập" aria-label="Tài khoản">
@@ -125,7 +111,6 @@
             <div class="kpi-card-figure-row">
               <span class="kpi-card-number font-mono" id="kpiWeekSalary">0 đ</span>
             </div>
-            <div class="kpi-card-trend-badge font-mono" id="kpiSalaryTrendText">Đã tính theo ca</div>
           </div>
         </div>
 
@@ -214,13 +199,6 @@
         </svg>
       </button>
     </nav>
-
-    
-    <footer class="app-footer">
-      <div class="footer-meta font-mono">
-        <span class="footer-copyright">© 2026 Salary Tracker. All rights reserved.</span>
-      </div>
-    </footer>
   </div>
 
   
@@ -333,7 +311,6 @@
           <span>Xóa ca</span>
         </button>
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="shiftModal">Hủy</button>
         <button type="submit" class="btn-action-primary" id="btnSaveShift">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -456,7 +433,6 @@
 
       <div class="modal-footer">
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="allWeeksModal">Đóng</button>
         <button type="button" id="btnExportAllExcel" class="btn-action-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -539,7 +515,6 @@
 
       <div class="modal-footer">
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="settingsModal">Đóng</button>
         <button type="button" class="btn-action-primary" id="btnSaveSettings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -587,7 +562,6 @@
           <span>Xóa tuần</span>
         </button>
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="editWeekModal">Hủy</button>
         <button type="submit" class="btn-action-primary" id="btnUpdateWeekMeta">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -631,7 +605,6 @@
 
       <div class="modal-footer">
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="shareSlipModal">Đóng</button>
         <button type="button" class="btn-action-secondary" id="btnCopySlipImage">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -896,7 +869,6 @@
           <span>Đăng xuất</span>
         </button>
         <div class="modal-footer-spacer"></div>
-        <button type="button" class="btn-action-secondary" data-close-modal="userProfileModal">Đóng</button>
       </div>
     </div>
   </div>

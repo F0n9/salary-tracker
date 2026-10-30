@@ -71,8 +71,6 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
   );
   const endRadius = Math.ceil(maxCornerDist * 1.15) + 60;
 
-  const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     performThemeChange();
     persistThemeSettings();
@@ -81,71 +79,33 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
 
   if (typeof document.startViewTransition === 'function') {
     try {
-      if (isMobileDevice) {
-        document.documentElement.classList.add('theme-vt-mobile');
-      } else {
-        document.documentElement.classList.add('theme-vt-desktop');
-      }
+      document.documentElement.style.setProperty('--vt-x', `${x}px`);
+      document.documentElement.style.setProperty('--vt-y', `${y}px`);
+      document.documentElement.style.setProperty('--vt-r', `${endRadius}px`);
+
+      document.documentElement.classList.add('theme-vt-active', isDark ? 'theme-vt-to-dark' : 'theme-vt-to-light');
 
       const transition = document.startViewTransition(() => {
         performThemeChange();
       });
 
-      if (transition && typeof transition.ready?.then === 'function') {
-        transition.ready.then(() => {
-          if (!isMobileDevice) {
-            try {
-              document.documentElement.animate(
-                {
-                  clipPath: [
-                    `circle(0px at ${x}px ${y}px)`,
-                    `circle(${endRadius}px at ${x}px ${y}px)`
-                  ]
-                },
-                {
-                  duration: 520,
-                  easing: 'cubic-bezier(0.25, 1, 0.4, 1)',
-                  pseudoElement: '::view-transition-new(root)'
-                }
-              );
-            } catch (waapiErr) {
-              let styleTag = document.getElementById('_vtThemeStyle');
-              if (!styleTag) {
-                styleTag = document.createElement('style');
-                styleTag.id = '_vtThemeStyle';
-                document.head.appendChild(styleTag);
-              }
-              styleTag.textContent = `
-                ::view-transition-new(root) {
-                  animation: themeWaterRipple 0.52s cubic-bezier(0.25, 1, 0.4, 1) forwards !important;
-                }
-                @keyframes themeWaterRipple {
-                  0% { clip-path: circle(0px at ${x}px ${y}px); }
-                  100% { clip-path: circle(${endRadius}px at ${x}px ${y}px); }
-                }
-              `;
-              setTimeout(() => {
-                if (styleTag) styleTag.textContent = '';
-              }, 560);
-            }
-          }
-  }).catch(() => {});
-      }
-
       const cleanupVT = () => {
-        document.documentElement.classList.remove('theme-vt-mobile', 'theme-vt-desktop');
+        document.documentElement.classList.remove('theme-vt-active', 'theme-vt-to-dark', 'theme-vt-to-light');
+        document.documentElement.style.removeProperty('--vt-x');
+        document.documentElement.style.removeProperty('--vt-y');
+        document.documentElement.style.removeProperty('--vt-r');
         persistThemeSettings();
       };
 
       if (transition && typeof transition.finished?.then === 'function') {
         transition.finished.finally(cleanupVT);
       } else {
-        setTimeout(cleanupVT, isMobileDevice ? 260 : 560);
+        setTimeout(cleanupVT, 580);
       }
       return;
     } catch (e) {
-      document.documentElement.classList.remove('theme-vt-mobile', 'theme-vt-desktop');
-  }
+      document.documentElement.classList.remove('theme-vt-active', 'theme-vt-to-dark', 'theme-vt-to-light');
+    }
   }
 
   document.body.classList.add('theme-transitioning');
