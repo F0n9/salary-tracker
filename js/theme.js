@@ -104,7 +104,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
       if (transition && typeof transition.finished?.then === 'function') {
         transition.finished.finally(cleanupVT);
       } else {
-        setTimeout(cleanupVT, 580);
+        setTimeout(cleanupVT, 880);
       }
       return;
     } catch (e) {
@@ -117,7 +117,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
   persistThemeSettings();
   setTimeout(() => {
     document.body.classList.remove('theme-transitioning');
-  }, 240);
+  }, 620);
 };
 
 export const toggleTheme = (clickEvent = null) => {

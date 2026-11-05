@@ -124,6 +124,11 @@ body.dark-mode {
   mix-blend-mode: normal;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal !important;
+}
+
 ::view-transition-old(root) {
   z-index: 1;
   animation: none !important;
@@ -141,15 +146,15 @@ html.theme-vt-active::view-transition-old(root) {
 
 html.theme-vt-active::view-transition-new(root) {
   z-index: 99999;
-  animation: vtThemeRipple 0.54s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+  animation: vtThemeRipple 0.82s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 html.theme-vt-to-dark::view-transition-new(root) {
-  filter: drop-shadow(0 0 1.5px #2563eb) drop-shadow(0 0 4px rgba(37, 99, 235, 0.7));
+  filter: drop-shadow(0 0 2px #00f0ff) drop-shadow(0 0 8px rgba(0, 240, 255, 0.75)) drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
 }
 
 html.theme-vt-to-light::view-transition-new(root) {
-  filter: drop-shadow(0 0 2px #38bdf8) drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+  filter: drop-shadow(0 0 2px #ff007f) drop-shadow(0 0 8px rgba(255, 0, 127, 0.75)) drop-shadow(0 0 20px rgba(255, 0, 127, 0.4));
 }
 
 @keyframes vtThemeRipple {
@@ -173,7 +178,7 @@ body.theme-transitioning .btn-action-danger,
 body.theme-transitioning .modal-box,
 body.theme-transitioning .morphic-pill-capsule,
 body.theme-transitioning .theme-btn-toggle {
-  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease !important;
+  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .font-mono {
