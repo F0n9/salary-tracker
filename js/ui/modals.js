@@ -230,18 +230,10 @@ export const saveShiftFromModal = async (e) => {
   });
 
   if (overlappingShift) {
-    const overlapPattern = t('confirm_shift_overlap');
-    const confirmMsg = overlapPattern
-      ? overlapPattern.replace('{start}', start)
-          .replace('{end}', end)
-          .replace('{type}', getLocalizedShiftType(overlappingShift.type))
-          .replace('{oStart}', overlappingShift.start)
-          .replace('{oEnd}', overlappingShift.end)
-          .replace('{day}', getLocalizedDayName(day))
-      : `CẢNH BÁO TRÙNG GIỜ:\nCa làm này (${start} – ${end}) bị đè thời gian lên ca "${overlappingShift.type}" (${overlappingShift.start} – ${overlappingShift.end}) của cùng ngày ${day}.\n\nBạn có chắc chắn vẫn muốn lưu không?`;
     const confirmSave = await showConfirmDialog({
       title: t('confirm_overlap_title', 'Cảnh báo trùng giờ'),
-      message: confirmMsg,
+      message: `Ca làm (${start} – ${end}) bị đè thời gian lên ca khác của cùng ngày ${getLocalizedDayName(day)}. Bạn có chắc chắn vẫn muốn lưu không?`,
+      details: `${getLocalizedShiftType(overlappingShift.type)}: ${overlappingShift.start} – ${overlappingShift.end}`,
       confirmText: t('btn_continue_save', 'Vẫn lưu ca'),
       cancelText: t('btn_cancel', 'Hủy'),
       isDanger: false,
@@ -414,12 +406,10 @@ export const deleteCurrentWeek = async () => {
     return;
   }
 
-  const delWeekMsg = t('confirm_delete_week_named')
-    ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
-    : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
   const confirmed = await showConfirmDialog({
     title: t('btn_delete_week', 'Xóa tuần'),
-    message: delWeekMsg,
+    message: t('confirm_delete_week', 'Bạn có chắc chắn muốn xóa tuần làm việc này không?'),
+    details: `${getLocalizedWeekName(week.name)} • ${week.shifts.length} ${t('unit_shift', 'ca')}`,
     confirmText: t('btn_delete', 'Xóa'),
     cancelText: t('btn_cancel', 'Hủy'),
     isDanger: true,
@@ -769,12 +759,10 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
         });
         return;
       }
-      const delWeekMsg = t('confirm_delete_week_named')
-        ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
-        : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
       const confirmed = await showConfirmDialog({
         title: t('btn_delete_week', 'Xóa tuần'),
-        message: delWeekMsg,
+        message: t('confirm_delete_week', 'Bạn có chắc chắn muốn xóa tuần làm việc này không?'),
+        details: `${getLocalizedWeekName(week.name)} • ${week.shifts.length} ${t('unit_shift', 'ca')}`,
         confirmText: t('btn_delete', 'Xóa'),
         cancelText: t('btn_cancel', 'Hủy'),
         isDanger: true,
