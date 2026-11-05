@@ -8,6 +8,8 @@ defineMorphIcon();
 export const SUN_PATH = 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
 export const MOON_PATH = 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z';
 
+let currentVTId = 0;
+
 export const applyTheme = (theme, save = true, clickEvent = null) => {
   let effectiveTheme = theme;
   if (theme === 'auto') {
@@ -83,6 +85,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
 
   if (typeof document.startViewTransition === 'function') {
     try {
+      const thisVTId = ++currentVTId;
       document.documentElement.style.setProperty('--vt-x', `${x}px`);
       document.documentElement.style.setProperty('--vt-y', `${y}px`);
       document.documentElement.style.setProperty('--vt-r', `${endRadius}px`);
@@ -94,6 +97,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
       });
 
       const cleanupVT = () => {
+        if (thisVTId !== currentVTId) return;
         document.documentElement.classList.remove('theme-vt-active', 'theme-vt-to-dark', 'theme-vt-to-light');
         document.documentElement.style.removeProperty('--vt-x');
         document.documentElement.style.removeProperty('--vt-y');
@@ -104,7 +108,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
       if (transition && typeof transition.finished?.then === 'function') {
         transition.finished.finally(cleanupVT);
       } else {
-        setTimeout(cleanupVT, 880);
+        setTimeout(cleanupVT, 1250);
       }
       return;
     } catch (e) {
@@ -117,7 +121,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
   persistThemeSettings();
   setTimeout(() => {
     document.body.classList.remove('theme-transitioning');
-  }, 620);
+  }, 850);
 };
 
 export const toggleTheme = (clickEvent = null) => {
