@@ -3,6 +3,7 @@ import { state, getWeeksStorageKey, getSettingsStorageKey, normalizeWorkplacesAn
 import { t } from '../i18n.js';
 import { ensureWeekStartDate } from '../calculator.js';
 import { showToast } from '../ui/toast.js';
+import { showConfirmDialog } from '../ui/dialog.js';
 import { applyTheme } from '../theme.js';
 
 let appRenderer = null;
@@ -457,7 +458,15 @@ export const handleRegisterSubmit = async (e) => {
 };
 
 export const handleLogout = async () => {
-  if (confirm(t('confirm_logout', 'Bạn có chắc chắn muốn đăng xuất không?'))) {
+  const confirmed = await showConfirmDialog({
+    title: t('btn_logout', 'Đăng xuất'),
+    message: t('confirm_logout', 'Bạn có chắc chắn muốn đăng xuất không?'),
+    confirmText: t('btn_logout', 'Đăng xuất'),
+    cancelText: t('btn_cancel', 'Hủy'),
+    isDanger: true,
+    iconType: 'logout'
+  });
+  if (confirmed) {
     if (supabaseClient) {
       await supabaseClient.auth.signOut();
     }

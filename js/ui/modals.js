@@ -3,6 +3,7 @@ import { fmtCurrency, fmtHours, parseTimeToMinutes, calculateHoursDiff, getShift
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName, formatShiftType } from '../i18n.js';
 import { saveWeeks, saveSettings, updateSyncStatusUI } from '../services/supabase.js';
 import { showToast, showToastWithAction } from './toast.js';
+import { showConfirmDialog, showAlertDialog } from './dialog.js';
 import { setupCustomSelect, syncCustomSelect } from './select.js';
 import { renderAnalyticsDashboard } from './chart.js';
 import { EYE_OPEN_SVG, EYE_OFF_SVG } from '../config.js';
@@ -190,7 +191,7 @@ export const updateModalComputedPreview = () => {
   document.getElementById('previewSalary').textContent = fmtCurrency(wage);
 };
 
-export const saveShiftFromModal = (e) => {
+export const saveShiftFromModal = async (e) => {
   e.preventDefault();
   if (!hasWorkplaces()) {
     showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trước!'));
@@ -238,7 +239,15 @@ export const saveShiftFromModal = (e) => {
           .replace('{oEnd}', overlappingShift.end)
           .replace('{day}', getLocalizedDayName(day))
       : `CẢNH BÁO TRÙNG GIỜ:\nCa làm này (${start} – ${end}) bị đè thời gian lên ca "${overlappingShift.type}" (${overlappingShift.start} – ${overlappingShift.end}) của cùng ngày ${day}.\n\nBạn có chắc chắn vẫn muốn lưu không?`;
-    const confirmSave = confirm(confirmMsg);
+    const confirmSave = await showConfirmDialog({
+      title: t('confirm_overlap_title', 'Cảnh báo trùng giờ'),
+      message: confirmMsg,
+      confirmText: t('btn_continue_save', 'Vẫn lưu ca'),
+      cancelText: t('btn_cancel', 'Hủy'),
+      isDanger: false,
+      isWarning: true,
+      iconType: 'warning'
+    });
     if (!confirmSave) return;
   }
 
@@ -391,19 +400,32 @@ export const saveWeekMeta = (e) => {
 
 let lastDeletedWeekRecord = null;
 
-export const deleteCurrentWeek = () => {
+export const deleteCurrentWeek = async () => {
   const week = getCurrentWeek();
   if (!week) return;
 
   if (state.weeks.length <= 1) {
-    alert(t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'));
+    await showAlertDialog({
+      title: t('btn_delete_week', 'Xóa tuần'),
+      message: t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'),
+      isError: true,
+      iconType: 'error'
+    });
     return;
   }
 
   const delWeekMsg = t('confirm_delete_week_named')
     ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
     : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
-  if (confirm(delWeekMsg)) {
+  const confirmed = await showConfirmDialog({
+    title: t('btn_delete_week', 'Xóa tuần'),
+    message: delWeekMsg,
+    confirmText: t('btn_delete', 'Xóa'),
+    cancelText: t('btn_cancel', 'Hủy'),
+    isDanger: true,
+    iconType: 'delete'
+  });
+  if (confirmed) {
     const weekIndex = state.weeks.findIndex(w => w.id === week.id);
     const removedWeek = { ...week, shifts: [...week.shifts] };
 
@@ -737,15 +759,28 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
       });
     }
 
-    tr.querySelector(`[data-delete-week="${week.id}"]`).addEventListener('click', () => {
+    tr.querySelector(`[data-delete-week="${week.id}"]`).addEventListener('click', async () => {
       if (state.weeks.length <= 1) {
-        alert(t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'));
+        await showAlertDialog({
+          title: t('btn_delete_week', 'Xóa tuần'),
+          message: t('alert_cannot_delete_only_week', 'Không thể xóa tuần duy nhất còn lại.'),
+          isError: true,
+          iconType: 'error'
+        });
         return;
       }
       const delWeekMsg = t('confirm_delete_week_named')
-    ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
-    : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
-  if (confirm(delWeekMsg)) {
+        ? t('confirm_delete_week_named').replace('{name}', getLocalizedWeekName(week.name)).replace('{count}', week.shifts.length)
+        : `Bạn có chắc chắn muốn xóa "${getLocalizedWeekName(week.name)}" bao gồm ${week.shifts.length} ca làm việc không?`;
+      const confirmed = await showConfirmDialog({
+        title: t('btn_delete_week', 'Xóa tuần'),
+        message: delWeekMsg,
+        confirmText: t('btn_delete', 'Xóa'),
+        cancelText: t('btn_cancel', 'Hủy'),
+        isDanger: true,
+        iconType: 'delete'
+      });
+      if (confirmed) {
         state.weeks = state.weeks.filter(w => w.id !== week.id);
         if (state.currentWeekId === week.id) {
           state.currentWeekId = state.weeks[state.weeks.length - 1].id;
@@ -842,7 +877,16 @@ export const renderShiftWorkplacesList = () => {
 
     const delBtn = row.querySelector('[data-del-wp]');
     if (delBtn) {
-      delBtn.addEventListener('click', () => {
+      delBtn.addEventListener('click', async () => {
+        const confirmed = await showConfirmDialog({
+          title: t('btn_delete_wp', 'Xóa nơi làm'),
+          message: `Bạn có chắc chắn muốn xóa nơi làm việc "${wp}" không?`,
+          confirmText: t('btn_delete', 'Xóa'),
+          cancelText: t('btn_cancel', 'Hủy'),
+          isDanger: true,
+          iconType: 'delete'
+        });
+        if (!confirmed) return;
         const removed = state.settings.workplaces.splice(idx, 1)[0];
         if (state.settings.defaultWorkplace === removed) {
           state.settings.defaultWorkplace = state.settings.workplaces[0] || '';

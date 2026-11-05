@@ -2801,3 +2801,100 @@ body.dark-mode .input-with-tag .tag {
     grid-template-columns: 1fr;
   }
 }
+
+.app-dialog-backdrop {
+  z-index: 10050 !important;
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+body.dark-mode .app-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-surface-dialog {
+  max-width: 420px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  transform: scale(0.96) translateY(4px);
+  opacity: 0;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-dialog-backdrop.open .modal-surface-dialog {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.app-dialog-body {
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.app-dialog-icon-badge {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.app-dialog-icon-badge.danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.22);
+}
+
+.app-dialog-icon-badge.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+}
+
+.app-dialog-icon-badge.info {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+}
+
+body.dark-mode .app-dialog-icon-badge.danger {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+body.dark-mode .app-dialog-icon-badge.warning {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+body.dark-mode .app-dialog-icon-badge.info {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.app-dialog-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.app-dialog-message {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin: 0;
+  white-space: pre-line;
+  word-break: break-word;
+}

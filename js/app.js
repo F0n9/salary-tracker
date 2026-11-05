@@ -8,6 +8,7 @@ import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui
 import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboard, analyticsState } from './ui/chart.js';
 import { renderSlipCanvas, openShareSlipModal, downloadSlipImage, copySlipImageToClipboard } from './ui/canvas-slip.js';
 import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setExportAppRenderer } from './ui/export.js';
+import { showConfirmDialog, showAlertDialog, initDialogHandlers } from './ui/dialog.js';
 import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
 
 const updateWheelIndicator = () => {};
@@ -400,8 +401,16 @@ const renderShiftsList = () => {
       openEditShiftModal(shift);
     });
 
-    card.querySelector(`[data-delete-shift="${shift.id}"]`).addEventListener('click', () => {
-      if (confirm(`${t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm này không?')} (${getLocalizedDayName(shift.day)} ${getLocalizedShiftType(shift.type)} ${shift.start}-${shift.end})`)) {
+    card.querySelector(`[data-delete-shift="${shift.id}"]`).addEventListener('click', async () => {
+      const confirmed = await showConfirmDialog({
+        title: t('btn_delete_shift', 'Xóa ca'),
+        message: `${t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm này không?')} (${getLocalizedDayName(shift.day)} ${getLocalizedShiftType(shift.type)} ${shift.start}-${shift.end})`,
+        confirmText: t('btn_delete', 'Xóa'),
+        cancelText: t('btn_cancel', 'Hủy'),
+        isDanger: true,
+        iconType: 'delete'
+      });
+      if (confirmed) {
         deleteShift(shift.id);
       }
     });
@@ -411,6 +420,8 @@ const renderShiftsList = () => {
 };
 
 const bindEvents = () => {
+  initDialogHandlers();
+
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
       const modalId = btn.getAttribute('data-close-modal');
@@ -418,8 +429,7 @@ const bindEvents = () => {
     });
   });
 
- 
-  document.querySelectorAll('.modal-backdrop').forEach(modal => {
+  document.querySelectorAll('.modal-backdrop:not(.app-dialog-backdrop)').forEach(modal => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.style.display = 'none';
@@ -477,10 +487,18 @@ const bindEvents = () => {
 
   const btnDeleteShiftModal = document.getElementById('btnDeleteShiftModal');
   if (btnDeleteShiftModal) {
-    btnDeleteShiftModal.addEventListener('click', () => {
+    btnDeleteShiftModal.addEventListener('click', async () => {
       const editId = document.getElementById('editShiftId').value;
       if (editId) {
-        if (confirm(t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm việc này không?'))) {
+        const confirmed = await showConfirmDialog({
+          title: t('btn_delete_shift', 'Xóa ca'),
+          message: t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm việc này không?'),
+          confirmText: t('btn_delete', 'Xóa'),
+          cancelText: t('btn_cancel', 'Hủy'),
+          isDanger: true,
+          iconType: 'delete'
+        });
+        if (confirmed) {
           deleteShift(editId);
           closeModal('shiftModal');
         }

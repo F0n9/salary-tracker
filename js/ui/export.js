@@ -2,6 +2,7 @@ import { state, getCurrentWeek } from '../state.js';
 import { slugify, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, getWeekDateRangeDisplay, getShiftDateFull } from '../calculator.js';
 import { t, getLocalizedWeekName, getLocalizedDayName, getLocalizedShiftType } from '../i18n.js';
 import { showToast } from './toast.js';
+import { showAlertDialog } from './dialog.js';
 import { saveWeeks, saveSettings } from '../services/supabase.js';
 import { closeModal } from './modals.js';
 
@@ -98,7 +99,7 @@ export const restoreJSON = (e) => {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = (event) => {
+  reader.onload = async (event) => {
     try {
       const parsed = JSON.parse(event.target.result);
       if (parsed.weeks && Array.isArray(parsed.weeks)) {
@@ -111,10 +112,20 @@ export const restoreJSON = (e) => {
         triggerAppRender();
         showToast(t('toast_imported_success', 'Đã nhập dữ liệu thành công!'));
       } else {
-        alert(t('toast_invalid_json', 'File JSON không hợp lệ hoặc thiếu dữ liệu.'));
+        await showAlertDialog({
+          title: t('btn_import_json', 'Nhập file JSON'),
+          message: t('toast_invalid_json', 'File JSON không hợp lệ hoặc thiếu dữ liệu.'),
+          isError: true,
+          iconType: 'error'
+        });
       }
     } catch (err) {
-      alert(t('alert_file_read_error', 'Không thể đọc file: ') + err.message);
+      await showAlertDialog({
+        title: t('btn_import_json', 'Nhập file JSON'),
+        message: t('alert_file_read_error', 'Không thể đọc file: ') + err.message,
+        isError: true,
+        iconType: 'error'
+      });
     }
   };
   reader.readAsText(file);
