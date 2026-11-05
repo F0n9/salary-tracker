@@ -37,11 +37,26 @@ typography:
     fontSize: "1.15rem"
     fontWeight: 600
     lineHeight: 1.3
+  title:
+    fontFamily: "'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 600
+    lineHeight: 1.35
   body:
     fontFamily: "'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.5
+  caption:
+    fontFamily: "'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 500
+    lineHeight: 1.4
+  micro:
+    fontFamily: "'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif"
+    fontSize: "0.775rem"
+    fontWeight: 500
+    lineHeight: 1.4
   mono:
     fontFamily: "'JetBrains Mono', ui-monospace, Menlo, Monaco, monospace"
     fontSize: "0.875rem"
@@ -49,9 +64,11 @@ typography:
     lineHeight: 1.4
     letterSpacing: "-0.015em"
 rounded:
+  2px: "2px"
   xs: "4px"
   sm: "6px"
   md: "8px"
+  10px: "10px"
   lg: "12px"
   pill: "9999px"
 spacing:
@@ -162,3 +179,4 @@ Phân cấp kích thước:
 - Không sử dụng hiệu ứng nảy thô thiển (`bounce easing`). Chỉ dùng `cubic-bezier(0.16, 1, 0.3, 1)` (exponential deceleration).
 - Không để xuất hiện thanh cuộn scrollbar trên bất kỳ bề mặt nào.
 - Tuyệt đối không thêm comment vào mã nguồn HTML, CSS, JavaScript.
+

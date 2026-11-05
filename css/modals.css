@@ -379,7 +379,7 @@ select option {
   color: var(--text-muted);
   background: rgba(148, 163, 184, 0.15);
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-family: inherit;
 }
 
@@ -477,6 +477,8 @@ input[type="number"] {
 }
 
 .calc-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text-main);
@@ -578,7 +580,7 @@ body.dark-mode .calc-val#previewSalary {
 .minimal-table th:nth-child(4),
 .minimal-table td:nth-child(4) {
   text-align: right;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 

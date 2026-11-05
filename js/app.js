@@ -323,7 +323,7 @@ const renderShiftsList = () => {
     const otRateVal = Number(shift.otRate) || 1.0;
     const otBadge = otRateVal > 1.0 ? `<span class="shift-ot-badge font-mono">OT x${otRateVal}</span>` : '';
     const allowanceVal = Number(shift.allowance) || 0;
-    const allowanceBadge = allowanceVal > 0 ? `<span class="shift-allowance-badge font-mono">+${fmtCurrency(allowanceVal)}</span>` : '';
+    const allowanceBadge = allowanceVal > 0 ? `<span class="shift-allowance-badge font-mono">${fmtCurrency(allowanceVal)}</span>` : '';
     const wpCol = getWorkplaceColor(shift.workplace);
     const shiftRate = getShiftRate(shift);
 
