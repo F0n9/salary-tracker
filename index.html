@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261105b">
-  <link rel="stylesheet" href="./css/components.css?v=20261105b">
-  <link rel="stylesheet" href="./css/modals.css?v=20261105b">
+  <link rel="stylesheet" href="./css/base.css?v=20261106a">
+  <link rel="stylesheet" href="./css/components.css?v=20261106a">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106a">
 </head>
 <body>
   
@@ -446,21 +446,19 @@
 
       <div class="modal-footer modal-footer-between">
         <div class="modal-footer-left">
-          <button type="button" id="btnBackupJson" class="btn-morphic" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <button type="button" id="btnBackupJson" class="btn-morphic btn-icon-only" data-i18n-title="btn_export_json" title="Xuất file JSON" aria-label="Xuất file JSON">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" x2="12" y1="15" y2="3"></line>
             </svg>
-            <span>JSON</span>
           </button>
-          <label class="btn-morphic upload-label" data-i18n-title="btn_import_json" title="Nhập file JSON" aria-label="Nhập file JSON">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <label class="btn-morphic upload-label btn-icon-only" data-i18n-title="btn_import_json" title="Nhập file JSON" aria-label="Nhập file JSON">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" x2="12" y1="3" y2="15"></line>
             </svg>
-            <span>Nhập</span>
             <input type="file" id="fileRestoreJson" accept=".json" style="display: none;">
           </label>
         </div>
@@ -822,6 +820,6 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261105b"></script>
+  <script type="module" src="./js/app.js?v=20261106a"></script>
 </body>
 </html>

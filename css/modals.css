@@ -1631,6 +1631,11 @@ body.dark-mode .wp-default-tag {
   gap: 0.5rem;
 }
 
+.upload-label {
+  margin: 0;
+  cursor: pointer;
+}
+
 .btn-action-add {
   display: inline-flex;
   align-items: center;
