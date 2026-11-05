@@ -57,11 +57,11 @@ export const showConfirmDialog = (options = {}) => {
     const titleEl = document.getElementById('appDialogTitle');
     const subtitleEl = document.getElementById('appDialogSubtitle');
     const msgEl = document.getElementById('appDialogMessage');
+    const detailCardEl = document.getElementById('appDialogDetailCard');
+    const detailTextEl = document.getElementById('appDialogDetailText');
     const badgeEl = document.getElementById('appDialogIconBadge');
     const cancelBtn = document.getElementById('appDialogCancelBtn');
-    const cancelTextEl = document.getElementById('appDialogCancelText');
     const confirmBtn = document.getElementById('appDialogConfirmBtn');
-    const confirmTextEl = document.getElementById('appDialogConfirmText');
     const confirmIconEl = document.getElementById('appDialogConfirmIcon');
 
     const isDanger = Boolean(opts.isDanger);
@@ -86,6 +86,16 @@ export const showConfirmDialog = (options = {}) => {
       msgEl.textContent = opts.message || '';
     }
 
+    if (detailCardEl && detailTextEl) {
+      if (opts.details) {
+        detailTextEl.textContent = opts.details;
+        detailCardEl.style.display = 'flex';
+      } else {
+        detailTextEl.textContent = '';
+        detailCardEl.style.display = 'none';
+      }
+    }
+
     if (badgeEl) {
       badgeEl.className = 'app-dialog-icon-badge ' + (isDanger ? 'danger' : (isWarning ? 'warning' : 'info'));
       badgeEl.innerHTML = ICONS[iconKey] || ICONS.info;
@@ -93,16 +103,16 @@ export const showConfirmDialog = (options = {}) => {
 
     if (cancelBtn) {
       cancelBtn.style.display = 'inline-flex';
-      if (cancelTextEl) {
-        cancelTextEl.textContent = opts.cancelText || t('btn_cancel', 'Hủy');
-      }
+      const cancelLabel = opts.cancelText || t('btn_cancel', 'Hủy');
+      cancelBtn.title = cancelLabel;
+      cancelBtn.setAttribute('aria-label', cancelLabel);
     }
 
     if (confirmBtn) {
-      confirmBtn.className = isDanger ? 'btn-action-danger' : 'btn-action-primary';
-      if (confirmTextEl) {
-        confirmTextEl.textContent = opts.confirmText || (isDanger ? t('btn_delete', 'Xóa') : t('dialog_btn_ok', 'Đồng ý'));
-      }
+      confirmBtn.className = (isDanger ? 'btn-action-danger' : 'btn-action-primary') + ' btn-icon-only';
+      const confirmLabel = opts.confirmText || (isDanger ? t('btn_delete', 'Xóa') : t('dialog_btn_ok', 'Đồng ý'));
+      confirmBtn.title = confirmLabel;
+      confirmBtn.setAttribute('aria-label', confirmLabel);
       if (confirmIconEl) {
         confirmIconEl.innerHTML = isDanger ? (iconKey === 'logout' ? CONFIRM_ICON_LOGOUT : CONFIRM_ICON_TRASH) : CONFIRM_ICON_CHECK;
       }
@@ -145,10 +155,11 @@ export const showAlertDialog = (options = {}) => {
     const titleEl = document.getElementById('appDialogTitle');
     const subtitleEl = document.getElementById('appDialogSubtitle');
     const msgEl = document.getElementById('appDialogMessage');
+    const detailCardEl = document.getElementById('appDialogDetailCard');
+    const detailTextEl = document.getElementById('appDialogDetailText');
     const badgeEl = document.getElementById('appDialogIconBadge');
     const cancelBtn = document.getElementById('appDialogCancelBtn');
     const confirmBtn = document.getElementById('appDialogConfirmBtn');
-    const confirmTextEl = document.getElementById('appDialogConfirmText');
     const confirmIconEl = document.getElementById('appDialogConfirmIcon');
 
     const isError = Boolean(opts.isError);
@@ -172,6 +183,16 @@ export const showAlertDialog = (options = {}) => {
       msgEl.textContent = opts.message || '';
     }
 
+    if (detailCardEl && detailTextEl) {
+      if (opts.details) {
+        detailTextEl.textContent = opts.details;
+        detailCardEl.style.display = 'flex';
+      } else {
+        detailTextEl.textContent = '';
+        detailCardEl.style.display = 'none';
+      }
+    }
+
     if (badgeEl) {
       badgeEl.className = 'app-dialog-icon-badge ' + (isError ? 'danger' : 'info');
       badgeEl.innerHTML = ICONS[iconKey] || ICONS.info;
@@ -182,10 +203,10 @@ export const showAlertDialog = (options = {}) => {
     }
 
     if (confirmBtn) {
-      confirmBtn.className = 'btn-action-primary';
-      if (confirmTextEl) {
-        confirmTextEl.textContent = opts.okText || t('dialog_btn_understood', 'Đã hiểu');
-      }
+      confirmBtn.className = 'btn-action-primary btn-icon-only';
+      const okLabel = opts.okText || t('dialog_btn_understood', 'Đã hiểu');
+      confirmBtn.title = okLabel;
+      confirmBtn.setAttribute('aria-label', okLabel);
       if (confirmIconEl) {
         confirmIconEl.innerHTML = CONFIRM_ICON_CHECK;
       }
