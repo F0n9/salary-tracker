@@ -2812,7 +2812,7 @@ body.dark-mode .app-dialog-backdrop {
 }
 
 .modal-surface-dialog {
-  max-width: 420px;
+  max-width: 400px;
   width: 100%;
   border-radius: var(--radius-lg);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
@@ -2827,23 +2827,27 @@ body.dark-mode .app-dialog-backdrop {
 }
 
 .app-dialog-body {
-  padding: 1.25rem 1.35rem;
+  padding: 1.15rem 1.25rem;
+}
+
+.app-dialog-card {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.95rem;
 }
 
 .app-dialog-icon-badge {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  min-height: 42px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 .app-dialog-icon-badge.danger {
@@ -2887,14 +2891,44 @@ body.dark-mode .app-dialog-icon-badge.info {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 0.65rem;
 }
 
 .app-dialog-message {
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--text-main);
   margin: 0;
   white-space: pre-line;
   word-break: break-word;
+}
+
+.app-dialog-detail-card {
+  background: #f1f5f9;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+body.dark-mode .app-dialog-detail-card {
+  background: #1e293b;
+  border-color: var(--border-subtle);
+}
+
+.app-dialog-detail-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.app-dialog-footer {
+  padding: 0.75rem 1.25rem;
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
