@@ -404,7 +404,8 @@ const renderShiftsList = () => {
     card.querySelector(`[data-delete-shift="${shift.id}"]`).addEventListener('click', async () => {
       const confirmed = await showConfirmDialog({
         title: t('btn_delete_shift', 'Xóa ca'),
-        message: `${t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm này không?')} (${getLocalizedDayName(shift.day)} ${getLocalizedShiftType(shift.type)} ${shift.start}-${shift.end})`,
+        message: t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm này không?'),
+        details: `${getLocalizedDayName(shift.day)} • ${getLocalizedShiftType(shift.type)} • ${shift.start} – ${shift.end}`,
         confirmText: t('btn_delete', 'Xóa'),
         cancelText: t('btn_cancel', 'Hủy'),
         isDanger: true,
@@ -490,9 +491,15 @@ const bindEvents = () => {
     btnDeleteShiftModal.addEventListener('click', async () => {
       const editId = document.getElementById('editShiftId').value;
       if (editId) {
+        const day = document.getElementById('shiftDay')?.value || '';
+        const type = document.getElementById('shiftType')?.value || '';
+        const start = document.getElementById('shiftStart')?.value || '';
+        const end = document.getElementById('shiftEnd')?.value || '';
+        const detailStr = (day && type && start && end) ? `${getLocalizedDayName(day)} • ${getLocalizedShiftType(type)} • ${start} – ${end}` : '';
         const confirmed = await showConfirmDialog({
           title: t('btn_delete_shift', 'Xóa ca'),
           message: t('confirm_delete_shift', 'Bạn có chắc chắn muốn xóa ca làm việc này không?'),
+          details: detailStr,
           confirmText: t('btn_delete', 'Xóa'),
           cancelText: t('btn_cancel', 'Hủy'),
           isDanger: true,

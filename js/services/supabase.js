@@ -458,9 +458,11 @@ export const handleRegisterSubmit = async (e) => {
 };
 
 export const handleLogout = async () => {
+  const currentName = state.currentUser ? (state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user') : '';
   const confirmed = await showConfirmDialog({
     title: t('btn_logout', 'Đăng xuất'),
     message: t('confirm_logout', 'Bạn có chắc chắn muốn đăng xuất không?'),
+    details: currentName ? `@${currentName}` : '',
     confirmText: t('btn_logout', 'Đăng xuất'),
     cancelText: t('btn_cancel', 'Hủy'),
     isDanger: true,
