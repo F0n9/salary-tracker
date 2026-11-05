@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261106d">
-  <link rel="stylesheet" href="./css/components.css?v=20261106d">
-  <link rel="stylesheet" href="./css/modals.css?v=20261106d">
+  <link rel="stylesheet" href="./css/base.css?v=20261106e">
+  <link rel="stylesheet" href="./css/components.css?v=20261106e">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106e">
 </head>
 
 <body>
@@ -938,36 +938,39 @@
       </div>
 
       <div class="modal-body app-dialog-body">
-        <div class="app-dialog-icon-badge" id="appDialogIconBadge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-            stroke-linejoin="round" width="22" height="22">
-            <path d="M3 6h18"></path>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-          </svg>
-        </div>
-        <div class="app-dialog-content">
-          <p class="app-dialog-message" id="appDialogMessage"></p>
+        <div class="app-dialog-card">
+          <div class="app-dialog-icon-badge" id="appDialogIconBadge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+              stroke-linejoin="round" width="22" height="22">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+          </div>
+          <div class="app-dialog-content">
+            <p class="app-dialog-message" id="appDialogMessage"></p>
+            <div class="app-dialog-detail-card" id="appDialogDetailCard" style="display: none;">
+              <span class="app-dialog-detail-text font-mono" id="appDialogDetailText"></span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="modal-footer" id="appDialogFooter">
-        <button type="button" class="btn-action-secondary" id="appDialogCancelBtn">
+      <div class="modal-footer app-dialog-footer" id="appDialogFooter">
+        <button type="button" class="btn-action-secondary btn-icon-only" id="appDialogCancelBtn" title="Hủy" aria-label="Hủy">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
             stroke-linejoin="round" width="16" height="16">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
           </svg>
-          <span id="appDialogCancelText">Hủy</span>
         </button>
-        <button type="button" class="btn-action-danger" id="appDialogConfirmBtn">
+        <button type="button" class="btn-action-danger btn-icon-only" id="appDialogConfirmBtn" title="Xác nhận" aria-label="Xác nhận">
           <span id="appDialogConfirmIcon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
               stroke-linejoin="round" width="16" height="16">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </span>
-          <span id="appDialogConfirmText">Đồng ý</span>
         </button>
       </div>
     </div>
@@ -978,7 +981,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261106d"></script>
+  <script type="module" src="./js/app.js?v=20261106e"></script>
 </body>
 
 </html>
