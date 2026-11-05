@@ -204,7 +204,7 @@ const renderWeekDetails = () => {
     if (entries.length > 0) {
       wpListEl.innerHTML = entries.slice(0, 3).map(([name, h]) => {
         const col = getWorkplaceColor(name);
-        return `<div class="kpi-wp-row"><div class="kpi-wp-left"><span class="kpi-wp-dot" style="background:${col.fill}"></span><span class="kpi-wp-name">${name}</span></div><span class="kpi-wp-hours font-mono">${fmtHours(h)}</span></div>`;
+        return `<div class="kpi-wp-row"><div class="kpi-wp-left"><span class="kpi-wp-dot" style="background:${col.fill}"></span><span class="kpi-wp-name">${escapeHtml(name)}</span></div><span class="kpi-wp-hours font-mono">${fmtHours(h)}</span></div>`;
       }).join('');
     } else {
       wpListEl.innerHTML = `<span class="kpi-wp-empty font-mono">Chưa có ca</span>`;
