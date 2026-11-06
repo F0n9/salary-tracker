@@ -797,6 +797,10 @@ const bindEvents = () => {
           }
         }
 
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+
         const reg = await navigator.serviceWorker.register('./sw.js');
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;

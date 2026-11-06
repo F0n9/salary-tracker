@@ -1155,17 +1155,16 @@ body.dark-mode .btn-submit-action:hover {
   inset: -6px;
   border-radius: calc(var(--radius-md) + 6px);
   background:
-    radial-gradient(circle at 14% 18%, rgba(99, 102, 241, 0.75) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 86% 14%, rgba(168, 85, 247, 0.8) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 92% 70%, rgba(59, 130, 246, 0.7) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 18% 80%, rgba(236, 72, 153, 0.65) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 50% -6%, rgba(99, 102, 241, 0.65) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 50% 106%, rgba(139, 92, 246, 0.65) 1.5px, transparent 2.5px),
-    radial-gradient(circle at -4% 50%, rgba(59, 130, 246, 0.6) 1.5px, transparent 2.5px),
-    radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.12) 65%, transparent 85%);
+    radial-gradient(circle at 14% 18%, rgba(99, 102, 241, 0.5) 1.5px, transparent 2px),
+    radial-gradient(circle at 86% 14%, rgba(168, 85, 247, 0.5) 1.5px, transparent 2px),
+    radial-gradient(circle at 92% 70%, rgba(59, 130, 246, 0.5) 1.5px, transparent 2px),
+    radial-gradient(circle at 18% 80%, rgba(236, 72, 153, 0.4) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% -6%, rgba(99, 102, 241, 0.4) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% 106%, rgba(139, 92, 246, 0.4) 1.5px, transparent 2px),
+    radial-gradient(circle at -4% 50%, rgba(59, 130, 246, 0.4) 1.5px, transparent 2px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.9;
+  opacity: 0.8;
   animation: avatarDustShimmer 3s ease-in-out infinite alternate;
 }
 
@@ -1181,12 +1180,12 @@ body.dark-mode .btn-submit-action:hover {
 }
 
 .profile-avatar {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: var(--radius-md);
   padding: 0;
   border: 2px solid var(--primary);
-  background: transparent;
+  background: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1194,18 +1193,20 @@ body.dark-mode .btn-submit-action:hover {
   overflow: hidden;
   position: relative;
   z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .profile-avatar:hover {
   transform: scale(1.03);
-  border-color: rgba(99, 102, 241, 0.9);
+  border-color: var(--primary-hover);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 body.dark-mode .profile-avatar {
-  border-color: rgba(129, 140, 248, 0.85);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  background: #15161d;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
 .btn-avatar-edit-badge {
@@ -3496,21 +3497,21 @@ body.dark-mode .app-dialog-detail-card {
 
 .avatar-picker-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.45rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
 }
 
 @media (max-width: 480px) {
   .avatar-picker-grid {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.35rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
   }
 }
 
 .avatar-choice-btn {
   width: 100%;
   aspect-ratio: 1;
-  padding: 2px;
+  padding: 3px;
   border-radius: var(--radius-md);
   border: 2px solid transparent;
   background: transparent;
@@ -3522,17 +3523,17 @@ body.dark-mode .app-dialog-detail-card {
 }
 
 .avatar-choice-btn:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .avatar-choice-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .avatar-choice-btn.is-active {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
-  transform: scale(1.06);
+  box-shadow: 0 0 0 2px var(--primary-border), 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: scale(1.04);
 }
 
 .avatar-choice-btn svg {
@@ -3540,6 +3541,7 @@ body.dark-mode .app-dialog-detail-card {
   height: 100%;
   display: block;
   border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 .user-avatar-mini {

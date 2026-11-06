@@ -727,7 +727,7 @@ export const VERIFIED_USER_SETTINGS = {
   workplaceRates: { 'Cơm Chin Chin': 40000 },
   workplaceColors: { 'Cơm Chin Chin': '#6366f1' },
   defaultRate: 40000,
-  avatar: 'ninja'
+  avatar: 'dicebear_ninja'
 };
 
 export const reconcileWeeksWithVerified = (weeks) => {

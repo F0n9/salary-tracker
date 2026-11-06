@@ -1,12 +1,12 @@
-const CACHE_NAME = 'salary-tracker-v137';
+const CACHE_NAME = 'salary-tracker-v138';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/base.css?v=20261106bb',
-  './css/components.css?v=20261106bb',
-  './css/modals.css?v=20261106bb',
-  './js/app.js?v=20261106bb',
+  './css/base.css?v=20261106cc',
+  './css/components.css?v=20261106cc',
+  './css/modals.css?v=20261106cc',
+  './js/app.js?v=20261106cc',
   './js/config.js',
   './js/i18n.js',
   './js/theme.js',
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+  if (event.request.mode === 'navigate' || event.request.destination === 'document' || event.request.destination === 'style' || event.request.destination === 'script') {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
@@ -81,7 +81,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(event.request))
     );
     return;
   }
