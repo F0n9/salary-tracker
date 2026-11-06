@@ -852,6 +852,42 @@ body.dark-mode .btn-table-delete:hover {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
+.form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.form-label-row .form-label {
+  margin-bottom: 0;
+}
+
+.btn-link-subtle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.btn-link-subtle:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+.auth-panel-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0 0 0.25rem 0;
+}
+
 .auth-form-panel,
 .change-pwd-form {
   display: flex;
@@ -867,6 +903,38 @@ body.dark-mode .btn-table-delete:hover {
   padding: 0.5rem 0.75rem;
   font-size: 0.775rem;
   line-height: 1.4;
+}
+
+.auth-success-msg {
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #059669;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.775rem;
+  line-height: 1.4;
+}
+
+.profile-linking-box {
+  margin-top: 0.5rem;
+}
+
+.google-linked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 38px;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #065f46;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
 }
 
 .auth-oauth-wrap {
@@ -2588,6 +2656,26 @@ body.dark-mode .btn-oauth-google {
 body.dark-mode .btn-oauth-google:hover {
   background: #232536;
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .auth-success-msg {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+body.dark-mode .google-linked-badge {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+body.dark-mode .btn-link-subtle {
+  color: #60a5fa;
+}
+
+body.dark-mode .btn-link-subtle:hover {
+  color: #93c5fd;
 }
 
 body.dark-mode .summary-tab-nav {
