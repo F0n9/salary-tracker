@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261106p">
-  <link rel="stylesheet" href="./css/components.css?v=20261106p">
-  <link rel="stylesheet" href="./css/modals.css?v=20261106p">
+  <link rel="stylesheet" href="./css/base.css?v=20261106q">
+  <link rel="stylesheet" href="./css/components.css?v=20261106q">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106q">
 </head>
 
 <body>
@@ -91,7 +91,6 @@
         </div>
 
         <div class="week-wheel-container">
-          <div class="week-wheel-lens"></div>
           <div class="week-wheel-track" id="weekPillsList"></div>
         </div>
       </div>
@@ -846,12 +845,12 @@
           </div>
           <div class="profile-meta">
             <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
-            <button type="button" class="btn-avatar-picker-toggle font-mono" id="btnToggleAvatarPicker">
-              <span id="lblAvatarName" data-i18n="profile_change_avatar">Đổi ảnh nhân vật</span>
+            <button type="button" class="btn-avatar-picker-toggle" id="btnToggleAvatarPicker">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round" width="12" height="12">
-                <polyline points="6 9 12 15 18 9"></polyline>
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
               </svg>
+              <span data-i18n="profile_change_avatar">Đổi ảnh</span>
             </button>
           </div>
         </div>
@@ -1047,7 +1046,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261106p"></script>
+  <script type="module" src="./js/app.js?v=20261106q"></script>
 </body>
 
 </html>

@@ -1148,9 +1148,6 @@ export const renderAvatarPickerGrid = () => {
       const avatarContent = document.getElementById('profileAvatarContent');
       if (avatarContent) avatarContent.innerHTML = item.svg;
 
-      const lbl = document.getElementById('lblAvatarName');
-      if (lbl) lbl.textContent = item.name;
-
       grid.querySelectorAll('.avatar-choice-btn').forEach(b => {
         b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
       });
@@ -1178,11 +1175,6 @@ export const openUserProfileModal = () => {
   const avatarContent = document.getElementById('profileAvatarContent');
   if (avatarContent) {
     avatarContent.innerHTML = getAvatarSvg(currentAvatarId);
-  }
-
-  const lblAvatarName = document.getElementById('lblAvatarName');
-  if (lblAvatarName) {
-    lblAvatarName.textContent = getAvatarName(currentAvatarId);
   }
 
   const shelf = document.getElementById('avatarPickerShelf');
@@ -1214,6 +1206,21 @@ export const openUserProfileModal = () => {
   document.getElementById('profileTotalWeeks').textContent = totalWeeks;
   document.getElementById('profileTotalShifts').textContent = totalShifts;
   document.getElementById('profileTotalHours').textContent = `${Math.round(totalHours)}h`;
+
+  const formChangePwd = document.getElementById('formChangePassword');
+  const iconChevron = document.getElementById('iconChangePwdChevron');
+  if (formChangePwd) {
+    formChangePwd.style.display = 'none';
+    formChangePwd.reset();
+  }
+  if (iconChevron) {
+    iconChevron.style.transform = 'rotate(0deg)';
+  }
+  const changeMsg = document.getElementById('changePasswordMsg');
+  if (changeMsg) {
+    changeMsg.style.display = 'none';
+    changeMsg.textContent = '';
+  }
 
   const pwdBox = document.querySelector('.profile-change-pwd-box');
   const isGoogle = state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app');

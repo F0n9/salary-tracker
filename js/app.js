@@ -49,71 +49,6 @@ const renderDateDisplay = () => {
 };
 
 let isProgrammaticWheelScroll = false;
-let wheelScrollDebounceTimer = null;
-
-const updateWheelItemsVisual = () => {
-  const container = document.getElementById('weekPillsList');
-  if (!container) return null;
-  const items = container.querySelectorAll('.week-wheel-item');
-  if (!items.length) return null;
-
-  const containerRect = container.getBoundingClientRect();
-  const centerY = containerRect.top + containerRect.height / 2;
-  const maxDistance = containerRect.height / 2;
-
-  let closestItem = null;
-  let minDistance = Infinity;
-
-  items.forEach(item => {
-    const itemRect = item.getBoundingClientRect();
-    const itemCenter = itemRect.top + itemRect.height / 2;
-    const distance = Math.abs(centerY - itemCenter);
-    const signedDistance = itemCenter - centerY;
-    const ratio = Math.min(distance / maxDistance, 1);
-
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestItem = item;
-    }
-
-    const scale = 1 - ratio * 0.35;
-    const opacity = 1 - ratio * 0.65;
-    const rotateX = -(signedDistance / maxDistance) * 32;
-
-    item.style.transform = `perspective(300px) rotateX(${rotateX}deg) scale(${scale})`;
-    item.style.opacity = `${Math.max(opacity, 0.25)}`;
-
-    if (distance < 19) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
-  });
-
-  return closestItem;
-};
-
-let wheelRafId = null;
-const onWheelTrackScroll = () => {
-  if (wheelRafId) cancelAnimationFrame(wheelRafId);
-  wheelRafId = requestAnimationFrame(() => {
-    const closestItem = updateWheelItemsVisual();
-    if (isProgrammaticWheelScroll) return;
-
-    clearTimeout(wheelScrollDebounceTimer);
-    wheelScrollDebounceTimer = setTimeout(() => {
-      if (closestItem) {
-        const weekId = closestItem.getAttribute('data-week-id');
-        if (weekId && weekId !== state.currentWeekId) {
-          state.currentWeekId = weekId;
-          renderWeekDetails();
-          renderShiftsList();
-          closestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }, 140);
-  });
-};
 
 const scrollWheelToActive = (behavior = 'smooth') => {
   const container = document.getElementById('weekPillsList');
@@ -122,11 +57,10 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   if (!activeItem) return;
 
   isProgrammaticWheelScroll = true;
-  activeItem.scrollIntoView({ behavior, block: 'center' });
+  activeItem.scrollIntoView({ behavior, block: 'nearest', inline: 'center' });
   setTimeout(() => {
     isProgrammaticWheelScroll = false;
-    if (typeof updateWheelIndicator === 'function') updateWheelIndicator();
-  }, 300);
+  }, 250);
 };
 
 const renderWeekPills = () => {
@@ -785,10 +719,11 @@ const bindEvents = () => {
 
   const weekWheelTrack = document.getElementById('weekPillsList');
   if (weekWheelTrack) {
-    weekWheelTrack.addEventListener('scroll', onWheelTrackScroll, { passive: true });
     weekWheelTrack.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      weekWheelTrack.scrollTop += e.deltaY;
+      if (e.deltaY !== 0 && !e.shiftKey) {
+        e.preventDefault();
+        weekWheelTrack.scrollLeft += e.deltaY;
+      }
     }, { passive: false });
   }
 
