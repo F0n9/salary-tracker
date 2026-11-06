@@ -1,12 +1,12 @@
-const CACHE_NAME = 'salary-tracker-v116';
+const CACHE_NAME = 'salary-tracker-v117';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/base.css?v=20261106f',
-  './css/components.css?v=20261106f',
-  './css/modals.css?v=20261106f',
-  './js/app.js?v=20261106f',
+  './css/base.css?v=20261106g',
+  './css/components.css?v=20261106g',
+  './css/modals.css?v=20261106g',
+  './js/app.js?v=20261106g',
   './js/config.js',
   './js/i18n.js',
   './js/theme.js',
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   './js/services/supabase.js',
   './js/ui/toast.js',
   './js/ui/dialog.js',
+  './js/ui/haptic.js',
   './js/ui/select.js',
   './js/ui/chart.js',
   './js/ui/canvas-slip.js',
