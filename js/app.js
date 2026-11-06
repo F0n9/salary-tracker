@@ -10,7 +10,7 @@ import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboar
 import { renderSlipCanvas, openShareSlipModal, downloadSlipImage, copySlipImageToClipboard } from './ui/canvas-slip.js';
 import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setExportAppRenderer } from './ui/export.js';
 import { showConfirmDialog, showAlertDialog, initDialogHandlers } from './ui/dialog.js';
-import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
+import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, collapsePasswordSection, collapseAvatarPicker, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
 
 const updateWheelIndicator = () => {};
 
@@ -597,7 +597,10 @@ const bindEvents = () => {
   window.addEventListener('app:auth-recovery', () => {
     openUserProfileModal();
     const formChangePwd = document.getElementById('formChangePassword');
+    const iconChevron = document.getElementById('iconChangePwdChevron');
+    collapseAvatarPicker();
     if (formChangePwd) formChangePwd.style.display = 'flex';
+    if (iconChevron) iconChevron.style.transform = 'rotate(180deg)';
     document.getElementById('changeNewPassword')?.focus();
     showToast(t('auth_prompt_new_password', 'Vui lòng đặt mật khẩu mới cho tài khoản của bạn.'));
   });
@@ -608,11 +611,17 @@ const bindEvents = () => {
   const formChangePwd = document.getElementById('formChangePassword');
   const iconChevron = document.getElementById('iconChangePwdChevron');
   if (btnToggleChangePwd && formChangePwd) {
-    btnToggleChangePwd.addEventListener('click', () => {
+    btnToggleChangePwd.addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerHaptic('light');
       const isHidden = formChangePwd.style.display === 'none';
-      formChangePwd.style.display = isHidden ? 'flex' : 'none';
-      if (iconChevron) {
-        iconChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      if (isHidden) {
+        collapseAvatarPicker();
+        formChangePwd.style.display = 'flex';
+        if (iconChevron) iconChevron.style.transform = 'rotate(180deg)';
+        document.getElementById('changeNewPassword')?.focus();
+      } else {
+        collapsePasswordSection();
       }
     });
   }

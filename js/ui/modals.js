@@ -1160,6 +1160,28 @@ export const renderAvatarPickerGrid = () => {
   });
 };
 
+export const collapsePasswordSection = () => {
+  const formChangePwd = document.getElementById('formChangePassword');
+  const iconChevron = document.getElementById('iconChangePwdChevron');
+  if (formChangePwd) {
+    formChangePwd.style.display = 'none';
+    formChangePwd.reset();
+  }
+  if (iconChevron) {
+    iconChevron.style.transform = 'rotate(0deg)';
+  }
+  const changeMsg = document.getElementById('changePasswordMsg');
+  if (changeMsg) {
+    changeMsg.style.display = 'none';
+    changeMsg.textContent = '';
+  }
+};
+
+export const collapseAvatarPicker = () => {
+  const shelf = document.getElementById('avatarPickerShelf');
+  if (shelf) shelf.style.display = 'none';
+};
+
 export const openUserProfileModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -1177,19 +1199,27 @@ export const openUserProfileModal = () => {
     avatarContent.innerHTML = getAvatarSvg(currentAvatarId);
   }
 
-  const shelf = document.getElementById('avatarPickerShelf');
-  if (shelf) shelf.style.display = 'none';
+  collapseAvatarPicker();
+  collapsePasswordSection();
 
   renderAvatarPickerGrid();
 
   const btnToggleAvatar = document.getElementById('btnToggleAvatarPicker');
-  const togglePicker = (e) => {
-    e.preventDefault();
-    if (!shelf) return;
-    triggerHaptic('light');
-    shelf.style.display = shelf.style.display === 'none' ? 'flex' : 'none';
-  };
-  if (btnToggleAvatar) btnToggleAvatar.onclick = togglePicker;
+  if (btnToggleAvatar) {
+    btnToggleAvatar.onclick = (e) => {
+      e.preventDefault();
+      const shelf = document.getElementById('avatarPickerShelf');
+      if (!shelf) return;
+      triggerHaptic('light');
+      const isHidden = shelf.style.display === 'none';
+      if (isHidden) {
+        collapsePasswordSection();
+        shelf.style.display = 'flex';
+      } else {
+        shelf.style.display = 'none';
+      }
+    };
+  }
 
   document.getElementById('profileUsername').textContent = `@${username}`;
 
@@ -1204,21 +1234,6 @@ export const openUserProfileModal = () => {
   document.getElementById('profileTotalWeeks').textContent = totalWeeks;
   document.getElementById('profileTotalShifts').textContent = totalShifts;
   document.getElementById('profileTotalHours').textContent = `${Math.round(totalHours)}h`;
-
-  const formChangePwd = document.getElementById('formChangePassword');
-  const iconChevron = document.getElementById('iconChangePwdChevron');
-  if (formChangePwd) {
-    formChangePwd.style.display = 'none';
-    formChangePwd.reset();
-  }
-  if (iconChevron) {
-    iconChevron.style.transform = 'rotate(0deg)';
-  }
-  const changeMsg = document.getElementById('changePasswordMsg');
-  if (changeMsg) {
-    changeMsg.style.display = 'none';
-    changeMsg.textContent = '';
-  }
 
   const pwdBox = document.querySelector('.profile-change-pwd-box');
   const isGoogle = state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app');
