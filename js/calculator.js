@@ -56,7 +56,8 @@ export const getShiftEarnings = (shift, week) => {
   const rate = getShiftRate(shift);
   const ot = Number(shift.otRate) || 1.0;
   const allowance = Number(shift.allowance) || 0;
-  return Math.round(hours * rate * ot + allowance);
+  const deduction = Number(shift.deduction) || 0;
+  return Math.max(0, Math.round(hours * rate * ot + allowance - deduction));
 };
 
 export const calculateWeekTotalSalary = (week) => {

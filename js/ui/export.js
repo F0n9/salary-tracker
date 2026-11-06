@@ -20,19 +20,20 @@ export const exportCurrentWeekCSV = () => {
   let csvContent = '\uFEFF';
   const unit = t('rate_unit', 'đ/h');
   csvContent += `${t('csv_slip_title', 'BẢNG CHẤM CÔNG VÀ LƯƠNG')} — ${getLocalizedWeekName(week.name)}\r\n\r\n`;
-  csvContent += `"${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_start', 'Giờ bắt đầu')}","${t('csv_col_end', 'Giờ kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
+  csvContent += `"${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_start', 'Giờ bắt đầu')}","${t('csv_col_end', 'Giờ kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_deduction', 'Khấu trừ')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   week.shifts.forEach(s => {
     const rate = getShiftRate(s);
     const salary = getShiftEarnings(s, week);
     const ot = Number(s.otRate) || 1.0;
     const allowance = Number(s.allowance) || 0;
-    csvContent += `"${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}",${rate},"${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+    const deduction = Number(s.deduction) || 0;
+    csvContent += `"${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}",${rate},"${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${deduction},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
   });
 
   const totalHours = week.shifts.reduce((acc, s) => acc + Number(s.hours || 0), 0);
   const totalSalary = calculateWeekTotalSalary(week);
-  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,"",,,,,${totalHours.toFixed(2)},,${Math.round(totalSalary)},""\r\n`;
+  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,"",,,,,${totalHours.toFixed(2)},,,${Math.round(totalSalary)},""\r\n`;
 
   const now = new Date();
   const y = now.getFullYear();
@@ -49,7 +50,7 @@ export const exportAllWeeksCSV = () => {
   let csvContent = '\uFEFF';
   const unit = t('rate_unit', 'đ/h');
   csvContent += `${t('csv_all_weeks_title', 'TỔNG HỢP CA LÀM VIỆC VÀ LƯƠNG TẤT CẢ CÁC TUẦN')}\r\n\r\n`;
-  csvContent += `"${t('csv_col_week', 'Tuần')}","${t('csv_col_date_range', 'Khoảng ngày')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_work_date', 'Ngày làm')}","${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Bắt đầu')}","${t('csv_col_end', 'Kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
+  csvContent += `"${t('csv_col_week', 'Tuần')}","${t('csv_col_date_range', 'Khoảng ngày')}","${t('csv_col_rate', 'Đơn giá')} (${unit})","${t('csv_col_work_date', 'Ngày làm')}","${t('csv_col_day', 'Thứ')}","${t('csv_col_type', 'Ca')}","${t('csv_col_workplace', 'Nơi làm việc')}","${t('csv_col_start', 'Bắt đầu')}","${t('csv_col_end', 'Kết thúc')}","${t('csv_col_break', 'Nghỉ (phút)')}","${t('csv_col_hours', 'Số giờ')}","${t('csv_col_ot', 'Hệ số OT')}","${t('csv_col_allowance', 'Thưởng/Phụ cấp')}","${t('csv_col_deduction', 'Khấu trừ')}","${t('csv_col_total', 'Thành tiền')}","${t('csv_col_note', 'Ghi chú')}"\r\n`;
 
   let grandTotalHours = 0;
   let grandTotalSalary = 0;
@@ -61,15 +62,20 @@ export const exportAllWeeksCSV = () => {
       const salary = getShiftEarnings(s, w);
       const ot = Number(s.otRate) || 1.0;
       const allowance = Number(s.allowance) || 0;
+      const deduction = Number(s.deduction) || 0;
       const shiftFullDate = getShiftDateFull(w, s.day);
       grandTotalHours += Number(s.hours || 0);
       grandTotalSalary += salary;
-      csvContent += `"${getLocalizedWeekName(w.name)}","${weekRange}",${rate},"${shiftFullDate}","${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
+      csvContent += `"${getLocalizedWeekName(w.name)}","${weekRange}",${rate},"${shiftFullDate}","${getLocalizedDayName(s.day)}","${getLocalizedShiftType(s.type)}","${(s.workplace || '').replace(/"/g, '""')}","${s.start}","${s.end}",${s.breakMinutes || 0},${s.hours},${ot},${allowance},${deduction},${Math.round(salary)},"${(s.note || '').replace(/"/g, '""')}"\r\n`;
     });
   });
 
-  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
+  csvContent += `\r\n"${t('csv_grand_total', 'TỔNG CỘNG')}",,,,,,,,,,,${grandTotalHours.toFixed(2)},,,${Math.round(grandTotalSalary)},""\r\n`;
 
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
   const allWeeksFileName = `Bang_Luong_Tong_Hop_Tat_Ca_Cac_Tuan_${y}${m}${d}.csv`;
   downloadFile(csvContent, allWeeksFileName, 'text/csv;charset=utf-8;');
   showToast(t('toast_csv_all_exported', 'Đã xuất tổng hợp toàn bộ các tuần'));
