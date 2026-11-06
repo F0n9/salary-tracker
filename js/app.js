@@ -592,6 +592,9 @@ const bindEvents = () => {
   const btnBackFromForgot = document.getElementById('btnBackFromForgot');
   if (btnBackFromForgot) btnBackFromForgot.addEventListener('click', () => switchAuthTab('login'));
 
+  const btnBackToLogin = document.getElementById('btnBackToLogin');
+  if (btnBackToLogin) btnBackToLogin.addEventListener('click', () => switchAuthTab('login'));
+
   const formForgotPassword = document.getElementById('formForgotPassword');
   if (formForgotPassword) formForgotPassword.addEventListener('submit', handleForgotPasswordSubmit);
 
@@ -837,4 +840,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderApp();
   setupRealtimeSync();
   setupAutoSync();
+
+  const splash = document.getElementById('pwaSplash');
+  if (splash) {
+    requestAnimationFrame(() => {
+      splash.classList.add('pwa-splash-closing');
+      setTimeout(() => {
+        splash.remove();
+      }, 420);
+    });
+  }
 });

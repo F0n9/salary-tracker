@@ -1,4 +1,4 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY, GUEST_DEFAULT_DATA, GUEST_WEEKS_KEY, GUEST_SETTINGS_KEY, PENDING_SYNC_KEY } from '../config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, GUEST_DEFAULT_DATA, GUEST_WEEKS_KEY, GUEST_SETTINGS_KEY, LOCAL_CACHE_WEEKS_KEY, LOCAL_CACHE_SETTINGS_KEY, PENDING_SYNC_KEY } from '../config.js';
 import { state, getWeeksStorageKey, getSettingsStorageKey, normalizeWorkplacesAndRates } from '../state.js';
 import { t } from '../i18n.js';
 import { ensureWeekStartDate } from '../calculator.js';
@@ -503,8 +503,18 @@ export const handleLogout = async () => {
       await supabaseClient.auth.signOut();
     }
     state.currentUser = null;
+    try {
+      localStorage.removeItem(LOCAL_CACHE_WEEKS_KEY);
+      localStorage.removeItem(LOCAL_CACHE_SETTINGS_KEY);
+      localStorage.removeItem(GUEST_WEEKS_KEY);
+      localStorage.removeItem(GUEST_SETTINGS_KEY);
+    } catch (_) {}
+    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+    if (!state.settings) state.settings = {};
+    state.settings.workplaces = [];
+    state.currentWeekId = state.weeks[0].id;
+    saveWeeks();
     updateHeaderAuthUI();
-    await loadState();
     triggerAppRender();
     document.getElementById('userProfileModal').style.display = 'none';
     showToast(t('toast_logged_out', 'Đã đăng xuất tài khoản.'));
@@ -588,7 +598,12 @@ export const handleLinkGoogleAccount = async () => {
       }
     });
     if (error) {
-      showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message || ''}`);
+      const msg = (error.message || '').toLowerCase();
+      if (msg.includes('manual linking is disabled')) {
+        showToast(t('auth_manual_linking_hint', 'Vui lòng bật "Allow manual linking" trong cấu hình Supabase Auth Settings.'));
+      } else {
+        showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message || ''}`);
+      }
     }
   } catch (err) {
     showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);

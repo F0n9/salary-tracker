@@ -7,7 +7,7 @@ import { showConfirmDialog, showAlertDialog } from './dialog.js';
 import { triggerHaptic } from './haptic.js';
 import { setupCustomSelect, syncCustomSelect } from './select.js';
 import { renderAnalyticsDashboard } from './chart.js';
-import { EYE_OPEN_SVG, EYE_OFF_SVG } from '../config.js';
+import { EYE_OPEN_SVG, EYE_OFF_SVG, EYE_OPEN_PATH, EYE_OFF_PATH } from '../config.js';
 
 let appRenderer = null;
 export const setModalAppRenderer = (fn) => {
@@ -981,10 +981,6 @@ export const switchAuthTab = (tab) => {
   const tabsRow = document.querySelector('.auth-tabs-row');
   const oauthWrap = document.getElementById('authOauthWrap');
   const title = document.getElementById('authModalTitle');
-  const btnSubmitLogin = document.getElementById('btnSubmitLogin');
-  const btnSubmitRegister = document.getElementById('btnSubmitRegister');
-  const btnBackFromForgot = document.getElementById('btnBackFromForgot');
-  const btnSubmitForgot = document.getElementById('btnSubmitForgot');
 
   if (tab === 'login') {
     if (btnLogin) btnLogin.classList.add('active');
@@ -994,10 +990,6 @@ export const switchAuthTab = (tab) => {
     if (formRegister) formRegister.style.display = 'none';
     if (formForgot) formForgot.style.display = 'none';
     if (oauthWrap) oauthWrap.style.display = 'flex';
-    if (btnSubmitLogin) btnSubmitLogin.style.display = 'inline-flex';
-    if (btnSubmitRegister) btnSubmitRegister.style.display = 'none';
-    if (btnBackFromForgot) btnBackFromForgot.style.display = 'none';
-    if (btnSubmitForgot) btnSubmitForgot.style.display = 'none';
     if (title) title.textContent = t('auth_tab_login', 'Đăng nhập tài khoản');
   } else if (tab === 'register') {
     if (btnRegister) btnRegister.classList.add('active');
@@ -1007,10 +999,6 @@ export const switchAuthTab = (tab) => {
     if (formLogin) formLogin.style.display = 'none';
     if (formForgot) formForgot.style.display = 'none';
     if (oauthWrap) oauthWrap.style.display = 'flex';
-    if (btnSubmitLogin) btnSubmitLogin.style.display = 'none';
-    if (btnSubmitRegister) btnSubmitRegister.style.display = 'inline-flex';
-    if (btnBackFromForgot) btnBackFromForgot.style.display = 'none';
-    if (btnSubmitForgot) btnSubmitForgot.style.display = 'none';
     if (title) title.textContent = t('auth_tab_register', 'Đăng ký tài khoản mới');
   } else if (tab === 'forgot') {
     if (tabsRow) tabsRow.style.display = 'none';
@@ -1018,10 +1006,6 @@ export const switchAuthTab = (tab) => {
     if (formRegister) formRegister.style.display = 'none';
     if (formForgot) formForgot.style.display = 'flex';
     if (oauthWrap) oauthWrap.style.display = 'none';
-    if (btnSubmitLogin) btnSubmitLogin.style.display = 'none';
-    if (btnSubmitRegister) btnSubmitRegister.style.display = 'none';
-    if (btnBackFromForgot) btnBackFromForgot.style.display = 'inline-flex';
-    if (btnSubmitForgot) btnSubmitForgot.style.display = 'inline-flex';
     if (title) title.textContent = t('auth_forgot_title', 'Khôi phục mật khẩu');
     document.getElementById('forgotEmail')?.focus();
   }
@@ -1096,15 +1080,29 @@ export const setupPasswordToggles = () => {
       if (!targetId) return;
       const input = document.getElementById(targetId);
       if (!input) return;
+      triggerHaptic('light');
+      const morph = btn.querySelector('morph-icon');
 
       if (input.type === 'password') {
         input.type = 'text';
-        btn.innerHTML = EYE_OFF_SVG;
+        if (morph && typeof morph.morphTo === 'function') {
+          morph.morphTo(EYE_OFF_PATH);
+        } else if (morph) {
+          morph.setAttribute('icon', EYE_OFF_PATH);
+        } else {
+          btn.innerHTML = EYE_OFF_SVG;
+        }
         btn.setAttribute('title', t('pwd_hide', 'Ẩn mật khẩu'));
         btn.setAttribute('aria-label', t('pwd_hide', 'Ẩn mật khẩu'));
       } else {
         input.type = 'password';
-        btn.innerHTML = EYE_OPEN_SVG;
+        if (morph && typeof morph.morphTo === 'function') {
+          morph.morphTo(EYE_OPEN_PATH);
+        } else if (morph) {
+          morph.setAttribute('icon', EYE_OPEN_PATH);
+        } else {
+          btn.innerHTML = EYE_OPEN_SVG;
+        }
         btn.setAttribute('title', t('pwd_show', 'Hiện mật khẩu'));
         btn.setAttribute('aria-label', t('pwd_show', 'Hiện mật khẩu'));
       }
