@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261106w">
-  <link rel="stylesheet" href="./css/components.css?v=20261106w">
-  <link rel="stylesheet" href="./css/modals.css?v=20261106w">
+  <link rel="stylesheet" href="./css/base.css?v=20261106x">
+  <link rel="stylesheet" href="./css/components.css?v=20261106x">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106x">
 </head>
 
 <body>
@@ -743,7 +743,8 @@
             <div class="input-icon-wrap">
               <svg class="input-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                 stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6 9 17l-5-5"></path>
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
               <input type="password" id="regPasswordConfirm" class="form-input input-has-icon input-has-eye" required
                 autocomplete="new-password" placeholder="Xác nhận mật khẩu" data-i18n-placeholder="ph_password_confirm">
@@ -835,16 +836,16 @@
             <div class="profile-avatar" id="profileAvatarBadge">
               <span id="profileAvatarContent" class="profile-avatar-render"></span>
             </div>
-          </div>
-          <div class="profile-meta">
-            <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
-            <button type="button" class="btn-avatar-picker-toggle" id="btnToggleAvatarPicker">
+            <button type="button" class="btn-avatar-edit-badge" id="btnToggleAvatarPicker"
+              data-i18n-title="profile_change_avatar" title="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round" width="12" height="12">
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
               </svg>
-              <span data-i18n="profile_change_avatar">Đổi ảnh</span>
             </button>
+          </div>
+          <div class="profile-meta">
+            <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
           </div>
         </div>
 
@@ -939,7 +940,8 @@
               <div class="input-icon-wrap">
                 <svg class="input-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                   stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5"></path>
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
                 <input type="password" id="changeConfirmPassword" class="form-input input-has-icon input-has-eye"
                   required autocomplete="new-password" placeholder="Xác nhận mật khẩu"
@@ -1039,7 +1041,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261106w"></script>
+  <script type="module" src="./js/app.js?v=20261106x"></script>
 </body>
 
 </html>

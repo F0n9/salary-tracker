@@ -1235,6 +1235,14 @@ export const openUserProfileModal = () => {
     };
   }
 
+  const avatarBadge = document.getElementById('profileAvatarBadge');
+  if (avatarBadge && btnToggleAvatar) {
+    avatarBadge.onclick = (e) => {
+      e.preventDefault();
+      btnToggleAvatar.click();
+    };
+  }
+
   const btnToggleChangePwd = document.getElementById('btnToggleChangePwdSection');
   if (btnToggleChangePwd) {
     btnToggleChangePwd.onclick = (e) => {
@@ -1281,6 +1289,12 @@ export const openUserProfileModal = () => {
 
 export const setupPasswordToggles = () => {
   document.querySelectorAll('.btn-toggle-pwd').forEach(btn => {
+    btn.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+    });
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const targetId = btn.getAttribute('data-target');
@@ -1288,6 +1302,8 @@ export const setupPasswordToggles = () => {
       const input = document.getElementById(targetId);
       if (!input) return;
       triggerHaptic('light');
+      const start = (input.selectionStart !== null && input.selectionStart !== undefined) ? input.selectionStart : input.value.length;
+      const end = (input.selectionEnd !== null && input.selectionEnd !== undefined) ? input.selectionEnd : input.value.length;
       const morph = btn.querySelector('morph-icon');
       const willBeText = input.type === 'password';
 
@@ -1307,12 +1323,13 @@ export const setupPasswordToggles = () => {
       btn.setAttribute('aria-label', newTitle);
 
       setTimeout(() => {
-        const start = input.selectionStart;
-        const end = input.selectionEnd;
         input.type = willBeText ? 'text' : 'password';
-        if (document.activeElement === input && start !== null && end !== null) {
-          input.setSelectionRange(start, end);
-        }
+        input.focus();
+        try {
+          if (start !== null && end !== null) {
+            input.setSelectionRange(start, end);
+          }
+        } catch (_) {}
         input.classList.remove('input-reveal-dissolve');
         input.classList.add('input-reveal-active');
         setTimeout(() => {
