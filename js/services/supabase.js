@@ -153,7 +153,24 @@ export const loadState = async () => {
             if (cachedSettings) state.settings = JSON.parse(cachedSettings);
             if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
           } else {
-            state.weeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
+            const guestWeeksRaw = localStorage.getItem(GUEST_WEEKS_KEY);
+            const guestSettingsRaw = localStorage.getItem(GUEST_SETTINGS_KEY);
+            let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
+            if (guestWeeksRaw) {
+              try {
+                const parsedGuest = JSON.parse(guestWeeksRaw);
+                if (Array.isArray(parsedGuest) && parsedGuest.length > 0 && parsedGuest.some(w => w.shifts && w.shifts.length > 0)) {
+                  initialWeeks = parsedGuest;
+                }
+              } catch (_) {}
+            }
+            if (guestSettingsRaw) {
+              try {
+                const parsedGuestSet = JSON.parse(guestSettingsRaw);
+                if (parsedGuestSet) state.settings = { ...state.settings, ...parsedGuestSet };
+              } catch (_) {}
+            }
+            state.weeks = initialWeeks;
             if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
             saveWeeks();
           }
@@ -236,6 +253,11 @@ export const initAuth = async () => {
         const u = session.user;
         const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
         state.currentUser = { id: u.id, email: u.email, username };
+
+        if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
+          window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+          showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+        }
       } else {
         state.currentUser = null;
       }
