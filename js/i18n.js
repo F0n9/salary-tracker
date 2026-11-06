@@ -250,6 +250,9 @@ const I18N_VI = {
     auth_prompt_new_password: 'Vui lòng đặt mật khẩu mới cho tài khoản của bạn.',
 
     profile_title: 'Hồ sơ người dùng',
+    profile_change_avatar: 'Đổi ảnh đại diện',
+    profile_choose_avatar: 'Chọn nhân vật đại diện',
+    toast_avatar_saved: 'Đã lưu ảnh đại diện!',
     profile_total_weeks: 'Tổng tuần',
     profile_total_shifts: 'Tổng ca',
     profile_total_hours: 'Tổng giờ',

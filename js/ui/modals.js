@@ -1,13 +1,14 @@
 import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplaceColor, normalizeWorkplacesAndRates } from '../state.js';
 import { fmtCurrency, fmtHours, parseTimeToMinutes, calculateHoursDiff, getShiftRate, getShiftEarnings, calculateSmartShiftDefaults, detectShiftType, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, escapeHtml, calculateWeekTotalSalary } from '../calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName, formatShiftType } from '../i18n.js';
-import { saveWeeks, saveSettings, updateSyncStatusUI } from '../services/supabase.js';
+import { saveWeeks, saveSettings, updateSyncStatusUI, updateHeaderAuthUI } from '../services/supabase.js';
 import { showToast, showToastWithAction } from './toast.js';
 import { showConfirmDialog, showAlertDialog } from './dialog.js';
 import { triggerHaptic } from './haptic.js';
 import { setupCustomSelect, syncCustomSelect } from './select.js';
 import { renderAnalyticsDashboard } from './chart.js';
 import { EYE_OPEN_SVG, EYE_OFF_SVG, EYE_OPEN_PATH, EYE_OFF_PATH } from '../config.js';
+import { AVATARS, getAvatarSvg, getAvatarName } from './avatars.js';
 
 let appRenderer = null;
 export const setModalAppRenderer = (fn) => {
@@ -1023,6 +1024,46 @@ export const clearAuthErrors = () => {
   if (forgotSuccess) { forgotSuccess.style.display = 'none'; forgotSuccess.textContent = ''; }
 };
 
+export const renderAvatarPickerGrid = () => {
+  const grid = document.getElementById('avatarPickerGrid');
+  if (!grid) return;
+  const currentAvatarId = state.settings?.avatar || 'default';
+  grid.innerHTML = '';
+
+  AVATARS.forEach(item => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `avatar-choice-btn${item.id === currentAvatarId ? ' is-active' : ''}`;
+    btn.setAttribute('data-avatar-id', item.id);
+    btn.setAttribute('title', item.name);
+    btn.setAttribute('aria-label', item.name);
+    btn.innerHTML = item.svg;
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerHaptic('light');
+      if (!state.settings) state.settings = {};
+      state.settings.avatar = item.id;
+      saveSettings();
+
+      const avatarContent = document.getElementById('profileAvatarContent');
+      if (avatarContent) avatarContent.innerHTML = item.svg;
+
+      const lbl = document.getElementById('lblAvatarName');
+      if (lbl) lbl.textContent = item.name;
+
+      grid.querySelectorAll('.avatar-choice-btn').forEach(b => {
+        b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
+      });
+
+      updateHeaderAuthUI();
+      showToast(t('toast_avatar_saved', 'Đã lưu ảnh đại diện!'), 'success');
+    });
+
+    grid.appendChild(btn);
+  });
+};
+
 export const openUserProfileModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -1033,18 +1074,36 @@ export const openUserProfileModal = () => {
   if (!modal) return;
 
   const username = state.currentUser.username || 'user';
-  const badge = document.getElementById('profileAvatarBadge');
-  if (badge) {
-    badge.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-    `;
+  const currentAvatarId = state.settings?.avatar || 'default';
+
+  const avatarContent = document.getElementById('profileAvatarContent');
+  if (avatarContent) {
+    avatarContent.innerHTML = getAvatarSvg(currentAvatarId);
   }
+
+  const lblAvatarName = document.getElementById('lblAvatarName');
+  if (lblAvatarName) {
+    lblAvatarName.textContent = getAvatarName(currentAvatarId);
+  }
+
+  const shelf = document.getElementById('avatarPickerShelf');
+  if (shelf) shelf.style.display = 'none';
+
+  renderAvatarPickerGrid();
+
+  const btnToggleAvatar = document.getElementById('btnToggleAvatarPicker');
+  const btnBadgeAvatar = document.getElementById('profileAvatarBadge');
+  const togglePicker = (e) => {
+    e.preventDefault();
+    if (!shelf) return;
+    triggerHaptic('light');
+    shelf.style.display = shelf.style.display === 'none' ? 'flex' : 'none';
+  };
+  if (btnToggleAvatar) btnToggleAvatar.onclick = togglePicker;
+  if (btnBadgeAvatar) btnBadgeAvatar.onclick = togglePicker;
+
   document.getElementById('profileUsername').textContent = `@${username}`;
 
- 
   const totalWeeks = state.weeks.length;
   let totalShifts = 0;
   let totalHours = 0;
@@ -1082,30 +1141,36 @@ export const setupPasswordToggles = () => {
       if (!input) return;
       triggerHaptic('light');
       const morph = btn.querySelector('morph-icon');
+      const willBeText = input.type === 'password';
 
-      if (input.type === 'password') {
-        input.type = 'text';
-        if (morph && typeof morph.morphTo === 'function') {
-          morph.morphTo(EYE_OFF_PATH);
-        } else if (morph) {
-          morph.setAttribute('icon', EYE_OFF_PATH);
-        } else {
-          btn.innerHTML = EYE_OFF_SVG;
-        }
-        btn.setAttribute('title', t('pwd_hide', 'Ẩn mật khẩu'));
-        btn.setAttribute('aria-label', t('pwd_hide', 'Ẩn mật khẩu'));
+      input.classList.remove('input-reveal-active');
+      input.classList.add('input-reveal-dissolve');
+
+      if (morph && typeof morph.morphTo === 'function') {
+        morph.morphTo(willBeText ? EYE_OFF_PATH : EYE_OPEN_PATH);
+      } else if (morph) {
+        morph.setAttribute('icon', willBeText ? EYE_OFF_PATH : EYE_OPEN_PATH);
       } else {
-        input.type = 'password';
-        if (morph && typeof morph.morphTo === 'function') {
-          morph.morphTo(EYE_OPEN_PATH);
-        } else if (morph) {
-          morph.setAttribute('icon', EYE_OPEN_PATH);
-        } else {
-          btn.innerHTML = EYE_OPEN_SVG;
-        }
-        btn.setAttribute('title', t('pwd_show', 'Hiện mật khẩu'));
-        btn.setAttribute('aria-label', t('pwd_show', 'Hiện mật khẩu'));
+        btn.innerHTML = willBeText ? EYE_OFF_SVG : EYE_OPEN_SVG;
       }
+
+      const newTitle = willBeText ? t('pwd_hide', 'Ẩn mật khẩu') : t('pwd_show', 'Hiện mật khẩu');
+      btn.setAttribute('title', newTitle);
+      btn.setAttribute('aria-label', newTitle);
+
+      setTimeout(() => {
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        input.type = willBeText ? 'text' : 'password';
+        if (document.activeElement === input && start !== null && end !== null) {
+          input.setSelectionRange(start, end);
+        }
+        input.classList.remove('input-reveal-dissolve');
+        input.classList.add('input-reveal-active');
+        setTimeout(() => {
+          input.classList.remove('input-reveal-active');
+        }, 160);
+      }, 70);
     });
   });
 };

@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261106m">
-  <link rel="stylesheet" href="./css/components.css?v=20261106m">
-  <link rel="stylesheet" href="./css/modals.css?v=20261106m">
+  <link rel="stylesheet" href="./css/base.css?v=20261106n">
+  <link rel="stylesheet" href="./css/components.css?v=20261106n">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106n">
 </head>
 
 <body>
@@ -832,16 +832,36 @@
 
       <div class="modal-body user-profile-body">
         <div class="profile-header-card">
-          <div class="profile-avatar font-mono" id="profileAvatarBadge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-              stroke-linejoin="round" width="22" height="22">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
+          <div class="profile-avatar-wrap">
+            <button type="button" class="profile-avatar font-mono" id="profileAvatarBadge"
+              data-i18n-title="profile_change_avatar" title="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">
+              <span id="profileAvatarContent" class="profile-avatar-render"></span>
+              <span class="avatar-edit-chip" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" width="10" height="10">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                </svg>
+              </span>
+            </button>
           </div>
           <div class="profile-meta">
             <h4 class="profile-name font-mono" id="profileUsername">@username</h4>
+            <button type="button" class="btn-avatar-picker-toggle font-mono" id="btnToggleAvatarPicker">
+              <span id="lblAvatarName" data-i18n="profile_change_avatar">Đổi ảnh nhân vật</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="12" height="12">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
           </div>
+        </div>
+
+        <div class="avatar-picker-shelf" id="avatarPickerShelf" style="display: none;">
+          <div class="avatar-picker-head">
+            <span class="avatar-picker-caption font-sans" data-i18n="profile_choose_avatar">Chọn nhân vật đại diện</span>
+            <span class="avatar-picker-tag font-mono" id="avatarSelectedName">12 mẫu</span>
+          </div>
+          <div class="avatar-picker-grid" id="avatarPickerGrid"></div>
         </div>
 
         <div class="profile-stats-card">
@@ -1027,7 +1047,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261106m"></script>
+  <script type="module" src="./js/app.js?v=20261106n"></script>
 </body>
 
 </html>

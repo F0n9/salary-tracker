@@ -6,6 +6,7 @@ import { showToast } from '../ui/toast.js';
 import { showConfirmDialog } from '../ui/dialog.js';
 import { applyTheme } from '../theme.js';
 import { triggerHaptic } from '../ui/haptic.js';
+import { getAvatarSvg } from '../ui/avatars.js';
 
 let appRenderer = null;
 export const setSupabaseAppRenderer = (fn) => {
@@ -285,12 +286,9 @@ export const updateHeaderAuthUI = () => {
 
   if (state.currentUser && state.currentUser.username) {
     btn.className = 'btn-morphic is-logged-in';
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-    `;
+    const avatarId = state.settings?.avatar || 'default';
+    const avatarSvg = getAvatarSvg(avatarId);
+    btn.innerHTML = `<span class="user-avatar-mini">${avatarSvg}</span>`;
     btn.title = `${t('nav_account_user', 'Tài khoản')}: @${state.currentUser.username}`;
     btn.setAttribute('aria-label', btn.title);
   } else {
