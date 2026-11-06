@@ -146,7 +146,22 @@ html.theme-vt-active::view-transition-old(root) {
 
 html.theme-vt-active::view-transition-new(root) {
   z-index: 99999;
-  animation: vtThemeRipple 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+  animation: vtThemeRipple 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+@media (max-width: 768px) {
+  html.theme-vt-active::view-transition-new(root) {
+    animation: vtThemeMobileFade 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  }
+}
+
+@keyframes vtThemeMobileFade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes vtThemeRipple {
@@ -358,4 +373,66 @@ body.dark-mode .brand-badge {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.pwa-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-body);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+  pointer-events: auto;
+}
+
+.pwa-splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.pwa-splash-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 0.5rem;
+}
+
+.pwa-splash-logo {
+  width: 44px;
+  height: 44px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.pwa-splash-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.pwa-splash-sub {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.pwa-splash.pwa-splash-closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pwa-splash.pwa-splash-closing .pwa-splash-logo {
+  transform: scale(1.18);
 }
