@@ -252,11 +252,19 @@ export const initAuth = async () => {
       if (session && session.user) {
         const u = session.user;
         const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
-        state.currentUser = { id: u.id, email: u.email, username };
+        state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
 
-        if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
-          window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
-          showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+        if (window.location.hash) {
+          const hash = window.location.hash;
+          if (hash.includes('type=recovery')) {
+            window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('app:auth-recovery'));
+            }, 350);
+          } else if (hash.includes('access_token') || hash.includes('refresh_token')) {
+            window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+          }
         }
       } else {
         state.currentUser = null;
@@ -310,12 +318,6 @@ export const handleLoginSubmit = async (e) => {
     return;
   }
 
-  if (rawInput.includes('@')) {
-    errorEl.textContent = t('auth_err_no_email', 'Chỉ cho phép đăng nhập bằng tên tài khoản (không dùng email).');
-    errorEl.style.display = 'block';
-    return;
-  }
-
   errorEl.style.display = 'none';
 
   if (!supabaseClient) {
@@ -324,11 +326,12 @@ export const handleLoginSubmit = async (e) => {
     return;
   }
 
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const submitBtn = document.getElementById('btnSubmitLogin');
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const email = `${rawInput.toLowerCase()}@salary.app`;
+    const isEmail = rawInput.includes('@');
+    const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password
@@ -344,8 +347,8 @@ export const handleLoginSubmit = async (e) => {
     }
 
     const u = data.user;
-    const username = u.user_metadata?.username || u.email.split('@')[0];
-    state.currentUser = { id: u.id, email: u.email, username };
+    const username = u.user_metadata?.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'user');
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
 
     updateHeaderAuthUI();
     await loadState();
@@ -364,27 +367,31 @@ export const handleLoginSubmit = async (e) => {
 
 export const handleRegisterSubmit = async (e) => {
   e.preventDefault();
-  const rawUsername = document.getElementById('regUsername').value.trim().toLowerCase();
+  const rawInput = document.getElementById('regUsername').value.trim();
   const password = document.getElementById('regPassword').value;
   const passwordConfirm = document.getElementById('regPasswordConfirm').value;
   const errorEl = document.getElementById('regError');
 
-  if (!rawUsername || !password || !passwordConfirm) {
+  if (!rawInput || !password || !passwordConfirm) {
     errorEl.textContent = t('auth_err_all_fields', 'Vui lòng điền đầy đủ tất cả các trường.');
     errorEl.style.display = 'block';
     return;
   }
 
-  if (rawUsername.includes('@')) {
-    errorEl.textContent = t('auth_err_at_char', 'Tên tài khoản không được chứa ký tự @.');
-    errorEl.style.display = 'block';
-    return;
-  }
-
-  if (rawUsername.length < 3) {
-    errorEl.textContent = t('auth_err_min_user', 'Tên đăng nhập phải có ít nhất 3 ký tự.');
-    errorEl.style.display = 'block';
-    return;
+  const isEmail = rawInput.includes('@');
+  if (isEmail) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(rawInput)) {
+      errorEl.textContent = t('auth_err_email_invalid', 'Vui lòng nhập đúng định dạng email hợp lệ.');
+      errorEl.style.display = 'block';
+      return;
+    }
+  } else {
+    if (rawInput.length < 3) {
+      errorEl.textContent = t('auth_err_min_user', 'Tên đăng nhập phải có ít nhất 3 ký tự.');
+      errorEl.style.display = 'block';
+      return;
+    }
   }
 
   if (password.length < 6) {
@@ -405,23 +412,24 @@ export const handleRegisterSubmit = async (e) => {
     return;
   }
 
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const submitBtn = document.getElementById('btnSubmitRegister');
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const email = `${rawUsername}@salary.app`;
+    const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
+    const username = isEmail ? rawInput.split('@')[0] : rawInput;
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
-        data: { username: rawUsername }
+        data: { username }
       }
     });
 
     if (error) {
       let msg = error.message;
       if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-        msg = t('auth_err_user_exists', 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.');
+        msg = t('auth_err_user_exists', 'Tên tài khoản hoặc email này đã được sử dụng. Vui lòng chọn tên khác.');
       } else {
         msg = `${t('auth_reg_fail_prefix', 'Đăng ký thất bại: ')}${msg}`;
       }
@@ -432,14 +440,14 @@ export const handleRegisterSubmit = async (e) => {
     }
 
     if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
-      errorEl.textContent = t('auth_err_user_exists', 'Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.');
+      errorEl.textContent = t('auth_err_user_exists', 'Tên tài khoản hoặc email này đã được sử dụng. Vui lòng chọn tên khác.');
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
     const u = data.user;
-    state.currentUser = { id: u.id, email: u.email, username: rawUsername };
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
 
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
     let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
@@ -519,6 +527,68 @@ export const handleGoogleSignIn = async () => {
     });
     if (error) {
       showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message}`);
+    }
+  } catch (err) {
+    showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);
+  }
+};
+
+export const handleForgotPasswordSubmit = async (e) => {
+  e.preventDefault();
+  const emailInput = document.getElementById('forgotEmail').value.trim();
+  const errorEl = document.getElementById('forgotError');
+  const successEl = document.getElementById('forgotSuccess');
+  const submitBtn = document.getElementById('btnSubmitForgot');
+
+  if (!emailInput || !emailInput.includes('@')) {
+    errorEl.textContent = t('auth_err_email_invalid', 'Vui lòng nhập đúng định dạng email hợp lệ.');
+    errorEl.style.display = 'block';
+    if (successEl) successEl.style.display = 'none';
+    return;
+  }
+
+  if (errorEl) errorEl.style.display = 'none';
+  if (successEl) successEl.style.display = 'none';
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Chưa kết nối được với Supabase.'));
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+
+    if (error) throw error;
+
+    if (successEl) {
+      successEl.textContent = t('auth_forgot_sent', 'Đã gửi liên kết khôi phục về email của bạn! Vui lòng kiểm tra hộp thư.');
+      successEl.style.display = 'block';
+    }
+    document.getElementById('formForgotPassword')?.reset();
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
+      errorEl.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+};
+
+export const handleLinkGoogleAccount = async () => {
+  if (!supabaseClient) {
+    showToast(t('auth_err_supabase', 'Chưa kết nối được với Supabase.'));
+    return;
+  }
+  triggerHaptic('medium');
+  try {
+    const { error } = await supabaseClient.auth.linkIdentity({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    if (error) {
+      showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message || ''}`);
     }
   } catch (err) {
     showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);

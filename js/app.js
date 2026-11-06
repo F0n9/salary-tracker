@@ -2,7 +2,7 @@ import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplace
 import { fmtCurrency, fmtHours, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, hoursToColonFormat, hoursToHourMinutes, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getShiftDateFull, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, formatShiftType, detectShiftType, escapeHtml, calculateSmartShiftDefaults } from './calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName } from './i18n.js';
 import { applyTheme, toggleTheme } from './theme.js';
-import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleGoogleSignIn, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
+import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleGoogleSignIn, handleForgotPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
 import { triggerHaptic } from './ui/haptic.js';
 import { showToast, showToastWithAction } from './ui/toast.js';
 import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui/select.js';
@@ -585,6 +585,26 @@ const bindEvents = () => {
 
   const btnGoogleSignIn = document.getElementById('btnGoogleSignIn');
   if (btnGoogleSignIn) btnGoogleSignIn.addEventListener('click', handleGoogleSignIn);
+
+  const btnForgotPwModal = document.getElementById('btnForgotPwModal');
+  if (btnForgotPwModal) btnForgotPwModal.addEventListener('click', () => switchAuthTab('forgot'));
+
+  const btnBackFromForgot = document.getElementById('btnBackFromForgot');
+  if (btnBackFromForgot) btnBackFromForgot.addEventListener('click', () => switchAuthTab('login'));
+
+  const formForgotPassword = document.getElementById('formForgotPassword');
+  if (formForgotPassword) formForgotPassword.addEventListener('submit', handleForgotPasswordSubmit);
+
+  const btnLinkGoogleAccount = document.getElementById('btnLinkGoogleAccount');
+  if (btnLinkGoogleAccount) btnLinkGoogleAccount.addEventListener('click', handleLinkGoogleAccount);
+
+  window.addEventListener('app:auth-recovery', () => {
+    openUserProfileModal();
+    const formChangePwd = document.getElementById('formChangePassword');
+    if (formChangePwd) formChangePwd.style.display = 'flex';
+    document.getElementById('changeNewPassword')?.focus();
+    showToast(t('auth_prompt_new_password', 'Vui lòng đặt mật khẩu mới cho tài khoản của bạn.'));
+  });
 
   setupPasswordToggles();
 

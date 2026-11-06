@@ -977,26 +977,53 @@ export const switchAuthTab = (tab) => {
   const btnRegister = document.getElementById('tabBtnRegister');
   const formLogin = document.getElementById('formLogin');
   const formRegister = document.getElementById('formRegister');
+  const formForgot = document.getElementById('formForgotPassword');
+  const tabsRow = document.querySelector('.auth-tabs-row');
+  const oauthWrap = document.getElementById('authOauthWrap');
   const title = document.getElementById('authModalTitle');
   const btnSubmitLogin = document.getElementById('btnSubmitLogin');
   const btnSubmitRegister = document.getElementById('btnSubmitRegister');
+  const btnBackFromForgot = document.getElementById('btnBackFromForgot');
+  const btnSubmitForgot = document.getElementById('btnSubmitForgot');
 
   if (tab === 'login') {
-    btnLogin.classList.add('active');
-    btnRegister.classList.remove('active');
-    formLogin.style.display = 'flex';
-    formRegister.style.display = 'none';
+    if (btnLogin) btnLogin.classList.add('active');
+    if (btnRegister) btnRegister.classList.remove('active');
+    if (tabsRow) tabsRow.style.display = 'flex';
+    if (formLogin) formLogin.style.display = 'flex';
+    if (formRegister) formRegister.style.display = 'none';
+    if (formForgot) formForgot.style.display = 'none';
+    if (oauthWrap) oauthWrap.style.display = 'flex';
     if (btnSubmitLogin) btnSubmitLogin.style.display = 'inline-flex';
     if (btnSubmitRegister) btnSubmitRegister.style.display = 'none';
+    if (btnBackFromForgot) btnBackFromForgot.style.display = 'none';
+    if (btnSubmitForgot) btnSubmitForgot.style.display = 'none';
     if (title) title.textContent = t('auth_tab_login', 'Đăng nhập tài khoản');
-  } else {
-    btnRegister.classList.add('active');
-    btnLogin.classList.remove('active');
-    formRegister.style.display = 'flex';
-    formLogin.style.display = 'none';
+  } else if (tab === 'register') {
+    if (btnRegister) btnRegister.classList.add('active');
+    if (btnLogin) btnLogin.classList.remove('active');
+    if (tabsRow) tabsRow.style.display = 'flex';
+    if (formRegister) formRegister.style.display = 'flex';
+    if (formLogin) formLogin.style.display = 'none';
+    if (formForgot) formForgot.style.display = 'none';
+    if (oauthWrap) oauthWrap.style.display = 'flex';
     if (btnSubmitLogin) btnSubmitLogin.style.display = 'none';
     if (btnSubmitRegister) btnSubmitRegister.style.display = 'inline-flex';
+    if (btnBackFromForgot) btnBackFromForgot.style.display = 'none';
+    if (btnSubmitForgot) btnSubmitForgot.style.display = 'none';
     if (title) title.textContent = t('auth_tab_register', 'Đăng ký tài khoản mới');
+  } else if (tab === 'forgot') {
+    if (tabsRow) tabsRow.style.display = 'none';
+    if (formLogin) formLogin.style.display = 'none';
+    if (formRegister) formRegister.style.display = 'none';
+    if (formForgot) formForgot.style.display = 'flex';
+    if (oauthWrap) oauthWrap.style.display = 'none';
+    if (btnSubmitLogin) btnSubmitLogin.style.display = 'none';
+    if (btnSubmitRegister) btnSubmitRegister.style.display = 'none';
+    if (btnBackFromForgot) btnBackFromForgot.style.display = 'inline-flex';
+    if (btnSubmitForgot) btnSubmitForgot.style.display = 'inline-flex';
+    if (title) title.textContent = t('auth_forgot_title', 'Khôi phục mật khẩu');
+    document.getElementById('forgotEmail')?.focus();
   }
   clearAuthErrors();
 };
@@ -1004,8 +1031,12 @@ export const switchAuthTab = (tab) => {
 export const clearAuthErrors = () => {
   const loginErr = document.getElementById('loginError');
   const regErr = document.getElementById('regError');
+  const forgotErr = document.getElementById('forgotError');
+  const forgotSuccess = document.getElementById('forgotSuccess');
   if (loginErr) { loginErr.style.display = 'none'; loginErr.textContent = ''; }
   if (regErr) { regErr.style.display = 'none'; regErr.textContent = ''; }
+  if (forgotErr) { forgotErr.style.display = 'none'; forgotErr.textContent = ''; }
+  if (forgotSuccess) { forgotSuccess.style.display = 'none'; forgotSuccess.textContent = ''; }
 };
 
 export const openUserProfileModal = () => {
@@ -1047,6 +1078,12 @@ export const openUserProfileModal = () => {
   if (pwdBox) {
     pwdBox.style.display = isGoogle ? 'none' : 'block';
   }
+
+  const btnLinkGoogle = document.getElementById('btnLinkGoogleAccount');
+  const badgeGoogle = document.getElementById('badgeGoogleLinked');
+  const isGoogleLinked = isGoogle || (Array.isArray(state.currentUser?.identities) && state.currentUser.identities.some(i => i.provider === 'google'));
+  if (btnLinkGoogle) btnLinkGoogle.style.display = isGoogleLinked ? 'none' : 'flex';
+  if (badgeGoogle) badgeGoogle.style.display = isGoogleLinked ? 'inline-flex' : 'none';
 
   modal.style.display = 'flex';
 };
