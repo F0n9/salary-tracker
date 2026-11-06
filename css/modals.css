@@ -1575,11 +1575,15 @@ body.dark-mode .btn-logout-action {
     min-width: 38px !important;
     min-height: 38px !important;
     padding: 0 !important;
+    overflow: hidden !important;
   }
 
   .header-nav #btnUserAuth .user-avatar-mini {
-    width: 24px !important;
-    height: 24px !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    border-radius: inherit !important;
   }
 
   .week-actions-group {
@@ -1652,12 +1656,23 @@ body.dark-mode .btn-logout-action {
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
   }
 
+  .week-wheel-track::before,
+  .week-wheel-track::after {
+    content: '';
+    display: block;
+    flex-shrink: 0;
+    width: 8px;
+    height: 100%;
+    pointer-events: none;
+  }
+
   .week-wheel-item {
     height: 30px;
     min-height: 30px;
     padding: 0 0.65rem;
     gap: 0.35rem;
     box-sizing: border-box;
+    scroll-margin: 0 8px;
   }
 
   .week-wheel-item .wheel-item-name {
@@ -3522,9 +3537,9 @@ body.dark-mode .app-dialog-detail-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
   overflow: hidden;
 }
 
