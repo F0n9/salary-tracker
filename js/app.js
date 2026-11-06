@@ -394,7 +394,7 @@ const bindEvents = () => {
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
-  document.getElementById('shiftStart').addEventListener('input', () => {
+  const onShiftStartChange = () => {
     const val = document.getElementById('shiftStart').value;
     if (val) {
       const detected = detectShiftType(val);
@@ -405,7 +405,9 @@ const bindEvents = () => {
       }
     }
     updateModalComputedPreview();
-  });
+  };
+  document.getElementById('shiftStart').addEventListener('input', onShiftStartChange);
+  document.getElementById('shiftStart').addEventListener('change', onShiftStartChange);
   document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
   const shiftBreakInput = document.getElementById('shiftBreak');
   if (shiftBreakInput) shiftBreakInput.addEventListener('input', updateModalComputedPreview);

@@ -169,10 +169,12 @@ export const detectShiftType = (startTimeStr) => {
   if (!startTimeStr) return 'Tối';
   const parts = startTimeStr.split(':');
   const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10) || 0;
   if (isNaN(h)) return 'Tối';
-  if (h >= 11 && h < 16) return 'Trưa';
-  if (h >= 16 || h < 5) return 'Tối';
-  return 'Sáng';
+  const totalMins = h * 60 + m;
+  if (totalMins >= 5 * 60 && totalMins <= 9 * 60 + 59) return 'Sáng';
+  if (totalMins >= 10 * 60 && totalMins <= 15 * 60 + 59) return 'Trưa';
+  return 'Tối';
 };
 
 export const calculateSmartShiftDefaults = (prefill = null, now = new Date()) => {
@@ -248,13 +250,7 @@ export const calculateSmartShiftDefaults = (prefill = null, now = new Date()) =>
   let defaultStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
 
   if (!detectedType) {
-    if (endHour >= 18 || endHour < 5 || startHour >= 16) {
-      detectedType = 'Tối';
-    } else if (endHour >= 13 && endHour < 18) {
-      detectedType = 'Trưa';
-    } else {
-      detectedType = 'Sáng';
-    }
+    detectedType = detectShiftType(defaultStart);
   }
 
   const defaultDay = prefill?.day || getVietnameseDayOfWeek(now);
@@ -262,7 +258,11 @@ export const calculateSmartShiftDefaults = (prefill = null, now = new Date()) =>
   if (prefill) {
     if (prefill.start) defaultStart = prefill.start;
     if (prefill.end) defaultEnd = prefill.end;
-    if (prefill.type) detectedType = prefill.type;
+    if (prefill.type) {
+      detectedType = prefill.type;
+    } else if (prefill.start) {
+      detectedType = detectShiftType(prefill.start);
+    }
   }
 
   return {
