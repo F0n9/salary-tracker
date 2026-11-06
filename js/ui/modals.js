@@ -1183,7 +1183,6 @@ export const openUserProfileModal = () => {
   renderAvatarPickerGrid();
 
   const btnToggleAvatar = document.getElementById('btnToggleAvatarPicker');
-  const btnBadgeAvatar = document.getElementById('profileAvatarBadge');
   const togglePicker = (e) => {
     e.preventDefault();
     if (!shelf) return;
@@ -1191,7 +1190,6 @@ export const openUserProfileModal = () => {
     shelf.style.display = shelf.style.display === 'none' ? 'flex' : 'none';
   };
   if (btnToggleAvatar) btnToggleAvatar.onclick = togglePicker;
-  if (btnBadgeAvatar) btnBadgeAvatar.onclick = togglePicker;
 
   document.getElementById('profileUsername').textContent = `@${username}`;
 

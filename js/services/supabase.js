@@ -207,6 +207,7 @@ export const loadState = async () => {
       });
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     }
+    updateHeaderAuthUI();
   } catch (err) {
     console.error('Error loading state:', err);
     state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
@@ -244,6 +245,12 @@ export const saveSettings = () => {
   const settingsKey = getSettingsStorageKey();
   localStorage.setItem(settingsKey, JSON.stringify(state.settings));
   saveWeeks();
+  updateHeaderAuthUI();
+  if (state.currentUser && supabaseClient && state.settings?.avatar) {
+    supabaseClient.auth.updateUser({
+      data: { avatar: state.settings.avatar }
+    }).catch(() => {});
+  }
 };
 
 export const initAuth = async () => {
@@ -254,6 +261,10 @@ export const initAuth = async () => {
         const u = session.user;
         const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
         state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+        if (u.user_metadata?.avatar) {
+          if (!state.settings) state.settings = {};
+          state.settings.avatar = u.user_metadata.avatar;
+        }
 
         if (window.location.hash) {
           const hash = window.location.hash;

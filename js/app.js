@@ -19,6 +19,7 @@ function renderApp() {
   renderWeekPills();
   renderWeekDetails();
   renderShiftsList();
+  updateHeaderAuthUI();
 
   const canAct = hasWorkplaces();
   const btnNewWeek = document.getElementById('btnNewWeek');
@@ -49,6 +50,57 @@ const renderDateDisplay = () => {
 };
 
 let isProgrammaticWheelScroll = false;
+let wheelScrollDebounceTimer = null;
+
+const getClosestWheelItem = () => {
+  const container = document.getElementById('weekPillsList');
+  if (!container) return null;
+  const items = container.querySelectorAll('.week-wheel-item');
+  if (!items.length) return null;
+
+  const containerRect = container.getBoundingClientRect();
+  const centerX = containerRect.left + containerRect.width / 2;
+
+  let closestItem = null;
+  let minDistance = Infinity;
+
+  items.forEach(item => {
+    const itemRect = item.getBoundingClientRect();
+    const itemCenter = itemRect.left + itemRect.width / 2;
+    const distance = Math.abs(centerX - itemCenter);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestItem = item;
+    }
+  });
+
+  return closestItem;
+};
+
+const onWheelTrackScroll = () => {
+  if (isProgrammaticWheelScroll) return;
+
+  clearTimeout(wheelScrollDebounceTimer);
+  wheelScrollDebounceTimer = setTimeout(() => {
+    if (isProgrammaticWheelScroll) return;
+    const closestItem = getClosestWheelItem();
+    if (closestItem) {
+      const weekId = closestItem.getAttribute('data-week-id');
+      if (weekId && weekId !== state.currentWeekId) {
+        triggerHaptic('light');
+        state.currentWeekId = weekId;
+        const container = document.getElementById('weekPillsList');
+        if (container) {
+          container.querySelectorAll('.week-wheel-item').forEach(it => {
+            it.classList.toggle('active', it.getAttribute('data-week-id') === weekId);
+          });
+        }
+        renderWeekDetails();
+        renderShiftsList();
+      }
+    }
+  }, 120);
+};
 
 const scrollWheelToActive = (behavior = 'smooth') => {
   const container = document.getElementById('weekPillsList');
@@ -60,11 +112,12 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   activeItem.scrollIntoView({ behavior, block: 'nearest', inline: 'center' });
   setTimeout(() => {
     isProgrammaticWheelScroll = false;
-  }, 250);
+  }, 280);
 };
 
 const renderWeekPills = () => {
   const container = document.getElementById('weekPillsList');
+  if (!container) return;
   container.innerHTML = '';
 
   state.weeks.forEach(week => {
@@ -79,10 +132,14 @@ const renderWeekPills = () => {
       <span class="wheel-item-sub font-mono">${fmtCurrency(totalWage)}</span>
     `;
 
-    item.addEventListener('click', () => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
       if (state.currentWeekId !== week.id) {
         triggerHaptic('light');
         state.currentWeekId = week.id;
+        container.querySelectorAll('.week-wheel-item').forEach(it => {
+          it.classList.toggle('active', it.getAttribute('data-week-id') === week.id);
+        });
         renderWeekDetails();
         renderShiftsList();
       }
@@ -721,6 +778,7 @@ const bindEvents = () => {
 
   const weekWheelTrack = document.getElementById('weekPillsList');
   if (weekWheelTrack) {
+    weekWheelTrack.addEventListener('scroll', onWheelTrackScroll, { passive: true });
     weekWheelTrack.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0 && !e.shiftKey) {
         e.preventDefault();
