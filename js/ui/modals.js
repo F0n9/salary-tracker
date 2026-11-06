@@ -1042,6 +1042,12 @@ export const openUserProfileModal = () => {
   document.getElementById('profileTotalShifts').textContent = totalShifts;
   document.getElementById('profileTotalHours').textContent = `${Math.round(totalHours)}h`;
 
+  const pwdBox = document.querySelector('.profile-change-pwd-box');
+  const isGoogle = state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app');
+  if (pwdBox) {
+    pwdBox.style.display = isGoogle ? 'none' : 'block';
+  }
+
   modal.style.display = 'flex';
 };
 
