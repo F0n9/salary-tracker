@@ -2,6 +2,7 @@ import { state, getSettingsStorageKey } from './state.js';
 import { t } from './i18n.js';
 import { renderAnalyticsDashboard } from './ui/chart.js';
 import { defineMorphIcon } from './vendor/morphicons/element.js';
+import { triggerHaptic } from './ui/haptic.js';
 
 defineMorphIcon();
 
@@ -125,6 +126,7 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
 };
 
 export const toggleTheme = (clickEvent = null) => {
+  triggerHaptic('medium');
   const currentSaved = localStorage.getItem('salary_tracker_theme') || state.settings?.theme || 'light';
   let nextTheme = 'dark';
   if (currentSaved === 'dark') {

@@ -1,4 +1,5 @@
 import { t } from '../i18n.js';
+import { triggerHaptic } from './haptic.js';
 
 let activeDialogResolve = null;
 let currentKeyHandler = null;
@@ -18,6 +19,7 @@ const BTN_ICON_LOGOUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const BTN_ICON_CLOSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>';
 
 const closeDialog = (result) => {
+  triggerHaptic(result ? 'medium' : 'light');
   if (currentKeyHandler) {
     window.removeEventListener('keydown', currentKeyHandler);
     currentKeyHandler = null;
