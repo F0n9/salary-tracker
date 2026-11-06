@@ -227,7 +227,7 @@ export const downloadSlipImage = () => {
   a.download = fileName;
   a.href = canvas.toDataURL('image/png');
   a.click();
-  showToast(t('toast_slip_downloaded', 'Đã tải ảnh bảng chấm công!'));
+  showToast(t('toast_slip_downloaded', 'Đã tải ảnh bảng chấm công.'));
 };
 
 export const copySlipImageToClipboard = async () => {
@@ -241,7 +241,7 @@ export const copySlipImageToClipboard = async () => {
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': blob })
         ]);
-        showToast(t('toast_slip_copied', 'Đã chép ảnh vào Clipboard! Mở Zalo bấm Ctrl+V để gửi.'));
+        showToast(t('toast_slip_copied', 'Đã chép ảnh vào Clipboard. Mở Zalo bấm Ctrl+V để gửi.'));
       } else {
         downloadSlipImage();
       }

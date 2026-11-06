@@ -178,7 +178,7 @@ export const restoreVerifiedUserData = () => {
   syncPendingToCloud(false);
   updateHeaderAuthUI();
   triggerAppRender();
-  showToast(t('toast_restore_success', 'Đã khôi phục dữ liệu ca làm việc thành công!'));
+  showToast(t('toast_restore_success', 'Đã khôi phục dữ liệu ca làm việc thành công.'));
 };
 window.restoreVerifiedUserData = restoreVerifiedUserData;
 
@@ -218,7 +218,7 @@ export const syncPendingToCloud = async (isManual = false) => {
     clearPendingSync();
     updateSyncStatusUI();
     if (isManual) {
-      showToast(t('toast_sync_manual_done', 'Đã đồng bộ thành công dữ liệu đám mây!'));
+      showToast(t('toast_sync_manual_done', 'Đã đồng bộ thành công dữ liệu đám mây.'));
     }
     return true;
   } catch (err) {
@@ -438,6 +438,105 @@ export const saveSettings = () => {
   }
 };
 
+export const restoreCachedUserSync = () => {
+  try {
+    const raw = localStorage.getItem('salary_tracker_cached_user');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.id) {
+        state.currentUser = { id: u.id, email: u.email, username: u.username };
+        if (u.avatar && u.avatar !== 'default') {
+          if (!state.settings) state.settings = {};
+          state.settings.avatar = u.avatar;
+        }
+        return;
+      }
+    }
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        const rawToken = localStorage.getItem(key);
+        if (rawToken) {
+          const parsed = JSON.parse(rawToken);
+          const user = parsed?.user;
+          if (user && user.id) {
+            const username = user.user_metadata?.username || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'user');
+            const avatar = user.user_metadata?.avatar || 'ninja';
+            state.currentUser = { id: user.id, email: user.email, username };
+            if (!state.settings) state.settings = {};
+            state.settings.avatar = avatar;
+            localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
+              id: user.id,
+              email: user.email,
+              username,
+              avatar
+            }));
+            break;
+          }
+        }
+      }
+    }
+  } catch (_) {}
+};
+
+export const restoreCachedStateSync = () => {
+  try {
+    const weeksKey = getWeeksStorageKey();
+    const settingsKey = getSettingsStorageKey();
+    let loadedWeeks = null;
+    let loadedSettings = null;
+
+    const rawSettings = localStorage.getItem(settingsKey);
+    if (rawSettings) {
+      try {
+        const parsed = JSON.parse(rawSettings);
+        if (parsed && typeof parsed === 'object') loadedSettings = parsed;
+      } catch (_) {}
+    }
+
+    const rawWeeks = localStorage.getItem(weeksKey);
+    if (rawWeeks) {
+      try {
+        const parsed = JSON.parse(rawWeeks);
+        if (hasValidShifts(parsed)) loadedWeeks = parsed;
+      } catch (_) {}
+    }
+
+    if (!loadedWeeks) {
+      const vaultRaw = localStorage.getItem('salary_tracker_vault_backup');
+      if (vaultRaw) {
+        try {
+          const parsed = JSON.parse(vaultRaw);
+          if (hasValidShifts(parsed)) loadedWeeks = parsed;
+        } catch (_) {}
+      }
+    }
+
+    if (!loadedWeeks) {
+      loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+    }
+
+    if (loadedWeeks && loadedWeeks.length > 0) {
+      state.weeks = loadedWeeks;
+      state.currentWeekId = loadedWeeks[0].id;
+    }
+
+    if (loadedSettings) {
+      state.settings = { ...state.settings, ...loadedSettings };
+    }
+    if (!Array.isArray(state.settings.workplaces) || state.settings.workplaces.length === 0) {
+      state.settings.workplaces = ['Cơm Chin Chin'];
+    }
+    if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
+      state.settings.workplaceRates = { 'Cơm Chin Chin': 40000 };
+    } else if (state.settings.workplaceRates['Cơm Chin Chin'] === undefined) {
+      state.settings.workplaceRates['Cơm Chin Chin'] = 40000;
+    }
+
+    normalizeWorkplacesAndRates();
+  } catch (_) {}
+};
+
 export const initAuth = async () => {
   if (supabaseClient) {
     try {
@@ -450,6 +549,14 @@ export const initAuth = async () => {
           if (!state.settings) state.settings = {};
           state.settings.avatar = u.user_metadata.avatar;
         }
+        try {
+          localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
+            id: u.id,
+            email: u.email,
+            username,
+            avatar: state.settings?.avatar || 'ninja'
+          }));
+        } catch (_) {}
 
         if (window.location.hash) {
           const hash = window.location.hash;
@@ -460,11 +567,12 @@ export const initAuth = async () => {
             }, 350);
           } else if (hash.includes('access_token') || hash.includes('refresh_token')) {
             window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
-            showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+            showToast(t('auth_login_success', 'Đăng nhập thành công. Chào @{username}.').replace('{username}', username));
           }
         }
       } else {
         state.currentUser = null;
+        try { localStorage.removeItem('salary_tracker_cached_user'); } catch (_) {}
       }
     } catch (e) {
       state.currentUser = null;
@@ -543,6 +651,14 @@ export const handleLoginSubmit = async (e) => {
     const u = data.user;
     const username = u.user_metadata?.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'user');
     state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+    try {
+      localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
+        id: u.id,
+        email: u.email,
+        username,
+        avatar: state.settings?.avatar || 'ninja'
+      }));
+    } catch (_) {}
 
     updateHeaderAuthUI();
     await loadState();
@@ -550,7 +666,7 @@ export const handleLoginSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formLogin').reset();
-    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+    showToast(t('auth_login_success', 'Đăng nhập thành công. Chào @{username}.').replace('{username}', username));
   } catch (err) {
     errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi kết nối: ')}${err.message}`;
     errorEl.style.display = 'block';
@@ -666,6 +782,14 @@ export const handleRegisterSubmit = async (e) => {
     saveWeeks();
     saveSettings();
     try {
+      localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
+        id: u.id,
+        email: u.email,
+        username,
+        avatar: randomAvatar.id
+      }));
+    } catch (_) {}
+    try {
       await supabaseClient.from('user_salary_data').upsert({
         user_id: u.id,
         username: username,
@@ -679,7 +803,7 @@ export const handleRegisterSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formRegister').reset();
-    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
+    showToast(t('auth_login_success', 'Đăng nhập thành công. Chào @{username}.').replace('{username}', username));
   } catch (err) {
     errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message}`;
     errorEl.style.display = 'block';
@@ -705,6 +829,7 @@ export const handleLogout = async () => {
     }
     state.currentUser = null;
     try {
+      localStorage.removeItem('salary_tracker_cached_user');
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
@@ -852,7 +977,7 @@ export const handleChangePasswordSubmit = async (e) => {
 
     if (error) throw error;
 
-    showToast(t('profile_pw_updated', 'Đổi mật khẩu thành công!'));
+    showToast(t('profile_pw_updated', 'Đổi mật khẩu thành công.'));
     document.getElementById('formChangePassword').reset();
     document.getElementById('formChangePassword').style.display = 'none';
     const chevron = document.getElementById('iconChangePwdChevron');
@@ -892,7 +1017,7 @@ export const setupRealtimeSync = () => {
                 }
               }
               triggerAppRender();
-              showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác!'));
+              showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác.'));
             }
           }
         }
@@ -912,7 +1037,7 @@ export const setupAutoSync = () => {
       showToast(t('toast_online_syncing', 'Đã có kết nối mạng. Đang tự động đồng bộ lên đám mây...'));
       const ok = await syncPendingToCloud(false);
       if (ok) {
-        showToast(t('toast_synced_success', 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây!'));
+        showToast(t('toast_synced_success', 'Đã tự động đồng bộ toàn bộ dữ liệu lên đám mây.'));
       }
     } else {
       showToast('Đã kết nối mạng.');
@@ -954,7 +1079,7 @@ export const setupAutoSync = () => {
               }
             }
             triggerAppRender();
-            showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác!'));
+            showToast(t('toast_synced_from_other_device', 'Dữ liệu vừa được đồng bộ từ thiết bị khác.'));
           }
         }
       } catch (_) {}

@@ -201,7 +201,7 @@ export const updateModalComputedPreview = () => {
 export const saveShiftFromModal = async (e) => {
   e.preventDefault();
   if (!hasWorkplaces()) {
-    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trước!'));
+    showToast(t('warn_no_workplace', 'Vui lòng thêm nơi làm việc trước.'));
     const manageBox = document.getElementById('shiftWorkplaceManageBox');
     if (manageBox) manageBox.style.display = 'flex';
     document.getElementById('shiftNewWpName')?.focus();
@@ -334,7 +334,7 @@ export const undoLastDeleteShift = () => {
   lastDeletedShiftRecord = null;
   saveWeeks();
   triggerAppRender();
-  showToast(`${t('toast_shift_restored', 'Đã khôi phục ca làm việc!')} ${getLocalizedDayName(shift.day)} (${getLocalizedShiftType(shift.type)})`);
+  showToast(`${t('toast_shift_restored', 'Đã khôi phục ca làm việc.')} ${getLocalizedDayName(shift.day)} (${getLocalizedShiftType(shift.type)})`);
 };
 
 export const createNewWeek = () => {
@@ -462,7 +462,7 @@ export const undoLastDeleteWeek = () => {
   lastDeletedWeekRecord = null;
   saveWeeks();
   triggerAppRender();
-  showToast(`Đã khôi phục ${week.name}!`);
+  showToast(`Đã khôi phục ${week.name}.`);
 };
 
 export const navigateWeek = (direction) => {
@@ -903,7 +903,7 @@ export const renderShiftWorkplacesList = () => {
         const handleSave = () => {
           const newName = (nameInput?.value || '').trim();
           if (!newName) {
-            showToast(t('warn_wp_name_empty', 'Vui lòng nhập tên nơi làm việc!'));
+            showToast(t('warn_wp_name_empty', 'Vui lòng nhập tên nơi làm việc.'));
             return;
           }
           if (newName === wp) {
@@ -911,7 +911,7 @@ export const renderShiftWorkplacesList = () => {
             return;
           }
           if (state.settings.workplaces.includes(newName)) {
-            showToast(t('warn_wp_exists', 'Tên nơi làm việc này đã tồn tại!'));
+            showToast(t('warn_wp_exists', 'Tên nơi làm việc này đã tồn tại.'));
             return;
           }
 
@@ -1152,8 +1152,19 @@ export const renderAvatarPickerGrid = () => {
         b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
       });
 
+      if (state.currentUser) {
+        try {
+          const raw = localStorage.getItem('salary_tracker_cached_user');
+          if (raw) {
+            const u = JSON.parse(raw);
+            u.avatar = item.id;
+            localStorage.setItem('salary_tracker_cached_user', JSON.stringify(u));
+          }
+        } catch (_) {}
+      }
+
       updateHeaderAuthUI();
-      showToast(t('toast_avatar_saved', 'Đã lưu ảnh đại diện!'), 'success');
+      showToast(t('toast_avatar_saved', 'Đã lưu ảnh đại diện.'), 'success');
     });
 
     grid.appendChild(btn);

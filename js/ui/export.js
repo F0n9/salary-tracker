@@ -116,7 +116,7 @@ export const restoreJSON = (e) => {
         saveSettings();
         closeModal('allWeeksModal');
         triggerAppRender();
-        showToast(t('toast_imported_success', 'Đã nhập dữ liệu thành công!'));
+        showToast(t('toast_imported_success', 'Đã nhập dữ liệu thành công.'));
       } else {
         await showAlertDialog({
           title: t('btn_import_json', 'Nhập file JSON'),

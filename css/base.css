@@ -248,6 +248,24 @@ body::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
+  animation: appBootFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes appBootFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout {
+    animation: none !important;
+  }
 }
 
 .app-header {
