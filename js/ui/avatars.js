@@ -74,3 +74,4 @@ export const getAvatarName = (id) => {
   const item = getAvatarById(id);
   return item.name;
 };
+

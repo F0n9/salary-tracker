@@ -3394,3 +3394,104 @@ body.dark-mode .avatar-picker-shelf {
 body.dark-mode .avatar-edit-chip {
   border-color: #121319;
 }
+
+.btn-rename-workplace {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  background: var(--bg-card);
+  transition: all 0.15s ease;
+}
+
+.btn-rename-workplace:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.swq-left.swq-edit-mode {
+  flex: 1;
+  min-width: 0;
+}
+
+.swq-name-input {
+  width: 100%;
+  height: 28px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-xs);
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.btn-save-wp-rename,
+.btn-cancel-wp-rename {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-save-wp-rename {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-save-wp-rename:hover {
+  opacity: 0.9;
+}
+
+.btn-cancel-wp-rename {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+}
+
+.btn-cancel-wp-rename:hover {
+  color: var(--text-main);
+}
+
+body.dark-mode .btn-rename-workplace {
+  background: #0d0e15;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-rename-workplace:hover {
+  color: #60a5fa;
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.15);
+}
+
+body.dark-mode .swq-name-input {
+  background: #0d0e15;
+  color: #f8fafc;
+  border-color: #3b82f6;
+}
+
+body.dark-mode .btn-cancel-wp-rename {
+  background: #0d0e15;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}

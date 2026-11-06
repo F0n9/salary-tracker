@@ -853,6 +853,11 @@ export const renderShiftWorkplacesList = () => {
           <input type="number" class="swq-rate-input font-mono" data-wp="${escapeHtml(wp)}" value="${rate}" placeholder="0" step="1000" min="0">
           <span class="swq-rate-tag font-mono">đ/h</span>
         </div>
+        <button type="button" class="btn-rename-workplace btn-morphic" data-rename-wp="${idx}" title="${t('btn_rename_wp', 'Đổi tên nơi làm')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="12" height="12">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+          </svg>
+        </button>
         ${hasMultiple ? `
           <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
@@ -864,6 +869,100 @@ export const renderShiftWorkplacesList = () => {
         ` : ''}
       </div>
     `;
+
+    const renameBtn = row.querySelector('[data-rename-wp]');
+    if (renameBtn) {
+      renameBtn.addEventListener('click', () => {
+        triggerHaptic('light');
+        row.innerHTML = `
+          <div class="swq-left swq-edit-mode">
+            <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+            <input type="text" class="swq-name-input form-input font-sans" value="${escapeHtml(wp)}" placeholder="${t('ph_workplace_name', 'Tên nơi làm')}">
+          </div>
+          <div class="swq-right">
+            <button type="button" class="btn-save-wp-rename btn-morphic btn-action-primary" title="${t('btn_save', 'Lưu')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="btn-cancel-wp-rename btn-morphic" title="${t('btn_cancel', 'Hủy')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        `;
+
+        const nameInput = row.querySelector('.swq-name-input');
+        if (nameInput) {
+          nameInput.focus();
+          nameInput.select();
+        }
+
+        const handleSave = () => {
+          const newName = (nameInput?.value || '').trim();
+          if (!newName) {
+            showToast(t('warn_wp_name_empty', 'Vui lòng nhập tên nơi làm việc!'));
+            return;
+          }
+          if (newName === wp) {
+            renderShiftWorkplacesList();
+            return;
+          }
+          if (state.settings.workplaces.includes(newName)) {
+            showToast(t('warn_wp_exists', 'Tên nơi làm việc này đã tồn tại!'));
+            return;
+          }
+
+          state.settings.workplaces[idx] = newName;
+          const currentRate = state.settings.workplaceRates?.[wp] ?? 0;
+          if (!state.settings.workplaceRates) state.settings.workplaceRates = {};
+          state.settings.workplaceRates[newName] = currentRate;
+          delete state.settings.workplaceRates[wp];
+
+          if (state.settings.defaultWorkplace === wp) {
+            state.settings.defaultWorkplace = newName;
+          }
+
+          state.weeks.forEach(w => {
+            if (Array.isArray(w.shifts)) {
+              w.shifts.forEach(s => {
+                if (s.workplace === wp) {
+                  s.workplace = newName;
+                }
+              });
+            }
+          });
+
+          saveSettings();
+          saveWeeks();
+          renderShiftWorkplacesList();
+          updateWorkplaceInputOptions(newName);
+          updateModalComputedPreview();
+          triggerAppRender();
+          triggerHaptic('medium');
+          showToast(`Đã đổi tên thành "${newName}"`);
+        };
+
+        row.querySelector('.btn-save-wp-rename')?.addEventListener('click', handleSave);
+        row.querySelector('.btn-cancel-wp-rename')?.addEventListener('click', () => {
+          triggerHaptic('light');
+          renderShiftWorkplacesList();
+        });
+
+        nameInput?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSave();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            triggerHaptic('light');
+            renderShiftWorkplacesList();
+          }
+        });
+      });
+    }
 
     const setDefaultBtn = row.querySelector('[data-set-default]');
     if (setDefaultBtn) {
