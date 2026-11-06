@@ -16,6 +16,8 @@ const I18N_VI = {
     btn_edit_week_meta: 'Chỉnh sửa thông tin tuần',
     btn_add_week: 'Thêm tuần',
     btn_delete_week: 'Xóa tuần',
+    week_prev: 'Tuần trước',
+    week_next: 'Tuần sau',
     btn_add_shift: 'Thêm ca',
     week_prefix: 'Tuần',
     rate_unit: 'đ/h',

@@ -1144,16 +1144,8 @@ export const renderAvatarPickerGrid = () => {
       triggerHaptic('light');
       if (!state.settings) state.settings = {};
       state.settings.avatar = item.id;
-      saveSettings();
-
-      const avatarContent = document.getElementById('profileAvatarContent');
-      if (avatarContent) avatarContent.innerHTML = item.svg;
-
-      grid.querySelectorAll('.avatar-choice-btn').forEach(b => {
-        b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
-      });
-
       if (state.currentUser) {
+        state.currentUser.avatar = item.id;
         try {
           const raw = localStorage.getItem('salary_tracker_cached_user');
           if (raw) {
@@ -1163,6 +1155,17 @@ export const renderAvatarPickerGrid = () => {
           }
         } catch (_) {}
       }
+      saveSettings();
+
+      const avatarContent = document.getElementById('profileAvatarContent');
+      if (avatarContent) avatarContent.innerHTML = item.svg;
+
+      const selectedNameEl = document.getElementById('avatarSelectedName');
+      if (selectedNameEl) selectedNameEl.textContent = item.name;
+
+      grid.querySelectorAll('.avatar-choice-btn').forEach(b => {
+        b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
+      });
 
       updateHeaderAuthUI();
       showToast(t('toast_avatar_saved', 'Đã lưu ảnh đại diện.'), 'success');
@@ -1220,11 +1223,16 @@ export const openUserProfileModal = () => {
   if (!modal) return;
 
   const username = state.currentUser.username || 'user';
-  const currentAvatarId = state.settings?.avatar || AVATARS[0].id;
+  const currentAvatarId = state.settings?.avatar || state.currentUser?.avatar || AVATARS[0].id;
 
   const avatarContent = document.getElementById('profileAvatarContent');
   if (avatarContent) {
     avatarContent.innerHTML = getAvatarSvg(currentAvatarId);
+  }
+
+  const selectedNameEl = document.getElementById('avatarSelectedName');
+  if (selectedNameEl) {
+    selectedNameEl.textContent = getAvatarName(currentAvatarId);
   }
 
   collapseAvatarPicker();

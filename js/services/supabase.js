@@ -1026,11 +1026,25 @@ export const saveSettings = () => {
   if (state.settings) {
     localStorage.setItem(settingsKey, JSON.stringify(state.settings));
   }
+  if (state.currentUser) {
+    state.currentUser.avatar = state.settings?.avatar || AVATARS[0].id;
+    try {
+      const raw = localStorage.getItem('salary_tracker_cached_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        u.avatar = state.currentUser.avatar;
+        localStorage.setItem('salary_tracker_cached_user', JSON.stringify(u));
+      }
+    } catch (_) {}
+  }
   updateHeaderAuthUI();
-  if (state.currentUser && supabaseClient && state.settings?.avatar) {
-    supabaseClient.auth.updateUser({
-      data: { avatar: state.settings.avatar }
-    }).catch(() => {});
+  if (state.currentUser && supabaseClient) {
+    if (state.settings?.avatar) {
+      supabaseClient.auth.updateUser({
+        data: { avatar: state.settings.avatar }
+      }).catch(() => {});
+    }
+    syncPendingToCloud(false);
   }
 };
 
@@ -1040,10 +1054,12 @@ export const restoreCachedUserSync = () => {
     if (raw) {
       const u = JSON.parse(raw);
       if (u && u.id) {
-        state.currentUser = { id: u.id, email: u.email, username: u.username };
+        state.currentUser = { id: u.id, email: u.email, username: u.username, avatar: u.avatar };
         if (u.avatar && u.avatar !== 'default') {
           if (!state.settings) state.settings = {};
-          state.settings.avatar = u.avatar;
+          if (!state.settings.avatar || state.settings.avatar === 'default') {
+            state.settings.avatar = u.avatar;
+          }
         }
         return;
       }
@@ -1057,15 +1073,17 @@ export const restoreCachedUserSync = () => {
           const user = parsed?.user;
           if (user && user.id) {
             const username = user.user_metadata?.username || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'user');
-            const avatar = user.user_metadata?.avatar || 'ninja';
-            state.currentUser = { id: user.id, email: user.email, username };
+            const avatar = user.user_metadata?.avatar || 'dicebear_ninja';
+            state.currentUser = { id: user.id, email: user.email, username, avatar };
             if (!state.settings) state.settings = {};
-            state.settings.avatar = avatar;
+            if (!state.settings.avatar || state.settings.avatar === 'default') {
+              state.settings.avatar = avatar;
+            }
             localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
               id: user.id,
               email: user.email,
               username,
-              avatar
+              avatar: state.settings.avatar
             }));
             break;
           }
@@ -1146,17 +1164,20 @@ export const initAuth = async () => {
       if (session && session.user) {
         const u = session.user;
         const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
-        state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+        if (!state.settings) state.settings = {};
         if (u.user_metadata?.avatar && u.user_metadata.avatar !== 'default') {
-          if (!state.settings) state.settings = {};
-          state.settings.avatar = u.user_metadata.avatar;
+          if (!state.settings.avatar || state.settings.avatar === 'default') {
+            state.settings.avatar = u.user_metadata.avatar;
+          }
         }
+        const activeAvatar = state.settings.avatar || u.user_metadata?.avatar || 'dicebear_ninja';
+        state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: activeAvatar };
         try {
           localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
             id: u.id,
             email: u.email,
             username,
-            avatar: state.settings?.avatar || 'ninja'
+            avatar: activeAvatar
           }));
         } catch (_) {}
 
@@ -1192,7 +1213,7 @@ export const updateHeaderAuthUI = () => {
 
   if (state.currentUser && state.currentUser.username) {
     btn.className = 'btn-morphic is-logged-in';
-    const avatarId = state.settings?.avatar || AVATARS[0].id;
+    const avatarId = state.settings?.avatar || state.currentUser?.avatar || AVATARS[0].id;
     const avatarSvg = getAvatarSvg(avatarId);
     btn.innerHTML = `<span class="user-avatar-mini">${avatarSvg}</span>`;
     btn.title = `${t('nav_account_user', 'Tài khoản')}: @${state.currentUser.username}`;

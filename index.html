@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261106cc">
-  <link rel="stylesheet" href="./css/components.css?v=20261106cc">
-  <link rel="stylesheet" href="./css/modals.css?v=20261106cc">
+  <link rel="stylesheet" href="./css/base.css?v=20261106dd">
+  <link rel="stylesheet" href="./css/components.css?v=20261106dd">
+  <link rel="stylesheet" href="./css/modals.css?v=20261106dd">
 </head>
 
 <body>
@@ -91,7 +91,17 @@
         </div>
 
         <div class="week-wheel-container">
+          <button type="button" class="week-nav-step-btn" id="btnPrevWeek" data-i18n-title="week_prev" title="Tuần trước" aria-label="Tuần trước">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
           <div class="week-wheel-track" id="weekPillsList"></div>
+          <button type="button" class="week-nav-step-btn" id="btnNextWeek" data-i18n-title="week_next" title="Tuần sau" aria-label="Tuần sau">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -1041,7 +1051,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261106cc"></script>
+  <script type="module" src="./js/app.js?v=20261106dd"></script>
 </body>
 
 </html>
