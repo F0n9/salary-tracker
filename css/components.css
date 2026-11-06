@@ -18,6 +18,10 @@
   align-items: center !important;
   justify-content: center !important;
   overflow: hidden !important;
+  border: 1.5px solid var(--border-default) !important;
+  border-radius: var(--radius-md) !important;
+  background: transparent !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .user-avatar-mini {
@@ -49,6 +53,12 @@ body.dark-mode .btn-morphic {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #a1a3af;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode #btnUserAuth.btn-morphic {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  background: transparent !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .btn-morphic svg,
@@ -480,7 +490,7 @@ body.dark-mode .hero-period-title .hero-period-year {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 320px;
+  max-width: 360px;
   min-width: 0;
   height: 38px;
   border-radius: var(--radius-pill);
@@ -502,7 +512,8 @@ body.dark-mode .hero-period-title .hero-period-year {
   gap: 6px;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   padding: 0 16px;
   scroll-padding: 0 16px;
   width: 100%;
@@ -510,8 +521,8 @@ body.dark-mode .hero-period-title .hero-period-year {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
   -webkit-overflow-scrolling: touch;
-  mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 18px, black calc(100% - 18px), transparent 100%);
 }
 
 .week-wheel-track::before,
@@ -519,7 +530,8 @@ body.dark-mode .hero-period-title .hero-period-year {
   content: '';
   display: block;
   flex-shrink: 0;
-  width: 10px;
+  width: calc(50% - 60px);
+  min-width: 24px;
   height: 100%;
   pointer-events: none;
 }
@@ -543,15 +555,16 @@ body.dark-mode .hero-period-title .hero-period-year {
   scroll-snap-stop: normal;
   scroll-margin: 0 10px;
   user-select: none;
-  transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
+  transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
   flex-shrink: 0;
   border: 1px solid transparent;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .week-wheel-item .wheel-item-name {
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
@@ -563,6 +576,9 @@ body.dark-mode .hero-period-title .hero-period-year {
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
 }
 
 .week-wheel-item:not(.active):hover {
@@ -1424,11 +1440,11 @@ body.dark-mode .no-workplaces-banner {
 }
 
 .floating-dock {
-  position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 900;
+  position: fixed !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 900 !important;
   display: flex;
   align-items: center;
   gap: 0.5rem;

@@ -89,6 +89,7 @@ const onWheelTrackScroll = () => {
       if (weekId && weekId !== state.currentWeekId) {
         triggerHaptic('light');
         state.currentWeekId = weekId;
+        localStorage.setItem('salary_tracker_current_week', weekId);
         const container = document.getElementById('weekPillsList');
         if (container) {
           container.querySelectorAll('.week-wheel-item').forEach(it => {
@@ -109,10 +110,14 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   if (!activeItem) return;
 
   isProgrammaticWheelScroll = true;
-  activeItem.scrollIntoView({ behavior, block: 'nearest', inline: 'center' });
+  const itemOffset = activeItem.offsetLeft;
+  const itemWidth = activeItem.offsetWidth;
+  const containerWidth = container.clientWidth;
+  const targetLeft = itemOffset - (containerWidth / 2) + (itemWidth / 2);
+  container.scrollTo({ left: Math.max(0, targetLeft), behavior });
   setTimeout(() => {
     isProgrammaticWheelScroll = false;
-  }, 280);
+  }, 320);
 };
 
 const renderWeekPills = () => {
@@ -137,6 +142,7 @@ const renderWeekPills = () => {
       if (state.currentWeekId !== week.id) {
         triggerHaptic('light');
         state.currentWeekId = week.id;
+        localStorage.setItem('salary_tracker_current_week', week.id);
         container.querySelectorAll('.week-wheel-item').forEach(it => {
           it.classList.toggle('active', it.getAttribute('data-week-id') === week.id);
         });

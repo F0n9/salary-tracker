@@ -81,74 +81,642 @@ export const hasValidShifts = (weeks) => {
 
 export const VERIFIED_USER_WEEKS = [
   {
-    id: 'week-9-2026',
-    name: 'Tuần 9',
-    rate: 40000,
-    startDate: '2026-10-26',
-    shifts: [
+    "id": "week-1-2026",
+    "name": "Tuần 1",
+    "rate": 35000,
+    "startDate": "2026-08-31",
+    "shifts": [
       {
-        id: 's-w9-1',
-        day: 'T4',
-        type: 'Trưa',
-        start: '10:00',
-        end: '14:25',
-        breakMinutes: 0,
-        otRate: 1,
-        allowance: 0,
-        deduction: 0,
-        hours: 4.42,
-        workplace: 'Cơm Chin Chin',
-        note: ''
+        "id": "s-1-1",
+        "day": "T6",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:11",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.18,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
       },
       {
-        id: 's-w9-2',
-        day: 'T6',
-        type: 'Trưa',
-        start: '10:00',
-        end: '14:25',
-        breakMinutes: 0,
-        otRate: 1,
-        allowance: 0,
-        deduction: 0,
-        hours: 4.41,
-        workplace: 'Cơm Chin Chin',
-        note: ''
+        "id": "s-1-2",
+        "day": "T7",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:14",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.23,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-1-3",
+        "day": "T7",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:48",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.8,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-1-4",
+        "day": "CN",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:04",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.07,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
       }
     ]
   },
   {
-    id: 'week-10-2026',
-    name: 'Tuần 10',
-    rate: 40000,
-    startDate: '2026-11-02',
-    shifts: [
+    "id": "week-2-2026",
+    "name": "Tuần 2",
+    "rate": 35000,
+    "startDate": "2026-09-07",
+    "shifts": [
       {
-        id: 's-w10-1',
-        day: 'T5',
-        type: 'Trưa',
-        start: '10:00',
-        end: '13:15',
-        breakMinutes: 0,
-        otRate: 1,
-        allowance: 0,
-        deduction: 0,
-        hours: 3.25,
-        workplace: 'Cơm Chin Chin',
-        note: ''
+        "id": "s-2-1",
+        "day": "T2",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
       },
       {
-        id: 's-w10-2',
-        day: 'T6',
-        type: 'Tối',
-        start: '14:15',
-        end: '17:15',
-        breakMinutes: 0,
-        otRate: 1,
-        allowance: 0,
-        deduction: 0,
-        hours: 3.0,
-        workplace: 'Cơm Chin Chin',
-        note: ''
+        "id": "s-2-2",
+        "day": "T3",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-2-3",
+        "day": "T5",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:30",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.5,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-2-4",
+        "day": "T7",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:30",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.5,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-2-5",
+        "day": "T7",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-3-2026",
+    "name": "Tuần 3",
+    "rate": 35000,
+    "startDate": "2026-09-14",
+    "shifts": [
+      {
+        "id": "s-3-1",
+        "day": "T2",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:15",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.25,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-3-2",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:10",
+        "end": "13:10",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-3-3",
+        "day": "T5",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-3-4",
+        "day": "T6",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:30",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.5,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-3-5",
+        "day": "CN",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:49",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.82,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-4-2026",
+    "name": "Tuần 4",
+    "rate": 35000,
+    "startDate": "2026-09-21",
+    "shifts": [
+      {
+        "id": "s-4-1",
+        "day": "T2",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:59",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.98,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-4-2",
+        "day": "T3",
+        "type": "Tối",
+        "start": "17:04",
+        "end": "20:06",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.03,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-4-3",
+        "day": "T4",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:53",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.88,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-4-4",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:05",
+        "end": "13:44",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.65,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-4-5",
+        "day": "T6",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "12:54",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.9,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-4-6",
+        "day": "CN",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-5-2026",
+    "name": "Tuần 5",
+    "rate": 40000,
+    "startDate": "2026-09-28",
+    "shifts": [
+      {
+        "id": "s-5-1",
+        "day": "T2",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:25",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.42,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-5-2",
+        "day": "T4",
+        "type": "Tối",
+        "start": "18:00",
+        "end": "19:40",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 1.67,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-5-3",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:30",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.5,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-5-4",
+        "day": "T5",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:24",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.4,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-5-5",
+        "day": "T6",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:48",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.8,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-6-2026",
+    "name": "Tuần 6",
+    "rate": 40000,
+    "startDate": "2026-10-05",
+    "shifts": [
+      {
+        "id": "s-6-1",
+        "day": "T2",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:25",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.42,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-6-2",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-6-3",
+        "day": "T5",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:35",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.58,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-6-4",
+        "day": "T6",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:15",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.25,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-7-2026",
+    "name": "Tuần 7",
+    "rate": 40000,
+    "startDate": "2026-10-12",
+    "shifts": [
+      {
+        "id": "s-7-1",
+        "day": "T2",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-7-2",
+        "day": "T2",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "19:45",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.75,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-7-3",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "12:54",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.9,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-7-4",
+        "day": "T5",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:20",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.33,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-7-5",
+        "day": "CN",
+        "type": "Tối",
+        "start": "17:00",
+        "end": "20:10",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.17,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-8-2026",
+    "name": "Tuần 8",
+    "rate": 40000,
+    "startDate": "2026-10-19",
+    "shifts": [
+      {
+        "id": "s-8-1",
+        "day": "T2",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:19",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.32,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-8-2",
+        "day": "T2",
+        "type": "Tối",
+        "start": "17:05",
+        "end": "20:00",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 2.92,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-9-2026",
+    "name": "Tuần 9",
+    "rate": 40000,
+    "startDate": "2026-10-26",
+    "shifts": [
+      {
+        "id": "s-w9-1",
+        "day": "T4",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "14:25",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 4.42,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-w9-2",
+        "day": "T6",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "14:25",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 4.41,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "week-10-2026",
+    "name": "Tuần 10",
+    "rate": 40000,
+    "startDate": "2026-11-02",
+    "shifts": [
+      {
+        "id": "s-w10-1",
+        "day": "T5",
+        "type": "Trưa",
+        "start": "10:00",
+        "end": "13:15",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3.25,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
+      },
+      {
+        "id": "s-w10-2",
+        "day": "T6",
+        "type": "Tối",
+        "start": "14:15",
+        "end": "17:15",
+        "breakMinutes": 0,
+        "otRate": 1,
+        "allowance": 0,
+        "deduction": 0,
+        "hours": 3,
+        "workplace": "Cơm Chin Chin",
+        "note": ""
       }
     ]
   }
@@ -162,6 +730,27 @@ export const VERIFIED_USER_SETTINGS = {
   avatar: 'ninja'
 };
 
+export const reconcileWeeksWithVerified = (weeks) => {
+  if (!Array.isArray(weeks) || weeks.length === 0) {
+    return JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+  }
+  const existingIds = new Set(weeks.map(w => w.id));
+  const missingWeeks = VERIFIED_USER_WEEKS.filter(w => !existingIds.has(w.id));
+  if (missingWeeks.length === 0) {
+    return weeks;
+  }
+  const merged = [...weeks, ...JSON.parse(JSON.stringify(missingWeeks))];
+  merged.sort((a, b) => {
+    const da = a.startDate || '';
+    const db = b.startDate || '';
+    if (da && db) return da.localeCompare(db);
+    const numA = parseInt((a.name || '').replace(/\D+/g, '') || '0', 10);
+    const numB = parseInt((b.name || '').replace(/\D+/g, '') || '0', 10);
+    return numA - numB;
+  });
+  return merged;
+};
+
 export const restoreVerifiedUserData = () => {
   state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
   if (!state.settings) state.settings = {};
@@ -173,6 +762,7 @@ export const restoreVerifiedUserData = () => {
   localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
   localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
   localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
+  localStorage.setItem('salary_tracker_current_week', state.currentWeekId);
   saveWeeks();
   saveSettings();
   syncPendingToCloud(false);
@@ -347,6 +937,7 @@ export const loadState = async () => {
       }
     }
 
+    loadedWeeks = reconcileWeeksWithVerified(loadedWeeks);
     if (loadedWeeks && loadedWeeks.length > 0) {
       state.weeks = loadedWeeks;
     } else {
@@ -381,7 +972,12 @@ export const loadState = async () => {
     state.weeks.forEach((w, idx) => {
       ensureWeekStartDate(w, idx);
     });
-    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+    const savedCurrentWeek = localStorage.getItem('salary_tracker_current_week');
+    if (savedCurrentWeek && state.weeks.some(w => w.id === savedCurrentWeek)) {
+      state.currentWeekId = savedCurrentWeek;
+    } else {
+      state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+    }
 
     if (state.currentUser && supabaseClient && hasValidShifts(state.weeks)) {
       syncPendingToCloud(false);
@@ -516,9 +1112,15 @@ export const restoreCachedStateSync = () => {
       loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
     }
 
+    loadedWeeks = reconcileWeeksWithVerified(loadedWeeks);
     if (loadedWeeks && loadedWeeks.length > 0) {
       state.weeks = loadedWeeks;
-      state.currentWeekId = loadedWeeks[0].id;
+      const savedCurrentWeek = localStorage.getItem('salary_tracker_current_week');
+      if (savedCurrentWeek && state.weeks.some(w => w.id === savedCurrentWeek)) {
+        state.currentWeekId = savedCurrentWeek;
+      } else {
+        state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+      }
     }
 
     if (loadedSettings) {

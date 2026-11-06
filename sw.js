@@ -1,12 +1,12 @@
-const CACHE_NAME = 'salary-tracker-v136';
+const CACHE_NAME = 'salary-tracker-v137';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/base.css?v=20261106x',
-  './css/components.css?v=20261106x',
-  './css/modals.css?v=20261106x',
-  './js/app.js?v=20261106x',
+  './css/base.css?v=20261106bb',
+  './css/components.css?v=20261106bb',
+  './css/modals.css?v=20261106bb',
+  './js/app.js?v=20261106bb',
   './js/config.js',
   './js/i18n.js',
   './js/theme.js',

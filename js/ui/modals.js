@@ -473,6 +473,7 @@ export const navigateWeek = (direction) => {
   if (nextIndex >= 0 && nextIndex < state.weeks.length) {
     triggerHaptic('light');
     state.currentWeekId = state.weeks[nextIndex].id;
+    localStorage.setItem('salary_tracker_current_week', state.currentWeekId);
     triggerAppRender();
   }
 };

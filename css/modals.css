@@ -1164,7 +1164,7 @@ body.dark-mode .btn-submit-action:hover {
     radial-gradient(circle at -4% 50%, rgba(59, 130, 246, 0.6) 1.5px, transparent 2.5px),
     radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.12) 65%, transparent 85%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
   opacity: 0.9;
   animation: avatarDustShimmer 3s ease-in-out infinite alternate;
 }
@@ -1185,25 +1185,26 @@ body.dark-mode .btn-submit-action:hover {
   height: 52px;
   border-radius: var(--radius-md);
   padding: 0;
-  border: 1.5px solid rgba(99, 102, 241, 0.5);
-  background: var(--bg-surface);
+  border: 2px solid var(--primary);
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+  z-index: 1;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .profile-avatar:hover {
   transform: scale(1.03);
-  border-color: rgba(99, 102, 241, 0.8);
+  border-color: rgba(99, 102, 241, 0.9);
 }
 
 body.dark-mode .profile-avatar {
-  border-color: rgba(129, 140, 248, 0.6);
+  border-color: rgba(129, 140, 248, 0.85);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
@@ -1256,6 +1257,7 @@ body.dark-mode .btn-avatar-edit-badge {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: cover;
 }
 
 .profile-avatar-render {
@@ -1604,6 +1606,7 @@ body.dark-mode .btn-logout-action {
   }
 
   .floating-dock {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.85rem) !important;
     gap: 0.45rem;
     padding: 0.4rem 0.55rem;
   }
@@ -1652,8 +1655,8 @@ body.dark-mode .btn-logout-action {
     padding: 0 14px;
     scroll-padding: 0 14px;
     height: 100%;
-    mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
   }
 
   .week-wheel-track::before,
@@ -1661,7 +1664,8 @@ body.dark-mode .btn-logout-action {
     content: '';
     display: block;
     flex-shrink: 0;
-    width: 8px;
+    width: calc(50% - 50px);
+    min-width: 18px;
     height: 100%;
     pointer-events: none;
   }
@@ -1677,14 +1681,19 @@ body.dark-mode .btn-logout-action {
 
   .week-wheel-item .wheel-item-name {
     font-size: 0.775rem;
+    font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   .week-wheel-item .wheel-item-sub {
     font-size: 0.725rem;
+    font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    background: rgba(0, 0, 0, 0.04);
   }
 }
 
