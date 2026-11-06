@@ -23,7 +23,7 @@ A lightweight, production-grade, offline-first shift scheduling and personal com
   - User identity linking: Link an existing username/password account with Google in User Profile.
   - Secure email password recovery flow.
 - **Database-Enforced Data Isolation (RLS):** Supabase PostgreSQL protected by Row Level Security (RLS) policies scoped strictly to `auth.uid() = user_id`, guaranteeing zero cross-tenant data exposure.
-- **Offline-First PWA:** Native Service Worker Cache API (`v121`) with optimistic UI updates, allowing full offline usage with background synchronization upon reconnect.
+- **Offline-First PWA:** Native Service Worker Cache API (`v122`) with optimistic UI updates, allowing full offline usage with background synchronization upon reconnect.
 - **Kinetic UI & Micro-Interactions:**
   - SVG Morphicons with spring physics for theme toggle and password reveal.
   - Apple iOS Ultra-Thin Frosted Glass dockbar (`backdrop-filter: blur(24px) saturate(190%)`).

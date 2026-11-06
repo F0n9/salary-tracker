@@ -504,10 +504,14 @@ export const handleLogout = async () => {
     }
     state.currentUser = null;
     try {
-      localStorage.removeItem(LOCAL_CACHE_WEEKS_KEY);
-      localStorage.removeItem(LOCAL_CACHE_SETTINGS_KEY);
-      localStorage.removeItem(GUEST_WEEKS_KEY);
-      localStorage.removeItem(GUEST_SETTINGS_KEY);
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('salary_cloud_cache') || k.startsWith('shift_tracker_') || k.startsWith('salary_user_weeks'))) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
     } catch (_) {}
     state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     if (!state.settings) state.settings = {};
