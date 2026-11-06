@@ -840,14 +840,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderApp();
   setupRealtimeSync();
   setupAutoSync();
-
-  const splash = document.getElementById('pwaSplash');
-  if (splash) {
-    requestAnimationFrame(() => {
-      splash.classList.add('pwa-splash-closing');
-      setTimeout(() => {
-        splash.remove();
-      }, 420);
-    });
-  }
 });
