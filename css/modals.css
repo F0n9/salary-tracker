@@ -38,6 +38,8 @@
   justify-content: space-between;
   gap: 0.75rem;
   background: #f8fafc;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
 }
 
 .modal-title-wrap {
@@ -89,6 +91,8 @@
   background: #f8fafc;
   position: relative;
   z-index: 1;
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
 }
 
 .btn-icon-only {
@@ -1588,7 +1592,18 @@ body.dark-mode .btn-logout-action {
 }
 
 .shift-modal-body .form-grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
   gap: 0.55rem !important;
+}
+
+.shift-modal-body .custom-select-trigger,
+.shift-modal-body .custom-select-label,
+.shift-modal-body .form-select,
+.shift-modal-body select,
+.shift-modal-body .form-input,
+.shift-modal-body .custom-select-option {
+  font-weight: 400 !important;
 }
 
 .shift-modal-body .form-item {
@@ -3057,7 +3072,7 @@ body.dark-mode .input-with-tag .tag {
 @media (max-width: 640px) {
   .modal-surface {
     max-width: calc(100% - 1.25rem);
-    border-radius: var(--radius-md, 10px);
+    border-radius: var(--radius-lg);
   }
   .modal-header {
     padding: 0.85rem 1.1rem;
