@@ -1597,15 +1597,14 @@ body.dark-mode .btn-logout-action {
 }
 
 .modal-surface-no-scroll {
-  max-height: none !important;
-  overflow: visible !important;
+  max-height: calc(100dvh - 1.5rem);
+  overflow: hidden !important;
 }
 
 .shift-modal-body {
-  overflow: visible !important;
-  overflow-y: visible !important;
-  max-height: none !important;
-  overscroll-behavior: auto !important;
+  overflow-y: auto !important;
+  max-height: calc(100dvh - 110px) !important;
+  overscroll-behavior: contain !important;
   padding: 0.85rem 1.25rem !important;
   gap: 0.52rem !important;
 }
@@ -1621,17 +1620,25 @@ body.dark-mode .btn-logout-action {
 }
 
 .shift-modal-body input[type="time"] {
-  padding: 0.35rem 0.45rem !important;
+  padding: 0.35rem 0.35rem !important;
   min-width: 0 !important;
   width: 100% !important;
   box-sizing: border-box !important;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+  font-weight: 400 !important;
+  font-size: 0.85rem !important;
+  text-align: center;
 }
 
 .shift-modal-body input[type="time"]::-webkit-datetime-edit,
-.shift-modal-body input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+.shift-modal-body input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+.shift-modal-body input[type="time"]::-webkit-datetime-edit-text,
+.shift-modal-body input[type="time"]::-webkit-datetime-edit-minute-field,
+.shift-modal-body input[type="time"]::-webkit-datetime-edit-hour-field,
+.shift-modal-body input[type="time"]::-webkit-datetime-edit-ampm-field {
   padding: 0 !important;
+  font-weight: 400 !important;
 }
 
 .shift-modal-body input[type="time"]::-webkit-calendar-picker-indicator {
@@ -1644,8 +1651,11 @@ body.dark-mode .btn-logout-action {
 .shift-modal-body .custom-select-label,
 .shift-modal-body .form-select,
 .shift-modal-body select,
+.shift-modal-body select option,
 .shift-modal-body .form-input,
-.shift-modal-body .custom-select-option {
+.shift-modal-body .custom-select-option,
+.shift-modal-body .custom-select-option.is-selected,
+.shift-modal-body .custom-select-option span {
   font-weight: 400 !important;
 }
 

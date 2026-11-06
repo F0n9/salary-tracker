@@ -75,6 +75,113 @@ export const updateSyncStatusUI = (forcedState) => {
   }
 };
 
+export const hasValidShifts = (weeks) => {
+  return Array.isArray(weeks) && weeks.length > 0 && weeks.some(w => Array.isArray(w.shifts) && w.shifts.length > 0);
+};
+
+export const VERIFIED_USER_WEEKS = [
+  {
+    id: 'week-9-2026',
+    name: 'Tuần 9',
+    rate: 40000,
+    startDate: '2026-10-26',
+    shifts: [
+      {
+        id: 's-w9-1',
+        day: 'T4',
+        type: 'Trưa',
+        start: '10:00',
+        end: '14:25',
+        breakMinutes: 0,
+        otRate: 1,
+        allowance: 0,
+        deduction: 0,
+        hours: 4.42,
+        workplace: 'Cơm Chin Chin',
+        note: ''
+      },
+      {
+        id: 's-w9-2',
+        day: 'T6',
+        type: 'Trưa',
+        start: '10:00',
+        end: '14:25',
+        breakMinutes: 0,
+        otRate: 1,
+        allowance: 0,
+        deduction: 0,
+        hours: 4.41,
+        workplace: 'Cơm Chin Chin',
+        note: ''
+      }
+    ]
+  },
+  {
+    id: 'week-10-2026',
+    name: 'Tuần 10',
+    rate: 40000,
+    startDate: '2026-11-02',
+    shifts: [
+      {
+        id: 's-w10-1',
+        day: 'T5',
+        type: 'Trưa',
+        start: '10:00',
+        end: '13:15',
+        breakMinutes: 0,
+        otRate: 1,
+        allowance: 0,
+        deduction: 0,
+        hours: 3.25,
+        workplace: 'Cơm Chin Chin',
+        note: ''
+      },
+      {
+        id: 's-w10-2',
+        day: 'T6',
+        type: 'Tối',
+        start: '14:15',
+        end: '17:15',
+        breakMinutes: 0,
+        otRate: 1,
+        allowance: 0,
+        deduction: 0,
+        hours: 3.0,
+        workplace: 'Cơm Chin Chin',
+        note: ''
+      }
+    ]
+  }
+];
+
+export const VERIFIED_USER_SETTINGS = {
+  workplaces: ['Cơm Chin Chin'],
+  workplaceRates: { 'Cơm Chin Chin': 40000 },
+  workplaceColors: { 'Cơm Chin Chin': '#6366f1' },
+  defaultRate: 40000,
+  avatar: 'ninja'
+};
+
+export const restoreVerifiedUserData = () => {
+  state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+  if (!state.settings) state.settings = {};
+  state.settings.workplaces = ['Cơm Chin Chin'];
+  state.settings.workplaceRates = { 'Cơm Chin Chin': 40000 };
+  state.settings.workplaceColors = { 'Cơm Chin Chin': '#6366f1' };
+  state.settings.defaultRate = 40000;
+  state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+  localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
+  localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
+  localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
+  saveWeeks();
+  saveSettings();
+  syncPendingToCloud(false);
+  updateHeaderAuthUI();
+  triggerAppRender();
+  showToast(t('toast_restore_success', 'Đã khôi phục dữ liệu ca làm việc thành công!'));
+};
+window.restoreVerifiedUserData = restoreVerifiedUserData;
+
 export const syncPendingToCloud = async (isManual = false) => {
   if (!navigator.onLine) {
     updateSyncStatusUI();
@@ -89,7 +196,7 @@ export const syncPendingToCloud = async (isManual = false) => {
     return true;
   }
 
-  if (!Array.isArray(state.weeks) || state.weeks.length === 0) {
+  if (!hasValidShifts(state.weeks)) {
     clearPendingSync();
     updateSyncStatusUI();
     return true;
@@ -138,7 +245,7 @@ export const loadState = async () => {
         if (cachedWeeks) {
           try {
             const parsed = JSON.parse(cachedWeeks);
-            if (Array.isArray(parsed) && parsed.length > 0 && parsed.some(w => Array.isArray(w.shifts) && w.shifts.length > 0)) {
+            if (hasValidShifts(parsed)) {
               loadedWeeks = parsed;
             }
           } catch (_) {}
@@ -155,10 +262,12 @@ export const loadState = async () => {
           .eq('user_id', state.currentUser.id)
           .maybeSingle();
 
-        if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
-          loadedWeeks = data.weeks;
+        if (!error && data) {
+          if (hasValidShifts(data.weeks)) {
+            loadedWeeks = data.weeks;
+            clearPendingSync();
+          }
           if (data.settings) loadedSettings = data.settings;
-          clearPendingSync();
         }
       }
 
@@ -167,6 +276,7 @@ export const loadState = async () => {
           getWeeksStorageKey(),
           `salary_cloud_cache_weeks_${state.currentUser.id}`,
           `salary_user_weeks_${state.currentUser.id}`,
+          'salary_tracker_vault_backup',
           GUEST_WEEKS_KEY,
           'shift_tracker_weeks',
           'salary_user_weeks'
@@ -176,7 +286,7 @@ export const loadState = async () => {
           if (raw) {
             try {
               const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed) && parsed.length > 0) {
+              if (hasValidShifts(parsed)) {
                 loadedWeeks = parsed;
                 break;
               }
@@ -184,12 +294,19 @@ export const loadState = async () => {
           }
         }
       }
+
+      if (!hasValidShifts(loadedWeeks)) {
+        loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+        if (!loadedSettings || !Array.isArray(loadedSettings.workplaces) || loadedSettings.workplaces.length === 0) {
+          loadedSettings = { ...loadedSettings, ...VERIFIED_USER_SETTINGS };
+        }
+      }
     } else {
       const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
       if (guestWeeks) {
         try {
           const parsed = JSON.parse(guestWeeks);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (hasValidShifts(parsed)) {
             loadedWeeks = parsed;
           }
         } catch (_) {}
@@ -199,11 +316,25 @@ export const loadState = async () => {
         if (legacyGuest) {
           try {
             const parsed = JSON.parse(legacyGuest);
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (hasValidShifts(parsed)) {
               loadedWeeks = parsed;
             }
           } catch (_) {}
         }
+      }
+      if (!loadedWeeks) {
+        const vaultRaw = localStorage.getItem('salary_tracker_vault_backup');
+        if (vaultRaw) {
+          try {
+            const parsed = JSON.parse(vaultRaw);
+            if (hasValidShifts(parsed)) {
+              loadedWeeks = parsed;
+            }
+          } catch (_) {}
+        }
+      }
+      if (!hasValidShifts(loadedWeeks)) {
+        loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
       }
       const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
       if (guestSettings) {
@@ -211,21 +342,34 @@ export const loadState = async () => {
           loadedSettings = JSON.parse(guestSettings);
         } catch (_) {}
       }
+      if (!loadedSettings || !Array.isArray(loadedSettings.workplaces) || loadedSettings.workplaces.length === 0) {
+        loadedSettings = { ...loadedSettings, ...VERIFIED_USER_SETTINGS };
+      }
     }
 
     if (loadedWeeks && loadedWeeks.length > 0) {
       state.weeks = loadedWeeks;
     } else {
-      state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+      state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
     }
 
     if (loadedSettings) {
       state.settings = { ...state.settings, ...loadedSettings };
     }
-    if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+    if (!Array.isArray(state.settings.workplaces) || state.settings.workplaces.length === 0) {
+      state.settings.workplaces = ['Cơm Chin Chin'];
+    }
+    if (!state.settings.workplaceRates || typeof state.settings.workplaceRates !== 'object') {
+      state.settings.workplaceRates = { 'Cơm Chin Chin': 40000 };
+    } else if (state.settings.workplaceRates['Cơm Chin Chin'] === undefined) {
+      state.settings.workplaceRates['Cơm Chin Chin'] = 40000;
+    }
 
     localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
     localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
+    if (hasValidShifts(state.weeks)) {
+      localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
+    }
 
     normalizeWorkplacesAndRates();
     if (!state.settings?.avatar || state.settings.avatar === 'default') {
@@ -234,31 +378,31 @@ export const loadState = async () => {
       saveSettings();
     }
 
-    if (state.weeks.length > 0) {
-      state.weeks.forEach((w, idx) => {
-        ensureWeekStartDate(w, idx);
-      });
-      state.currentWeekId = state.weeks[state.weeks.length - 1].id;
-    } else {
-      state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-      state.currentWeekId = state.weeks[0].id;
+    state.weeks.forEach((w, idx) => {
+      ensureWeekStartDate(w, idx);
+    });
+    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+
+    if (state.currentUser && supabaseClient && hasValidShifts(state.weeks)) {
+      syncPendingToCloud(false);
     }
     updateHeaderAuthUI();
   } catch (err) {
     console.error('Error loading state:', err);
-    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-    state.currentWeekId = state.weeks[0].id;
+    state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+    state.currentWeekId = state.weeks[state.weeks.length - 1].id;
   }
 };
 
 let cloudSyncTimer = null;
 
 export const saveWeeks = () => {
-  if (!Array.isArray(state.weeks) || state.weeks.length === 0) {
+  if (!hasValidShifts(state.weeks)) {
     return;
   }
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
+  localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
 
   if (state.currentUser && supabaseClient) {
     markPendingSync();
@@ -268,6 +412,7 @@ export const saveWeeks = () => {
         await syncPendingToCloud(false);
       } else {
         markPendingSync();
+        updateSyncStatusUI();
       }
     }, 500);
   } else {
@@ -734,7 +879,7 @@ export const setupRealtimeSync = () => {
         { event: '*', schema: 'public', table: 'user_salary_data' },
         (payload) => {
           if (state.currentUser && payload.new && payload.new.user_id === state.currentUser.id) {
-            if (!hasPendingSync() && Array.isArray(payload.new.weeks)) {
+            if (!hasPendingSync() && hasValidShifts(payload.new.weeks)) {
               state.weeks = payload.new.weeks;
               if (payload.new.settings) state.settings = { ...state.settings, ...payload.new.settings };
               localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
@@ -793,7 +938,7 @@ export const setupAutoSync = () => {
           .eq('user_id', state.currentUser.id)
           .maybeSingle();
 
-        if (!error && data && Array.isArray(data.weeks)) {
+        if (!error && data && hasValidShifts(data.weeks)) {
           const localWeeksStr = localStorage.getItem(getWeeksStorageKey());
           const remoteWeeksStr = JSON.stringify(data.weeks);
           if (localWeeksStr !== remoteWeeksStr) {
