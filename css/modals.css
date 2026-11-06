@@ -1113,7 +1113,7 @@ body.dark-mode .btn-submit-action:hover {
   overflow: hidden;
 }
 
-.user-profile-body {
+#userProfileModal .user-profile-body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1125,7 +1125,7 @@ body.dark-mode .btn-submit-action:hover {
   #userProfileModal .modal-surface {
     max-height: calc(100dvh - 1rem);
   }
-  .user-profile-body {
+  #userProfileModal .user-profile-body {
     max-height: calc(100dvh - 110px);
     overflow-y: auto;
   }

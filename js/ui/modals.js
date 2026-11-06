@@ -1182,6 +1182,22 @@ export const collapseAvatarPicker = () => {
   if (shelf) shelf.style.display = 'none';
 };
 
+export const expandAvatarPicker = () => {
+  collapsePasswordSection();
+  const shelf = document.getElementById('avatarPickerShelf');
+  if (shelf) shelf.style.display = 'flex';
+};
+
+export const expandPasswordSection = () => {
+  collapseAvatarPicker();
+  const formChangePwd = document.getElementById('formChangePassword');
+  const iconChevron = document.getElementById('iconChangePwdChevron');
+  if (formChangePwd) formChangePwd.style.display = 'flex';
+  if (iconChevron) iconChevron.style.transform = 'rotate(180deg)';
+  const pwdInput = document.getElementById('changeNewPassword');
+  if (pwdInput) setTimeout(() => pwdInput.focus(), 60);
+};
+
 export const openUserProfileModal = () => {
   if (!state.currentUser) {
     openAuthModal('login');
@@ -1208,15 +1224,28 @@ export const openUserProfileModal = () => {
   if (btnToggleAvatar) {
     btnToggleAvatar.onclick = (e) => {
       e.preventDefault();
-      const shelf = document.getElementById('avatarPickerShelf');
-      if (!shelf) return;
       triggerHaptic('light');
-      const isHidden = shelf.style.display === 'none';
-      if (isHidden) {
-        collapsePasswordSection();
-        shelf.style.display = 'flex';
+      const shelf = document.getElementById('avatarPickerShelf');
+      const isClosed = !shelf || shelf.style.display === 'none';
+      if (isClosed) {
+        expandAvatarPicker();
       } else {
-        shelf.style.display = 'none';
+        collapseAvatarPicker();
+      }
+    };
+  }
+
+  const btnToggleChangePwd = document.getElementById('btnToggleChangePwdSection');
+  if (btnToggleChangePwd) {
+    btnToggleChangePwd.onclick = (e) => {
+      e.preventDefault();
+      triggerHaptic('light');
+      const formChangePwd = document.getElementById('formChangePassword');
+      const isClosed = !formChangePwd || formChangePwd.style.display === 'none';
+      if (isClosed) {
+        expandPasswordSection();
+      } else {
+        collapsePasswordSection();
       }
     };
   }

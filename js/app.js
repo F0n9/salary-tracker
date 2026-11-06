@@ -607,25 +607,7 @@ const bindEvents = () => {
 
   setupPasswordToggles();
 
-  const btnToggleChangePwd = document.getElementById('btnToggleChangePwdSection');
   const formChangePwd = document.getElementById('formChangePassword');
-  const iconChevron = document.getElementById('iconChangePwdChevron');
-  if (btnToggleChangePwd && formChangePwd) {
-    btnToggleChangePwd.addEventListener('click', (e) => {
-      e.preventDefault();
-      triggerHaptic('light');
-      const isHidden = formChangePwd.style.display === 'none';
-      if (isHidden) {
-        collapseAvatarPicker();
-        formChangePwd.style.display = 'flex';
-        if (iconChevron) iconChevron.style.transform = 'rotate(180deg)';
-        document.getElementById('changeNewPassword')?.focus();
-      } else {
-        collapsePasswordSection();
-      }
-    });
-  }
-
   if (formChangePwd) {
     formChangePwd.addEventListener('submit', handleChangePasswordSubmit);
   }

@@ -89,6 +89,12 @@ export const syncPendingToCloud = async (isManual = false) => {
     return true;
   }
 
+  if (!Array.isArray(state.weeks) || state.weeks.length === 0) {
+    clearPendingSync();
+    updateSyncStatusUI();
+    return true;
+  }
+
   updateSyncStatusUI('syncing');
 
   try {
@@ -122,18 +128,27 @@ export const syncPendingToCloud = async (isManual = false) => {
 export const loadState = async () => {
   try {
     const isPending = hasPendingSync();
+    let loadedWeeks = null;
+    let loadedSettings = null;
+
     if (state.currentUser && supabaseClient) {
       if (isPending) {
         const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
         const cachedSettings = localStorage.getItem(getSettingsStorageKey());
         if (cachedWeeks) {
-          state.weeks = JSON.parse(cachedWeeks);
-          if (cachedSettings) state.settings = JSON.parse(cachedSettings);
+          try {
+            const parsed = JSON.parse(cachedWeeks);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed.some(w => Array.isArray(w.shifts) && w.shifts.length > 0)) {
+              loadedWeeks = parsed;
+            }
+          } catch (_) {}
         }
-        if (navigator.onLine) {
-          syncPendingToCloud(false);
+        if (cachedSettings) {
+          try { loadedSettings = JSON.parse(cachedSettings); } catch (_) {}
         }
-      } else {
+      }
+
+      if (!loadedWeeks) {
         const { data, error } = await supabaseClient
           .from('user_salary_data')
           .select('*')
@@ -141,64 +156,76 @@ export const loadState = async () => {
           .maybeSingle();
 
         if (!error && data && Array.isArray(data.weeks) && data.weeks.length > 0) {
-          state.weeks = data.weeks;
-          if (data.settings) state.settings = { ...state.settings, ...data.settings };
-          if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
-          localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
-          localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
-        } else {
-          const cachedWeeks = localStorage.getItem(getWeeksStorageKey());
-          const cachedSettings = localStorage.getItem(getSettingsStorageKey());
-          if (cachedWeeks) {
-            state.weeks = JSON.parse(cachedWeeks);
-            if (cachedSettings) state.settings = JSON.parse(cachedSettings);
-            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
-          } else {
-            const guestWeeksRaw = localStorage.getItem(GUEST_WEEKS_KEY);
-            const guestSettingsRaw = localStorage.getItem(GUEST_SETTINGS_KEY);
-            let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
-            if (guestWeeksRaw) {
-              try {
-                const parsedGuest = JSON.parse(guestWeeksRaw);
-                if (Array.isArray(parsedGuest) && parsedGuest.length > 0 && parsedGuest.some(w => w.shifts && w.shifts.length > 0)) {
-                  initialWeeks = parsedGuest;
-                }
-              } catch (_) {}
-            }
-            if (guestSettingsRaw) {
-              try {
-                const parsedGuestSet = JSON.parse(guestSettingsRaw);
-                if (parsedGuestSet) state.settings = { ...state.settings, ...parsedGuestSet };
-              } catch (_) {}
-            }
-            state.weeks = initialWeeks;
-            if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
-            saveWeeks();
+          loadedWeeks = data.weeks;
+          if (data.settings) loadedSettings = data.settings;
+          clearPendingSync();
+        }
+      }
+
+      if (!loadedWeeks) {
+        const fallbackKeys = [
+          getWeeksStorageKey(),
+          `salary_cloud_cache_weeks_${state.currentUser.id}`,
+          `salary_user_weeks_${state.currentUser.id}`,
+          GUEST_WEEKS_KEY,
+          'shift_tracker_weeks',
+          'salary_user_weeks'
+        ];
+        for (const k of fallbackKeys) {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                loadedWeeks = parsed;
+                break;
+              }
+            } catch (_) {}
           }
         }
       }
     } else {
       const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
-      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
       if (guestWeeks) {
         try {
           const parsed = JSON.parse(guestWeeks);
-          state.weeks = Array.isArray(parsed) && parsed.length > 0 ? parsed : JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-        } catch (_) {
-          state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-        }
-      } else {
-        state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
-      }
-      if (guestSettings) {
-        try {
-          const parsedSet = JSON.parse(guestSettings);
-          if (parsedSet) state.settings = { ...state.settings, ...parsedSet };
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            loadedWeeks = parsed;
+          }
         } catch (_) {}
       }
-      if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
-      saveWeeks();
+      if (!loadedWeeks) {
+        const legacyGuest = localStorage.getItem('shift_tracker_weeks');
+        if (legacyGuest) {
+          try {
+            const parsed = JSON.parse(legacyGuest);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              loadedWeeks = parsed;
+            }
+          } catch (_) {}
+        }
+      }
+      const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
+      if (guestSettings) {
+        try {
+          loadedSettings = JSON.parse(guestSettings);
+        } catch (_) {}
+      }
     }
+
+    if (loadedWeeks && loadedWeeks.length > 0) {
+      state.weeks = loadedWeeks;
+    } else {
+      state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+    }
+
+    if (loadedSettings) {
+      state.settings = { ...state.settings, ...loadedSettings };
+    }
+    if (!Array.isArray(state.settings.workplaces)) state.settings.workplaces = [];
+
+    localStorage.setItem(getWeeksStorageKey(), JSON.stringify(state.weeks));
+    localStorage.setItem(getSettingsStorageKey(), JSON.stringify(state.settings));
 
     normalizeWorkplacesAndRates();
     if (!state.settings?.avatar || state.settings.avatar === 'default') {
@@ -206,11 +233,15 @@ export const loadState = async () => {
       state.settings.avatar = getRandomAvatar().id;
       saveSettings();
     }
+
     if (state.weeks.length > 0) {
       state.weeks.forEach((w, idx) => {
         ensureWeekStartDate(w, idx);
       });
       state.currentWeekId = state.weeks[state.weeks.length - 1].id;
+    } else {
+      state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+      state.currentWeekId = state.weeks[0].id;
     }
     updateHeaderAuthUI();
   } catch (err) {
@@ -223,6 +254,9 @@ export const loadState = async () => {
 let cloudSyncTimer = null;
 
 export const saveWeeks = () => {
+  if (!Array.isArray(state.weeks) || state.weeks.length === 0) {
+    return;
+  }
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
 
@@ -248,8 +282,9 @@ window.syncWithSupabase = syncWithSupabase;
 
 export const saveSettings = () => {
   const settingsKey = getSettingsStorageKey();
-  localStorage.setItem(settingsKey, JSON.stringify(state.settings));
-  saveWeeks();
+  if (state.settings) {
+    localStorage.setItem(settingsKey, JSON.stringify(state.settings));
+  }
   updateHeaderAuthUI();
   if (state.currentUser && supabaseClient && state.settings?.avatar) {
     supabaseClient.auth.updateUser({
@@ -269,10 +304,6 @@ export const initAuth = async () => {
         if (u.user_metadata?.avatar && u.user_metadata.avatar !== 'default') {
           if (!state.settings) state.settings = {};
           state.settings.avatar = u.user_metadata.avatar;
-        } else if (!state.settings?.avatar || state.settings.avatar === 'default') {
-          if (!state.settings) state.settings = {};
-          state.settings.avatar = getRandomAvatar().id;
-          saveSettings();
         }
 
         if (window.location.hash) {
