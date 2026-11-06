@@ -1126,7 +1126,7 @@ export const clearAuthErrors = () => {
 export const renderAvatarPickerGrid = () => {
   const grid = document.getElementById('avatarPickerGrid');
   if (!grid) return;
-  const currentAvatarId = state.settings?.avatar || 'default';
+  const currentAvatarId = state.settings?.avatar || AVATARS[0].id;
   grid.innerHTML = '';
 
   AVATARS.forEach(item => {
@@ -1170,7 +1170,7 @@ export const openUserProfileModal = () => {
   if (!modal) return;
 
   const username = state.currentUser.username || 'user';
-  const currentAvatarId = state.settings?.avatar || 'default';
+  const currentAvatarId = state.settings?.avatar || AVATARS[0].id;
 
   const avatarContent = document.getElementById('profileAvatarContent');
   if (avatarContent) {

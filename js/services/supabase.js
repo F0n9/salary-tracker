@@ -6,7 +6,7 @@ import { showToast } from '../ui/toast.js';
 import { showConfirmDialog } from '../ui/dialog.js';
 import { applyTheme } from '../theme.js';
 import { triggerHaptic } from '../ui/haptic.js';
-import { getAvatarSvg } from '../ui/avatars.js';
+import { AVATARS, getAvatarSvg, getRandomAvatar } from '../ui/avatars.js';
 
 let appRenderer = null;
 export const setSupabaseAppRenderer = (fn) => {
@@ -201,6 +201,11 @@ export const loadState = async () => {
     }
 
     normalizeWorkplacesAndRates();
+    if (!state.settings?.avatar || state.settings.avatar === 'default') {
+      if (!state.settings) state.settings = {};
+      state.settings.avatar = getRandomAvatar().id;
+      saveSettings();
+    }
     if (state.weeks.length > 0) {
       state.weeks.forEach((w, idx) => {
         ensureWeekStartDate(w, idx);
@@ -261,9 +266,13 @@ export const initAuth = async () => {
         const u = session.user;
         const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
         state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
-        if (u.user_metadata?.avatar) {
+        if (u.user_metadata?.avatar && u.user_metadata.avatar !== 'default') {
           if (!state.settings) state.settings = {};
           state.settings.avatar = u.user_metadata.avatar;
+        } else if (!state.settings?.avatar || state.settings.avatar === 'default') {
+          if (!state.settings) state.settings = {};
+          state.settings.avatar = getRandomAvatar().id;
+          saveSettings();
         }
 
         if (window.location.hash) {
@@ -297,7 +306,7 @@ export const updateHeaderAuthUI = () => {
 
   if (state.currentUser && state.currentUser.username) {
     btn.className = 'btn-morphic is-logged-in';
-    const avatarId = state.settings?.avatar || 'default';
+    const avatarId = state.settings?.avatar || AVATARS[0].id;
     const avatarSvg = getAvatarSvg(avatarId);
     btn.innerHTML = `<span class="user-avatar-mini">${avatarSvg}</span>`;
     btn.title = `${t('nav_account_user', 'Tài khoản')}: @${state.currentUser.username}`;
@@ -427,11 +436,15 @@ export const handleRegisterSubmit = async (e) => {
   try {
     const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
     const username = isEmail ? rawInput.split('@')[0] : rawInput;
+    const randomAvatar = getRandomAvatar();
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
-        data: { username }
+        data: {
+          username,
+          avatar: randomAvatar.id
+        }
       }
     });
 
@@ -457,6 +470,8 @@ export const handleRegisterSubmit = async (e) => {
 
     const u = data.user;
     state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+    if (!state.settings) state.settings = {};
+    state.settings.avatar = randomAvatar.id;
 
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
     let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
@@ -473,10 +488,11 @@ export const handleRegisterSubmit = async (e) => {
     state.weeks = initialWeeks;
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
     saveWeeks();
+    saveSettings();
     try {
       await supabaseClient.from('user_salary_data').upsert({
         user_id: u.id,
-        username: rawUsername,
+        username: username,
         weeks: initialWeeks,
         settings: state.settings,
         updated_at: new Date().toISOString()
@@ -487,7 +503,7 @@ export const handleRegisterSubmit = async (e) => {
 
     document.getElementById('authModal').style.display = 'none';
     document.getElementById('formRegister').reset();
-    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', rawUsername));
+    showToast(t('auth_login_success', 'Đăng nhập thành công! Chào @{username}.').replace('{username}', username));
   } catch (err) {
     errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message}`;
     errorEl.style.display = 'block';
