@@ -5,6 +5,7 @@ import { ensureWeekStartDate } from '../calculator.js';
 import { showToast } from '../ui/toast.js';
 import { showConfirmDialog } from '../ui/dialog.js';
 import { applyTheme } from '../theme.js';
+import { triggerHaptic } from '../ui/haptic.js';
 
 let appRenderer = null;
 export const setSupabaseAppRenderer = (fn) => {
@@ -233,13 +234,12 @@ export const initAuth = async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session && session.user) {
         const u = session.user;
-        const username = u.user_metadata?.username || u.email.split('@')[0];
+        const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
         state.currentUser = { id: u.id, email: u.email, username };
       } else {
         state.currentUser = null;
       }
     } catch (e) {
-      console.warn('Supabase auth check failed:', e);
       state.currentUser = null;
     }
   } else {
@@ -478,6 +478,28 @@ export const handleLogout = async () => {
     triggerAppRender();
     document.getElementById('userProfileModal').style.display = 'none';
     showToast(t('toast_logged_out', 'Đã đăng xuất tài khoản.'));
+  }
+};
+
+export const handleGoogleSignIn = async () => {
+  if (!supabaseClient) {
+    showToast(t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.'));
+    return;
+  }
+  triggerHaptic('medium');
+  try {
+    const redirectUrl = window.location.origin + window.location.pathname;
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
+    if (error) {
+      showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message}`);
+    }
+  } catch (err) {
+    showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);
   }
 };
 

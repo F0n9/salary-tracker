@@ -4,6 +4,7 @@ import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName, fo
 import { saveWeeks, saveSettings, updateSyncStatusUI } from '../services/supabase.js';
 import { showToast, showToastWithAction } from './toast.js';
 import { showConfirmDialog, showAlertDialog } from './dialog.js';
+import { triggerHaptic } from './haptic.js';
 import { setupCustomSelect, syncCustomSelect } from './select.js';
 import { renderAnalyticsDashboard } from './chart.js';
 import { EYE_OPEN_SVG, EYE_OFF_SVG } from '../config.js';
@@ -123,6 +124,8 @@ export const openAddShiftModal = (prefill = null) => {
   syncCustomSelect('shiftOtRate');
   const allowanceInput = document.getElementById('shiftAllowance');
   if (allowanceInput) allowanceInput.value = '0';
+  const deductionInput = document.getElementById('shiftDeduction');
+  if (deductionInput) deductionInput.value = '0';
   document.getElementById('shiftNote').value = smartDefaults.note;
 
   updateModalComputedPreview();
@@ -166,6 +169,8 @@ export const openEditShiftModal = (shift) => {
   syncCustomSelect('shiftOtRate');
   const allowanceInput = document.getElementById('shiftAllowance');
   if (allowanceInput) allowanceInput.value = String(shift.allowance || '0');
+  const deductionInput = document.getElementById('shiftDeduction');
+  if (deductionInput) deductionInput.value = String(shift.deduction || '0');
   document.getElementById('shiftNote').value = shift.note || '';
 
   updateModalComputedPreview();
@@ -178,12 +183,13 @@ export const updateModalComputedPreview = () => {
   const breakMins = Number(document.getElementById('shiftBreak')?.value || 0);
   const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
   const allowance = Number(document.getElementById('shiftAllowance')?.value || 0);
+  const deduction = Number(document.getElementById('shiftDeduction')?.value || 0);
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   if (!start || !end) return;
 
   const hours = calculateHoursDiff(start, end, breakMins);
   const rate = getShiftRate({ workplace });
-  const wage = Math.round(hours * rate * otRate + allowance);
+  const wage = Math.max(0, Math.round(hours * rate * otRate + allowance - deduction));
 
   const breakLabel = breakMins > 0 ? ` (${t('break_tag', 'nghỉ')} ${breakMins}${t('unit_min', 'm')})` : '';
   const otLabel = otRate > 1 ? ` • x${otRate}` : '';
@@ -209,6 +215,7 @@ export const saveShiftFromModal = async (e) => {
   const breakMinutes = Math.max(0, Number(document.getElementById('shiftBreak')?.value || 0));
   const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
   const allowance = Math.max(0, Number(document.getElementById('shiftAllowance')?.value || 0));
+  const deduction = Math.max(0, Number(document.getElementById('shiftDeduction')?.value || 0));
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
   const note = document.getElementById('shiftNote').value.trim();
   const hours = calculateHoursDiff(start, end, breakMinutes);
@@ -254,7 +261,7 @@ export const saveShiftFromModal = async (e) => {
   if (editId) {
     const index = week.shifts.findIndex(s => s.id === editId);
     if (index !== -1) {
-      week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, otRate, allowance, hours, workplace, note };
+      week.shifts[index] = { ...week.shifts[index], day, type, start, end, breakMinutes, otRate, allowance, deduction, hours, workplace, note };
       showToast(t('toast_shift_updated', 'Đã cập nhật ca làm'));
     }
   } else {
@@ -267,14 +274,16 @@ export const saveShiftFromModal = async (e) => {
       breakMinutes,
       otRate,
       allowance,
+      deduction,
       hours,
       workplace,
       note
     };
     week.shifts.push(newShift);
-    showToast('Đã thêm ca làm việc mới');
+    showToast(t('toast_shift_added', 'Đã thêm ca làm việc mới'));
   }
 
+  triggerHaptic('success');
   saveWeeks();
   closeModal('shiftModal');
   triggerAppRender();
@@ -290,6 +299,7 @@ export const deleteShift = (shiftId) => {
   if (shiftIndex === -1) return;
   const removedShift = week.shifts[shiftIndex];
 
+  triggerHaptic('danger');
   week.shifts.splice(shiftIndex, 1);
   saveWeeks();
   triggerAppRender();
@@ -308,6 +318,7 @@ export const deleteShift = (shiftId) => {
 
 export const undoLastDeleteShift = () => {
   if (!lastDeletedShiftRecord) return;
+  triggerHaptic('medium');
   const { weekId, shift, index } = lastDeletedShiftRecord;
   const targetWeek = state.weeks.find(w => w.id === weekId);
   if (!targetWeek) {
@@ -416,6 +427,7 @@ export const deleteCurrentWeek = async () => {
     iconType: 'delete'
   });
   if (confirmed) {
+    triggerHaptic('danger');
     const weekIndex = state.weeks.findIndex(w => w.id === week.id);
     const removedWeek = { ...week, shifts: [...week.shifts] };
 
@@ -438,6 +450,7 @@ export const deleteCurrentWeek = async () => {
 
 export const undoLastDeleteWeek = () => {
   if (!lastDeletedWeekRecord) return;
+  triggerHaptic('medium');
   const { week, index } = lastDeletedWeekRecord;
   if (typeof index === 'number' && index >= 0 && index <= state.weeks.length) {
     state.weeks.splice(index, 0, week);
@@ -457,6 +470,7 @@ export const navigateWeek = (direction) => {
 
   const nextIndex = currentIndex + direction;
   if (nextIndex >= 0 && nextIndex < state.weeks.length) {
+    triggerHaptic('light');
     state.currentWeekId = state.weeks[nextIndex].id;
     triggerAppRender();
   }
