@@ -1121,6 +1121,27 @@ body.dark-mode .badge-count {
   gap: 0.55rem;
 }
 
+.shifts-list-fade {
+  animation: shiftsListFade 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes shiftsListFade {
+  from {
+    opacity: 0.45;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shifts-list-fade {
+    animation: none;
+  }
+}
+
 .shift-ledger-row,
 .shift-card {
   background: var(--bg-card);

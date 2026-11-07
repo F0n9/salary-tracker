@@ -277,7 +277,12 @@ const renderWeekDetails = () => {
 
 const renderShiftsList = () => {
   const listContainer = document.getElementById('shiftsList');
-  listContainer.innerHTML = '';
+  if (listContainer) {
+    listContainer.classList.remove('shifts-list-fade');
+    void listContainer.offsetWidth;
+    listContainer.classList.add('shifts-list-fade');
+    listContainer.innerHTML = '';
+  }
 
   const week = getCurrentWeek();
 
@@ -789,6 +794,34 @@ const bindEvents = () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeAllCustomSelects();
+      return;
+    }
+
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+      const active = document.activeElement;
+      if (active) {
+        const tag = active.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || active.isContentEditable) {
+          return;
+        }
+      }
+
+      const hasOpenModal = Array.from(document.querySelectorAll('.modal-backdrop, .app-dialog-backdrop'))
+        .some(m => m.style.display && m.style.display !== 'none');
+      if (hasOpenModal) return;
+
+      const hasOpenDropdown = document.querySelector('.custom-select-wrapper.open');
+      if (hasOpenDropdown) return;
+
+      if (e.key === 'ArrowLeft') {
+        const ok = goToAdjacentWeek(-1);
+        if (ok) e.preventDefault();
+      } else if (e.key === 'ArrowRight') {
+        const ok = goToAdjacentWeek(1);
+        if (ok) e.preventDefault();
+      }
     }
   });
 
