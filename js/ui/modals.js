@@ -1446,6 +1446,7 @@ export const openUserProfileModal = () => {
 
   const btnLinkGoogle = document.getElementById('btnLinkGoogleAccount');
   const badgeGoogle = document.getElementById('badgeGoogleLinked');
+  const isGoogle = Boolean(state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app'));
   const isGoogleLinked = isGoogle || (Array.isArray(state.currentUser?.identities) && state.currentUser.identities.some(i => i.provider === 'google'));
   if (btnLinkGoogle) btnLinkGoogle.style.display = isGoogleLinked ? 'none' : 'flex';
   if (badgeGoogle) badgeGoogle.style.display = isGoogleLinked ? 'inline-flex' : 'none';
