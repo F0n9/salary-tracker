@@ -565,16 +565,21 @@ body.dark-mode .hero-period-title .hero-period-year {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 4px;
+  padding: 0 10px;
   flex: 1;
   min-width: 0;
   height: 100%;
+  border-radius: var(--radius-pill);
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
 }
 
 .week-wheel-track::-webkit-scrollbar {
@@ -599,6 +604,8 @@ body.dark-mode .hero-period-title .hero-period-year {
   background: #ffffff;
   box-sizing: border-box;
   white-space: nowrap;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
 }
 
 .week-wheel-item .wheel-item-name {

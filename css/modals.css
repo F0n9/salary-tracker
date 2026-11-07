@@ -1839,9 +1839,12 @@ body.dark-mode .btn-logout-action {
   }
 
   .week-wheel-track {
-    padding: 0 4px;
+    padding: 0 10px;
     height: 100%;
-    gap: 12px;
+    gap: 20px;
+    border-radius: var(--radius-pill);
+    mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
   }
 
   .week-wheel-item {

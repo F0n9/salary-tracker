@@ -103,10 +103,14 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   const activeItem = container.querySelector(`.week-wheel-item[data-week-id="${state.currentWeekId}"]`);
   if (!activeItem) return;
 
-  const itemOffset = activeItem.offsetLeft;
-  const itemWidth = activeItem.offsetWidth;
   const containerWidth = container.clientWidth;
-  const targetLeft = itemOffset - (containerWidth / 2) + (itemWidth / 2);
+  const itemWidth = activeItem.offsetWidth || 150;
+  const sidePad = Math.max(8, Math.round((containerWidth - itemWidth) / 2));
+  container.style.paddingLeft = `${sidePad}px`;
+  container.style.paddingRight = `${sidePad}px`;
+
+  const itemOffset = activeItem.offsetLeft;
+  const targetLeft = itemOffset - sidePad;
   container.scrollTo({ left: Math.max(0, targetLeft), behavior });
   updateWeekNavButtons();
 };
@@ -147,7 +151,9 @@ const renderWeekPills = () => {
     container.appendChild(item);
   });
 
-  scrollWheelToActive('auto');
+  requestAnimationFrame(() => {
+    scrollWheelToActive('auto');
+  });
   updateWeekNavButtons();
 };
 
@@ -739,6 +745,7 @@ const bindEvents = () => {
   });
 
   window.addEventListener('resize', () => {
+    scrollWheelToActive('auto');
     const curWeek = getCurrentWeek();
     if (curWeek) {
       drawDashboardWeekChart(curWeek);
