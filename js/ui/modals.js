@@ -8,7 +8,7 @@ import { triggerHaptic } from './haptic.js';
 import { setupCustomSelect, syncCustomSelect } from './select.js';
 import { renderAnalyticsDashboard } from './chart.js';
 import { EYE_OPEN_SVG, EYE_OFF_SVG, EYE_OPEN_PATH, EYE_OFF_PATH } from '../config.js';
-import { AVATARS, getAvatarSvg, getAvatarName } from './avatars.js';
+import { AVATARS, getAvatarSvg } from './avatars.js';
 
 let appRenderer = null;
 export const setModalAppRenderer = (fn) => {
@@ -1135,8 +1135,8 @@ export const renderAvatarPickerGrid = () => {
     btn.type = 'button';
     btn.className = `avatar-choice-btn${item.id === currentAvatarId ? ' is-active' : ''}`;
     btn.setAttribute('data-avatar-id', item.id);
-    btn.setAttribute('title', item.name);
-    btn.setAttribute('aria-label', item.name);
+    btn.setAttribute('title', 'Avatar ' + (index + 1));
+    btn.setAttribute('aria-label', 'Avatar ' + (index + 1));
     btn.innerHTML = item.svg;
 
     btn.addEventListener('click', (e) => {
@@ -1159,9 +1159,6 @@ export const renderAvatarPickerGrid = () => {
 
       const avatarContent = document.getElementById('profileAvatarContent');
       if (avatarContent) avatarContent.innerHTML = item.svg;
-
-      const selectedNameEl = document.getElementById('avatarSelectedName');
-      if (selectedNameEl) selectedNameEl.textContent = item.name;
 
       grid.querySelectorAll('.avatar-choice-btn').forEach(b => {
         b.classList.toggle('is-active', b.getAttribute('data-avatar-id') === item.id);
@@ -1228,11 +1225,6 @@ export const openUserProfileModal = () => {
   const avatarContent = document.getElementById('profileAvatarContent');
   if (avatarContent) {
     avatarContent.innerHTML = getAvatarSvg(currentAvatarId);
-  }
-
-  const selectedNameEl = document.getElementById('avatarSelectedName');
-  if (selectedNameEl) {
-    selectedNameEl.textContent = getAvatarName(currentAvatarId);
   }
 
   collapseAvatarPicker();

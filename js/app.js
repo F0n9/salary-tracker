@@ -75,17 +75,22 @@ const goToAdjacentWeek = (direction) => {
 const updateWeekNavButtons = () => {
   const btnPrev = document.getElementById('btnPrevWeek');
   const btnNext = document.getElementById('btnNextWeek');
-  if (!state.weeks || !state.weeks.length) {
+  if (!state.weeks || state.weeks.length <= 1) {
     if (btnPrev) {
       btnPrev.disabled = true;
       btnPrev.classList.add('is-disabled');
+      btnPrev.style.display = 'none';
     }
     if (btnNext) {
       btnNext.disabled = true;
       btnNext.classList.add('is-disabled');
+      btnNext.style.display = 'none';
     }
     return;
   }
+  if (btnPrev) btnPrev.style.display = 'inline-flex';
+  if (btnNext) btnNext.style.display = 'inline-flex';
+
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
   if (btnPrev) {
     btnPrev.disabled = currentIndex <= 0;
@@ -102,6 +107,11 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   if (!container) return;
   const activeItem = container.querySelector(`.week-wheel-item[data-week-id="${state.currentWeekId}"]`);
   if (!activeItem) return;
+
+  if (container.scrollWidth <= container.clientWidth) {
+    updateWeekNavButtons();
+    return;
+  }
 
   const itemOffset = activeItem.offsetLeft;
   const itemWidth = activeItem.offsetWidth;

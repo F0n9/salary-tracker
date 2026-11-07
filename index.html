@@ -21,9 +21,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261107a">
-  <link rel="stylesheet" href="./css/components.css?v=20261107a">
-  <link rel="stylesheet" href="./css/modals.css?v=20261107a">
+  <link rel="stylesheet" href="./css/base.css?v=20261107b">
+  <link rel="stylesheet" href="./css/components.css?v=20261107b">
+  <link rel="stylesheet" href="./css/modals.css?v=20261107b">
 </head>
 
 <body>
@@ -79,17 +79,6 @@
       </div>
 
       <div class="hero-header-right">
-        <div class="week-actions-group">
-          <button id="btnNewWeek" class="btn-morphic" data-i18n-title="btn_add_week" title="Thêm tuần"
-            aria-label="Thêm tuần">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-              stroke-linejoin="round" width="16" height="16">
-              <path d="M5 12h14"></path>
-              <path d="M12 5v14"></path>
-            </svg>
-          </button>
-        </div>
-
         <div class="week-wheel-container">
           <button type="button" class="week-nav-step-btn" id="btnPrevWeek" data-i18n-title="week_prev" title="Tuần trước" aria-label="Tuần trước">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
@@ -100,6 +89,17 @@
           <button type="button" class="week-nav-step-btn" id="btnNextWeek" data-i18n-title="week_next" title="Tuần sau" aria-label="Tuần sau">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
               <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="week-actions-group">
+          <button id="btnNewWeek" class="btn-morphic" data-i18n-title="btn_add_week" title="Thêm tuần"
+            aria-label="Thêm tuần">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+              stroke-linejoin="round" width="16" height="16">
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
             </svg>
           </button>
         </div>
@@ -862,7 +862,7 @@
         <div class="avatar-picker-shelf" id="avatarPickerShelf" style="display: none;">
           <div class="avatar-picker-head">
             <span class="avatar-picker-caption font-sans" data-i18n="profile_choose_avatar">Chọn nhân vật đại diện</span>
-            <span class="avatar-picker-tag font-mono" id="avatarSelectedName">6 mẫu</span>
+            <span class="avatar-picker-tag font-mono">6 mẫu</span>
           </div>
           <div class="avatar-picker-grid" id="avatarPickerGrid"></div>
         </div>
@@ -1051,7 +1051,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261107a"></script>
+  <script type="module" src="./js/app.js?v=20261107b"></script>
 </body>
 
 </html>
