@@ -1130,7 +1130,7 @@ export const renderAvatarPickerGrid = () => {
   const currentAvatarId = state.settings?.avatar || AVATARS[0].id;
   grid.innerHTML = '';
 
-  AVATARS.forEach(item => {
+  AVATARS.forEach((item, index) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `avatar-choice-btn${item.id === currentAvatarId ? ' is-active' : ''}`;
