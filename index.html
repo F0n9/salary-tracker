@@ -36,9 +36,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261107t">
-  <link rel="stylesheet" href="./css/components.css?v=20261107t">
-  <link rel="stylesheet" href="./css/modals.css?v=20261107t">
+  <link rel="stylesheet" href="./css/base.css?v=20261107u">
+  <link rel="stylesheet" href="./css/components.css?v=20261107u">
+  <link rel="stylesheet" href="./css/modals.css?v=20261107u">
 </head>
 
 <body>
@@ -148,7 +148,7 @@
         </div>
 
 
-        <div class="kpi-card kpi-card-workplaces">
+        <div class="kpi-card kpi-card-workplaces" id="kpiCardWorkplaces" title="Xem &amp; cài đặt nơi làm việc">
           <div class="kpi-card-top-row">
             <span class="kpi-card-label">Cơ sở làm việc</span>
             <span class="kpi-shifts-badge font-mono" id="kpiShiftCount">0 ca</span>
@@ -258,32 +258,56 @@
           <div class="form-label-row">
             <label class="form-label" for="shiftWorkplace" data-i18n="modal_workplace">Nơi làm việc</label>
             <button type="button" class="btn-toggle-workplace-panel" id="btnToggleWorkplacePanel"
-              title="Thêm &amp; Quản lý nơi làm" aria-label="Thêm &amp; Quản lý nơi làm">
+              title="Cài đặt nơi làm việc" aria-label="Cài đặt nơi làm việc">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
                 stroke-linejoin="round" width="12" height="12">
-                <path d="M12 5v14M5 12h14"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
-              <span>Thêm nơi làm</span>
+              <span>Cài đặt nơi làm</span>
             </button>
           </div>
           <select id="shiftWorkplace" class="form-select" required></select>
 
           <div class="shift-workplace-manage-box" id="shiftWorkplaceManageBox" style="display: none;">
-            <div class="shift-add-wp-row">
-              <input type="text" id="shiftNewWpName" class="form-input" placeholder="Tên nơi làm mới...">
-              <div class="shift-add-wp-rate-box">
-                <input type="number" id="shiftNewWpRate" class="form-input font-mono" placeholder="Đơn giá" step="1000"
-                  min="0">
-                <span class="shift-rate-unit font-mono">đ/h</span>
+            <div class="swm-header">
+              <div class="swm-header-info">
+                <span class="swm-title">Cài đặt nơi làm việc</span>
+                <span class="swm-desc">Tùy chỉnh mặc định, tên và đơn giá theo giờ</span>
               </div>
-              <button type="button" id="btnShiftAddWp" class="btn-action-primary btn-icon-only" title="Thêm nơi làm"
-                aria-label="Thêm nơi làm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                  stroke-linejoin="round" width="15" height="15">
-                  <path d="M5 12h14M12 5v14"></path>
+              <button type="button" class="swm-close-btn" id="btnCloseWorkplacePanel" title="Đóng cài đặt nơi làm" aria-label="Đóng cài đặt">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
+
+            <div class="shift-add-wp-card">
+              <div class="shift-add-wp-title">Thêm nơi làm mới</div>
+              <div class="shift-add-wp-inputs">
+                <div class="shift-add-wp-name-wrap">
+                  <input type="text" id="shiftNewWpName" class="form-input" placeholder="Tên nơi làm (VD: Circle K, Highlands)..." autocomplete="off">
+                </div>
+                <div class="shift-add-wp-rate-wrap">
+                  <input type="text" inputmode="numeric" id="shiftNewWpRate" class="form-input font-mono" placeholder="Đơn giá" autocomplete="off">
+                  <span class="shift-rate-unit font-mono">đ/h</span>
+                </div>
+                <button type="button" id="btnShiftAddWp" class="btn-action-primary shift-add-wp-btn" title="Thêm nơi làm việc" aria-label="Thêm nơi làm việc">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>Thêm</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="swm-list-header">
+              <span class="swm-list-title">Danh sách nơi làm</span>
+              <span class="swm-list-badge font-mono" id="swmListCountBadge">0</span>
+            </div>
+
             <div class="shift-wp-quick-list" id="shiftWpQuickList"></div>
           </div>
         </div>
@@ -1176,7 +1200,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261107t"></script>
+  <script type="module" src="./js/app.js?v=20261107u"></script>
 </body>
 
 </html>

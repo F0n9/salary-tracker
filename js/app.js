@@ -781,6 +781,33 @@ const bindEvents = () => {
         addWorkplaceFromShiftModal();
       }
     });
+    shiftNewWpRate.addEventListener('blur', () => {
+      const cleaned = shiftNewWpRate.value.trim().replace(/[^\d]/g, '');
+      const num = Number(cleaned);
+      if (!isNaN(num) && num > 0) {
+        shiftNewWpRate.value = new Intl.NumberFormat('vi-VN').format(num);
+      }
+    });
+  }
+
+  const btnCloseWp = document.getElementById('btnCloseWorkplacePanel');
+  if (btnCloseWp) {
+    btnCloseWp.addEventListener('click', () => {
+      toggleWorkplacePanel(false);
+    });
+  }
+
+  const kpiCardWp = document.getElementById('kpiCardWorkplaces');
+  if (kpiCardWp) {
+    kpiCardWp.addEventListener('click', () => {
+      triggerHaptic('light');
+      openAddShiftModal();
+      toggleWorkplacePanel(true);
+      const manageBox = document.getElementById('shiftWorkplaceManageBox');
+      if (manageBox) {
+        manageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
   }
 
   document.querySelectorAll('[data-time-filter]').forEach(btn => {

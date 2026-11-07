@@ -881,6 +881,15 @@ body.dark-mode .kpi-shifts-badge {
   color: var(--text-dim);
 }
 
+.kpi-card-workplaces {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.kpi-card-workplaces:hover {
+  background: var(--bg-card-hover);
+}
+
 .dashboard-chart-strip {
   background: transparent;
   border: none;

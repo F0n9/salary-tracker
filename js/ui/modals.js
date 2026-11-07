@@ -99,8 +99,13 @@ export const openAddShiftModal = (prefill = null) => {
   updateWorkplaceInputOptions(defaultWp);
 
   const manageBox = document.getElementById('shiftWorkplaceManageBox');
+  const btnToggleWp = document.getElementById('btnToggleWorkplacePanel');
+  const shouldOpenManage = !hasWorkplaces();
   if (manageBox) {
-    manageBox.style.display = (!hasWorkplaces()) ? 'flex' : 'none';
+    manageBox.style.display = shouldOpenManage ? 'flex' : 'none';
+  }
+  if (btnToggleWp) {
+    btnToggleWp.classList.toggle('is-active', shouldOpenManage);
   }
   renderShiftWorkplacesList();
 
@@ -148,7 +153,9 @@ export const openEditShiftModal = (shift) => {
   updateWorkplaceInputOptions(shift.workplace || '');
 
   const manageBox = document.getElementById('shiftWorkplaceManageBox');
+  const btnToggleWp = document.getElementById('btnToggleWorkplacePanel');
   if (manageBox) manageBox.style.display = 'none';
+  if (btnToggleWp) btnToggleWp.classList.remove('is-active');
   renderShiftWorkplacesList();
 
   document.getElementById('shiftDay').value = shift.day;
@@ -812,11 +819,35 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
   switchSummaryTab(initialTab);
 };
 
+const parseWpRate = (raw) => {
+  if (raw === null || raw === undefined) return 0;
+  const str = String(raw).trim().toLowerCase();
+  if (!str) return 0;
+  if (str.endsWith('k')) {
+    const n = parseFloat(str.replace(/,/g, '.'));
+    return !isNaN(n) && n >= 0 ? Math.round(n * 1000) : 0;
+  }
+  const cleaned = str.replace(/[^\d]/g, '');
+  const num = Number(cleaned);
+  return !isNaN(num) && num >= 0 ? num : 0;
+};
+
+const formatWpRateDisplay = (num) => {
+  const val = Number(num);
+  if (!val || isNaN(val) || val <= 0) return '';
+  return new Intl.NumberFormat('vi-VN').format(val);
+};
+
 export const renderShiftWorkplacesList = () => {
   const container = document.getElementById('shiftWpQuickList');
   if (!container) return;
   container.innerHTML = '';
   normalizeWorkplacesAndRates();
+
+  const countBadge = document.getElementById('swmListCountBadge');
+  if (countBadge) {
+    countBadge.textContent = String(state.settings.workplaces.length);
+  }
 
   const currentDefaultWp = getDefaultWorkplace();
   const hasMultiple = state.settings.workplaces.length > 1;
@@ -829,45 +860,53 @@ export const renderShiftWorkplacesList = () => {
     const isDefault = (wp === currentDefaultWp);
 
     const row = document.createElement('div');
-    row.className = 'shift-wp-quick-row';
+    row.className = `swq-item-card ${isDefault ? 'is-default-card' : ''}`;
+    row.dataset.wp = wp;
     row.innerHTML = `
-      <div class="swq-left">
-        <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
-        <span class="swq-name" title="${escapeHtml(wp)}">${escapeHtml(wp)}</span>
-        ${isDefault ? `
-          <span class="wp-default-tag">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" width="10" height="10">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-            <span>${t('tag_default_workplace', 'Mặc định')}</span>
-          </span>
-        ` : (hasMultiple ? `
-          <button type="button" class="btn-set-default-wp btn-morphic" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm mặc định')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="11" height="11">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      <div class="swq-card-top">
+        <div class="swq-card-identity">
+          <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+          <span class="swq-name" title="${escapeHtml(wp)}">${escapeHtml(wp)}</span>
+          ${isDefault ? `
+            <span class="wp-default-tag" title="${t('tag_default_workplace', 'Mặc định')}">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span>${t('tag_default_workplace', 'Mặc định')}</span>
+            </span>
+          ` : (hasMultiple ? `
+            <button type="button" class="btn-set-default-wp" data-set-default="${escapeHtml(wp)}" title="${t('btn_set_default_wp', 'Đặt làm nơi làm việc mặc định')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span>Đặt mặc định</span>
+            </button>
+          ` : '')}
+        </div>
+        <div class="swq-card-actions">
+          <button type="button" class="swq-btn-icon btn-rename-workplace" data-rename-wp="${idx}" title="${t('btn_rename_wp', 'Đổi tên nơi làm')}" aria-label="Đổi tên">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+              <path d="m15 5 4 4"></path>
             </svg>
           </button>
-        ` : '')}
+          ${hasMultiple ? `
+            <button type="button" class="swq-btn-icon is-danger btn-remove-workplace" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')}" aria-label="Xóa">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
+            </button>
+          ` : ''}
+        </div>
       </div>
-      <div class="swq-right">
-        <div class="swq-rate-box">
-          <input type="number" class="swq-rate-input font-mono" data-wp="${escapeHtml(wp)}" value="${rate}" placeholder="0" step="1000" min="0">
+      <div class="swq-card-bottom">
+        <span class="swq-rate-label">Đơn giá theo giờ:</span>
+        <div class="swq-rate-input-wrap">
+          <input type="text" inputmode="numeric" class="swq-rate-input font-mono" data-wp="${escapeHtml(wp)}" value="${formatWpRateDisplay(rate)}" placeholder="0" autocomplete="off">
           <span class="swq-rate-tag font-mono">đ/h</span>
         </div>
-        <button type="button" class="btn-rename-workplace btn-morphic" data-rename-wp="${idx}" title="${t('btn_rename_wp', 'Đổi tên nơi làm')}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="12" height="12">
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-          </svg>
-        </button>
-        ${hasMultiple ? `
-          <button type="button" class="btn-remove-workplace btn-morphic btn-morphic-danger" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="13" height="13">
-              <path d="M3 6h18"></path>
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-            </svg>
-          </button>
-        ` : ''}
       </div>
     `;
 
@@ -876,22 +915,29 @@ export const renderShiftWorkplacesList = () => {
       renameBtn.addEventListener('click', () => {
         triggerHaptic('light');
         row.innerHTML = `
-          <div class="swq-left swq-edit-mode">
-            <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
-            <input type="text" class="swq-name-input form-input font-sans" value="${escapeHtml(wp)}" placeholder="${t('ph_workplace_name', 'Tên nơi làm')}">
-          </div>
-          <div class="swq-right">
-            <button type="button" class="btn-save-wp-rename btn-morphic btn-action-primary" title="${t('btn_save', 'Lưu')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </button>
-            <button type="button" class="btn-cancel-wp-rename btn-morphic" title="${t('btn_cancel', 'Hủy')}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+          <div class="swq-edit-mode-wrap">
+            <div class="swq-edit-header">
+              <span class="wb-color-dot" style="background:${wpCol.fill};"></span>
+              <span class="swq-edit-title">Đổi tên: <strong>${escapeHtml(wp)}</strong></span>
+            </div>
+            <div class="swq-edit-form">
+              <input type="text" class="swq-name-input form-input font-sans" value="${escapeHtml(wp)}" placeholder="${t('ph_workplace_name', 'Tên nơi làm')}" autocomplete="off">
+              <div class="swq-edit-btn-group">
+                <button type="button" class="btn-save-wp-rename btn-action-primary" title="${t('btn_save', 'Lưu')}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>${t('btn_save', 'Lưu')}</span>
+                </button>
+                <button type="button" class="btn-cancel-wp-rename btn-morphic" title="${t('btn_cancel', 'Hủy')}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <span>${t('btn_cancel', 'Hủy')}</span>
+                </button>
+              </div>
+            </div>
           </div>
         `;
 
@@ -905,14 +951,16 @@ export const renderShiftWorkplacesList = () => {
           const newName = (nameInput?.value || '').trim();
           if (!newName) {
             showToast(t('warn_wp_name_empty', 'Vui lòng nhập tên nơi làm việc.'));
+            nameInput?.focus();
             return;
           }
           if (newName === wp) {
             renderShiftWorkplacesList();
             return;
           }
-          if (state.settings.workplaces.includes(newName)) {
+          if (state.settings.workplaces.some(w => w.toLowerCase() === newName.toLowerCase() && w !== wp)) {
             showToast(t('warn_wp_exists', 'Tên nơi làm việc này đã tồn tại.'));
+            nameInput?.focus();
             return;
           }
 
@@ -968,6 +1016,7 @@ export const renderShiftWorkplacesList = () => {
     const setDefaultBtn = row.querySelector('[data-set-default]');
     if (setDefaultBtn) {
       setDefaultBtn.addEventListener('click', () => {
+        triggerHaptic('medium');
         state.settings.defaultWorkplace = wp;
         saveSettings();
         renderShiftWorkplacesList();
@@ -981,6 +1030,7 @@ export const renderShiftWorkplacesList = () => {
     const delBtn = row.querySelector('[data-del-wp]');
     if (delBtn) {
       delBtn.addEventListener('click', async () => {
+        triggerHaptic('light');
         const confirmed = await showConfirmDialog({
           title: t('btn_delete_wp', 'Xóa nơi làm'),
           message: `Bạn có chắc chắn muốn xóa nơi làm việc "${wp}" không?`,
@@ -991,6 +1041,9 @@ export const renderShiftWorkplacesList = () => {
         });
         if (!confirmed) return;
         const removed = state.settings.workplaces.splice(idx, 1)[0];
+        if (state.settings.workplaceRates && state.settings.workplaceRates[removed] !== undefined) {
+          delete state.settings.workplaceRates[removed];
+        }
         if (state.settings.defaultWorkplace === removed) {
           state.settings.defaultWorkplace = state.settings.workplaces[0] || '';
         }
@@ -999,18 +1052,43 @@ export const renderShiftWorkplacesList = () => {
         updateWorkplaceInputOptions();
         updateModalComputedPreview();
         triggerAppRender();
+        triggerHaptic('medium');
         showToast(`Đã xóa nơi làm: ${removed}`);
       });
     }
 
-    row.querySelector('.swq-rate-input')?.addEventListener('input', (e) => {
-      const val = Number(e.target.value);
-      state.settings.workplaceRates[wp] = (!isNaN(val) && val >= 0) ? val : 0;
-      saveSettings();
-      updateWorkplaceInputOptions(document.getElementById('shiftWorkplace')?.value);
-      updateModalComputedPreview();
-      triggerAppRender();
-    });
+    const rateInput = row.querySelector('.swq-rate-input');
+    if (rateInput) {
+      rateInput.addEventListener('input', (e) => {
+        const val = parseWpRate(e.target.value);
+        if (!state.settings.workplaceRates) state.settings.workplaceRates = {};
+        state.settings.workplaceRates[wp] = val;
+        saveSettings();
+        updateModalComputedPreview();
+        triggerAppRender();
+      });
+
+      rateInput.addEventListener('focus', (e) => {
+        e.target.select();
+      });
+
+      rateInput.addEventListener('blur', (e) => {
+        const val = parseWpRate(e.target.value);
+        if (!state.settings.workplaceRates) state.settings.workplaceRates = {};
+        state.settings.workplaceRates[wp] = val;
+        e.target.value = formatWpRateDisplay(val);
+        saveSettings();
+        updateModalComputedPreview();
+        triggerAppRender();
+      });
+
+      rateInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          rateInput.blur();
+        }
+      });
+    }
 
     container.appendChild(row);
   });
@@ -1022,13 +1100,14 @@ export const addWorkplaceFromShiftModal = () => {
   if (!nameInput) return;
   const val = nameInput.value.trim();
   if (!val) {
-    showToast('Vui lòng nhập tên nơi làm việc mới');
+    showToast(t('warn_wp_name_empty', 'Vui lòng nhập tên nơi làm việc mới.'));
     nameInput.focus();
     return;
   }
   normalizeWorkplacesAndRates();
-  if (state.settings.workplaces.includes(val)) {
-    showToast('Nơi làm việc này đã tồn tại');
+  if (state.settings.workplaces.some(w => w.toLowerCase() === val.toLowerCase())) {
+    showToast(t('warn_wp_exists', 'Tên nơi làm việc này đã tồn tại.'));
+    nameInput.focus();
     return;
   }
 
@@ -1038,8 +1117,9 @@ export const addWorkplaceFromShiftModal = () => {
     state.settings.defaultWorkplace = val;
   }
 
-  const customRate = rateInput && rateInput.value.trim() !== '' ? Number(rateInput.value) : 0;
-  state.settings.workplaceRates[val] = (!isNaN(customRate) && customRate >= 0) ? customRate : 0;
+  const customRate = rateInput ? parseWpRate(rateInput.value) : 0;
+  if (!state.settings.workplaceRates) state.settings.workplaceRates = {};
+  state.settings.workplaceRates[val] = customRate;
 
   saveSettings();
   nameInput.value = '';
@@ -1049,15 +1129,22 @@ export const addWorkplaceFromShiftModal = () => {
   updateWorkplaceInputOptions(val);
   updateModalComputedPreview();
   triggerAppRender();
+  triggerHaptic('medium');
   showToast(`Đã thêm nơi làm việc: ${val}`);
 };
 
-export const toggleWorkplacePanel = () => {
+export const toggleWorkplacePanel = (forceOpen = null) => {
   const box = document.getElementById('shiftWorkplaceManageBox');
+  const btn = document.getElementById('btnToggleWorkplacePanel');
   if (!box) return;
-  const isHidden = box.style.display === 'none' || !box.style.display;
-  box.style.display = isHidden ? 'flex' : 'none';
-  if (isHidden) {
+  const shouldOpen = (forceOpen !== null)
+    ? !!forceOpen
+    : (box.style.display === 'none' || !box.style.display);
+  box.style.display = shouldOpen ? 'flex' : 'none';
+  if (btn) {
+    btn.classList.toggle('is-active', shouldOpen);
+  }
+  if (shouldOpen) {
     renderShiftWorkplacesList();
     const nameInput = document.getElementById('shiftNewWpName');
     if (nameInput) nameInput.focus();
