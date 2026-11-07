@@ -1,6 +1,6 @@
 # Salary Tracker
 
-[![Platform: Web / PWA](https://img.shields.io/badge/Platform-Web%20%2F%20PWA-0d1117?style=flat-square&logo=googlechrome&logoColor=white)](https://f0n9.github.io/salary-tracker/)
+[![Platform: Web / PWA](https://img.shields.io/badge/Platform-Web%20%2F%20PWA-0d1117?style=flat-square&logo=googlechrome&logoColor=white)](https://aoe1920.github.io/salary-tracker/)
 [![Database: Supabase](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 [![Security: RLS](https://img.shields.io/badge/Security-Row_Level_Security-blue?style=flat-square)](https://supabase.com/docs/guides/auth)
 [![Architecture: Vanilla ESM](https://img.shields.io/badge/Architecture-Vanilla_ESM-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/)
@@ -8,7 +8,7 @@
 
 An offline-first, zero-build Progressive Web App (PWA) for shift scheduling and personal earnings tracking, backed by Supabase PostgreSQL with strict Row Level Security (RLS).
 
-[**Live Demo →**](https://f0n9.github.io/salary-tracker/)
+[**Live Demo →**](https://aoe1920.github.io/salary-tracker/)
 
 ---
 
@@ -112,7 +112,7 @@ grant execute on function public.get_login_email(text) to anon, authenticated;
 
 1. **Supabase Auth Settings:**
    - Enable **"Allow manual linking"** in **Authentication > Providers > Email / Google**.
-   - Add your domain and redirect URLs in **Authentication > URL Configuration > Redirect URLs** (ví dụ: `https://f0n9.github.io/salary-tracker/` và `http://localhost:3000/`).
+   - Add your domain and redirect URLs in **Authentication > URL Configuration > Redirect URLs** (ví dụ: `https://aoe1920.github.io/salary-tracker/` và `http://localhost:3000/`).
 
 2. **Reset Password Email Template:**
    - Truy cập **Supabase Dashboard > Authentication > Email Templates > Reset Password**.

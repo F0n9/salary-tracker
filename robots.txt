@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://f0n9.github.io/salary-tracker/sitemap.xml
+Sitemap: https://aoe1920.github.io/salary-tracker/sitemap.xml
