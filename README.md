@@ -108,7 +108,16 @@ $$;
 grant execute on function public.get_login_email(text) to anon, authenticated;
 ```
 
-Set your credentials in `js/config.js` and enable **"Allow manual linking"** in Supabase Auth Settings.
+### Auth & Email Configuration
+
+1. **Supabase Auth Settings:**
+   - Enable **"Allow manual linking"** in **Authentication > Providers > Email / Google**.
+   - Add your domain and redirect URLs in **Authentication > URL Configuration > Redirect URLs** (ví dụ: `https://f0n9.github.io/salary-tracker/` và `http://localhost:3000/`).
+
+2. **Reset Password Email Template:**
+   - Truy cập **Supabase Dashboard > Authentication > Email Templates > Reset Password**.
+   - **Subject:** `[Salary Tracker] Đặt lại mật khẩu tài khoản của bạn`
+   - **Body:** Copy và dán toàn bộ mã HTML từ file [`templates/email-reset-password.html`](templates/email-reset-password.html).
 
 ---
 

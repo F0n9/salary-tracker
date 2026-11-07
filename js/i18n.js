@@ -257,6 +257,10 @@ const I18N_VI = {
     toast_google_linked: 'Đã liên kết tài khoản Google thành công.',
     auth_prompt_new_password: 'Vui lòng đặt mật khẩu mới cho tài khoản của bạn.',
 
+    reset_pw_title: 'Đặt lại mật khẩu',
+    reset_pw_subtitle: 'Nhập mật khẩu mới cho tài khoản của bạn',
+    btn_save_new_password: 'Lưu mật khẩu mới & Đăng nhập',
+    auth_reset_success: 'Đã đặt lại mật khẩu thành công!',
     profile_title: 'Hồ sơ người dùng',
     profile_change_avatar: 'Đổi ảnh đại diện',
     profile_choose_avatar: 'Chọn nhân vật đại diện',

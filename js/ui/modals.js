@@ -1073,6 +1073,28 @@ export const openAuthModal = (defaultTab = 'login') => {
   modal.style.display = 'flex';
 };
 
+export const openResetPasswordModal = () => {
+  const modal = document.getElementById('resetPasswordModal');
+  if (!modal) return;
+  const form = document.getElementById('formResetPassword');
+  if (form) form.reset();
+  const errorEl = document.getElementById('resetPasswordError');
+  if (errorEl) errorEl.style.display = 'none';
+  const authModal = document.getElementById('authModal');
+  if (authModal) authModal.style.display = 'none';
+  const profileModal = document.getElementById('userProfileModal');
+  if (profileModal) profileModal.style.display = 'none';
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('resetNewPassword')?.focus();
+  }, 100);
+};
+
+export const closeResetPasswordModal = () => {
+  const modal = document.getElementById('resetPasswordModal');
+  if (modal) modal.style.display = 'none';
+};
+
 export const switchAuthTab = (tab) => {
   const btnLogin = document.getElementById('tabBtnLogin');
   const btnRegister = document.getElementById('tabBtnRegister');

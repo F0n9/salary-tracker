@@ -1155,8 +1155,27 @@ export const restoreCachedStateSync = () => {
   } catch (_) {}
 };
 
+let authStateListenerInitialized = false;
+export const initAuthStateListener = () => {
+  if (authStateListenerInitialized || !supabaseClient) return;
+  authStateListenerInitialized = true;
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      window.dispatchEvent(new CustomEvent('app:auth-recovery', { detail: { session } }));
+    }
+  });
+};
+
 export const initAuth = async () => {
   if (supabaseClient) {
+    initAuthStateListener();
+    const href = window.location.href;
+    const isRecoveryUrl = href.includes('type=recovery') || href.includes('recovery');
+    if (isRecoveryUrl) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('app:auth-recovery'));
+      }, 100);
+    }
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session && session.user) {
@@ -1182,10 +1201,9 @@ export const initAuth = async () => {
         if (window.location.hash) {
           const hash = window.location.hash;
           if (hash.includes('type=recovery')) {
-            window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
             setTimeout(() => {
               window.dispatchEvent(new CustomEvent('app:auth-recovery'));
-            }, 350);
+            }, 200);
           } else if (hash.includes('access_token') || hash.includes('refresh_token')) {
             window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
             showToast(t('auth_login_success', 'Đăng nhập thành công. Chào @{username}.').replace('{username}', username));
@@ -1613,6 +1631,55 @@ export const handleForgotPasswordSubmit = async (e) => {
       errorEl.style.display = 'block';
     }
   } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+};
+
+export const handleResetPasswordSubmit = async (e) => {
+  e.preventDefault();
+  const newPass = document.getElementById('resetNewPassword').value;
+  const confirmPass = document.getElementById('resetConfirmPassword').value;
+  const errorEl = document.getElementById('resetPasswordError');
+  const submitBtn = document.getElementById('btnSubmitResetPassword');
+
+  if (!newPass || newPass.length < 6) {
+    if (errorEl) {
+      errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (newPass !== confirmPass) {
+    if (errorEl) {
+      errorEl.textContent = t('auth_err_pass_mismatch', 'Mật khẩu xác nhận không khớp.');
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (errorEl) errorEl.style.display = 'none';
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Chưa kết nối tới cơ sở dữ liệu đám mây.'));
+    const { data, error } = await supabaseClient.auth.updateUser({
+      password: newPass
+    });
+    if (error) throw error;
+
+    showToast(t('auth_reset_success', 'Đã đặt lại mật khẩu thành công!'), 'success');
+    const modal = document.getElementById('resetPasswordModal');
+    if (modal) modal.style.display = 'none';
+    window.history.replaceState(null, document.title, window.location.pathname);
+    await initAuth();
+    await loadState();
+    triggerAppRender();
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
+      errorEl.style.display = 'block';
+    }
     if (submitBtn) submitBtn.disabled = false;
   }
 };

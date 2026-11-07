@@ -2,7 +2,7 @@ import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplace
 import { fmtCurrency, fmtHours, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, hoursToColonFormat, hoursToHourMinutes, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getShiftDateFull, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, formatShiftType, detectShiftType, escapeHtml, calculateSmartShiftDefaults } from './calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName } from './i18n.js';
 import { applyTheme, toggleTheme } from './theme.js';
-import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, restoreCachedUserSync, restoreCachedStateSync, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleDeleteAccount, handleGoogleSignIn, handleForgotPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
+import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, restoreCachedUserSync, restoreCachedStateSync, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleDeleteAccount, handleGoogleSignIn, handleForgotPasswordSubmit, handleResetPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
 import { triggerHaptic } from './ui/haptic.js';
 import { showToast, showToastWithAction } from './ui/toast.js';
 import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui/select.js';
@@ -10,7 +10,7 @@ import { drawDashboardWeekChart, setAllWeeksModalOpener, renderAnalyticsDashboar
 import { renderSlipCanvas, openShareSlipModal, downloadSlipImage, copySlipImageToClipboard } from './ui/canvas-slip.js';
 import { exportCurrentWeekCSV, exportAllWeeksCSV, backupJSON, restoreJSON, setExportAppRenderer } from './ui/export.js';
 import { showConfirmDialog, showAlertDialog, initDialogHandlers } from './ui/dialog.js';
-import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, collapsePasswordSection, collapseAvatarPicker, setupPasswordToggles, setModalAppRenderer } from './ui/modals.js';
+import { closeModal, openAddShiftModal, openEditShiftModal, updateModalComputedPreview, saveShiftFromModal, deleteShift, undoLastDeleteShift, createNewWeek, openEditWeekModal, saveWeekMeta, deleteCurrentWeek, undoLastDeleteWeek, navigateWeek, renderMonthlyReport, switchSummaryTab, openAllWeeksModal, renderShiftWorkplacesList, addWorkplaceFromShiftModal, toggleWorkplacePanel, openAuthModal, switchAuthTab, clearAuthErrors, openUserProfileModal, collapsePasswordSection, collapseAvatarPicker, setupPasswordToggles, setModalAppRenderer, openResetPasswordModal } from './ui/modals.js';
 
 const updateWheelIndicator = () => {};
 
@@ -597,15 +597,13 @@ const bindEvents = () => {
   if (btnLinkGoogleAccount) btnLinkGoogleAccount.addEventListener('click', handleLinkGoogleAccount);
 
   window.addEventListener('app:auth-recovery', () => {
-    openUserProfileModal();
-    const formChangePwd = document.getElementById('formChangePassword');
-    const iconChevron = document.getElementById('iconChangePwdChevron');
-    collapseAvatarPicker();
-    if (formChangePwd) formChangePwd.style.display = 'flex';
-    if (iconChevron) iconChevron.style.transform = 'rotate(180deg)';
-    document.getElementById('changeNewPassword')?.focus();
-    showToast(t('auth_prompt_new_password', 'Vui lòng đặt mật khẩu mới cho tài khoản của bạn.'));
+    openResetPasswordModal();
   });
+
+  const formResetPassword = document.getElementById('formResetPassword');
+  if (formResetPassword) {
+    formResetPassword.addEventListener('submit', handleResetPasswordSubmit);
+  }
 
   setupPasswordToggles();
 
