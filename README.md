@@ -117,7 +117,12 @@ grant execute on function public.get_login_email(text) to anon, authenticated;
 2. **Reset Password Email Template:**
    - Truy cập **Supabase Dashboard > Authentication > Email Templates > Reset Password**.
    - **Subject:** `[Salary Tracker] Đặt lại mật khẩu tài khoản của bạn`
-   - **Body:** Copy và dán toàn bộ mã HTML từ file [`templates/email-reset-password.html`](templates/email-reset-password.html).
+   - **Body:** Copy và dán toàn bộ mã HTML từ file [`docs/templates/email-reset-password.html`](docs/templates/email-reset-password.html).
+
+### Documentation
+
+- [Đặc tả thiết kế giao diện (DESIGN.md)](docs/DESIGN.md)
+- [Đặc tả sản phẩm & tính năng (PRODUCT.md)](docs/PRODUCT.md)
 
 ---
 
