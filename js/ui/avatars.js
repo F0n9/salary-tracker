@@ -30,16 +30,11 @@ export const AVATARS = [
     id: 'dicebear_bot',
     name: 'Bottts',
     svg: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="db_bt" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#0d9488"/><stop offset="1" stop-color="#115e59"/></linearGradient></defs><rect width="40" height="40" fill="url(#db_bt)"/><line x1="20" y1="5" x2="20" y2="11" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/><circle cx="20" cy="5" r="2" fill="#facc15"/><rect x="11" y="11" width="18" height="15" rx="3" fill="#334155"/><rect x="13.5" y="14" width="13" height="5.5" rx="1.5" fill="#020617"/><circle cx="16.5" cy="16.8" r="1.5" fill="#38bdf8"/><circle cx="23.5" cy="16.8" r="1.5" fill="#38bdf8"/><circle cx="17" cy="16.3" r="0.5" fill="#ffffff"/><circle cx="24" cy="16.3" r="0.5" fill="#ffffff"/><line x1="16" y1="22.5" x2="24" y2="22.5" stroke="#94a3b8" stroke-width="1" stroke-linecap="round"/><rect x="8.5" y="16" width="2.5" height="5" rx="1" fill="#64748b"/><rect x="29" y="16" width="2.5" height="5" rx="1" fill="#64748b"/><path d="M11 34c1-4 4-6 9-6s8 2 9 6" fill="#475569"/><circle cx="20" cy="31" r="1.5" fill="#22d3ee"/></svg>`
-  },
-  {
-    id: 'dicebear_ninja',
-    name: 'Shinobi',
-    svg: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="db_nj" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#1e1b4b"/><stop offset="1" stop-color="#020617"/></linearGradient></defs><rect width="40" height="40" fill="url(#db_nj)"/><path d="M10 18c0-8 4.5-12 10-12s10 4 10 12v14c-3 1-6 2-10 2s-7-1-10-2z" fill="#1e293b"/><path d="M12 21c0 5 3.5 8 8 8s8-3 8-8v4c0 3-3.5 6-8 6s-8-3-8-6z" fill="#0f172a"/><rect x="13" y="12" width="14" height="4" rx="1" fill="#94a3b8"/><circle cx="20" cy="14" r="1" fill="#0f172a"/><path d="M14 18.5l3.5 1-3.5 0.5z" fill="#e2e8f0"/><path d="M22.5 19.5l3.5-1-0.5 1.5z" fill="#e2e8f0"/><circle cx="16" cy="19" r="0.8" fill="#ef4444"/><circle cx="24" cy="19" r="0.8" fill="#ef4444"/></svg>`
   }
 ];
 
 export const getAvatarById = (id) => {
-  if (id === 'ninja') return AVATARS.find(a => a.id === 'dicebear_ninja') || AVATARS[6];
+  if (id === 'ninja' || id === 'dicebear_ninja') return AVATARS.find(a => a.id === 'dicebear_samurai') || AVATARS[3];
   if (id === 'nerd' || id === 'hacker') return AVATARS.find(a => a.id === 'dicebear_bot') || AVATARS[5];
   if (id === 'luffy' || id === 'naruto' || id === 'goku') return AVATARS.find(a => a.id === 'dicebear_knight') || AVATARS[1];
   if (id === 'zoro' || id === 'levi') return AVATARS.find(a => a.id === 'dicebear_samurai') || AVATARS[3];
