@@ -1246,6 +1246,39 @@ export const updateHeaderAuthUI = () => {
   }
 };
 
+export const translateAuthError = (err) => {
+  if (!err) return 'Đã xảy ra lỗi. Vui lòng thử lại.';
+  const msg = (typeof err === 'string' ? err : err.message || '').toLowerCase();
+  if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
+    return 'Sai tài khoản hoặc mật khẩu.';
+  }
+  if (msg.includes('already registered') || msg.includes('already exists')) {
+    return 'Tên tài khoản hoặc email đã tồn tại.';
+  }
+  if (msg.includes('at least 6 characters') || msg.includes('password should be') || msg.includes('weak password')) {
+    return 'Mật khẩu tối thiểu 6 ký tự.';
+  }
+  if (msg.includes('different from the old password') || msg.includes('should be different')) {
+    return 'Mật khẩu mới không được trùng mật khẩu cũ.';
+  }
+  if (msg.includes('rate limit') || msg.includes('too many requests') || msg.includes('once every')) {
+    return 'Vui lòng chờ giây lát trước khi thử lại.';
+  }
+  if (msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch')) {
+    return 'Lỗi kết nối mạng. Vui lòng thử lại.';
+  }
+  if (msg.includes('not found') || msg.includes('user not found')) {
+    return 'Không tìm thấy tài khoản.';
+  }
+  if (msg.includes('token') || msg.includes('expired') || msg.includes('invalid token')) {
+    return 'Phiên xác thực đã hết hạn.';
+  }
+  if (msg.includes('email not confirmed') || msg.includes('unconfirmed')) {
+    return 'Email chưa được kích hoạt.';
+  }
+  return 'Thao tác không thành công. Vui lòng thử lại.';
+};
+
 export const handleLoginSubmit = async (e) => {
   e.preventDefault();
   const rawInput = document.getElementById('loginUsername').value.trim();
@@ -1253,7 +1286,7 @@ export const handleLoginSubmit = async (e) => {
   const errorEl = document.getElementById('loginError');
 
   if (!rawInput || !password) {
-    errorEl.textContent = t('auth_err_missing_fields', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
+    errorEl.textContent = t('auth_err_missing_fields', 'Vui lòng nhập tài khoản và mật khẩu.');
     errorEl.style.display = 'block';
     return;
   }
@@ -1261,7 +1294,7 @@ export const handleLoginSubmit = async (e) => {
   errorEl.style.display = 'none';
 
   if (!supabaseClient) {
-    errorEl.textContent = t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.');
+    errorEl.textContent = t('auth_err_supabase', 'Lỗi kết nối máy chủ. Vui lòng thử lại.');
     errorEl.style.display = 'block';
     return;
   }
@@ -1295,9 +1328,7 @@ export const handleLoginSubmit = async (e) => {
     }
 
     if (res.error) {
-      errorEl.textContent = res.error.message === 'Invalid login credentials'
-        ? t('auth_err_invalid_creds', 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.')
-        : `${t('auth_err_login_prefix', 'Lỗi đăng nhập: ')}${res.error.message}`;
+      errorEl.textContent = translateAuthError(res.error);
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
@@ -1364,19 +1395,19 @@ export const handleRegisterSubmit = async (e) => {
   }
 
   if (password.length < 6) {
-    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu phải có ít nhất 6 ký tự.');
+    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu tối thiểu 6 ký tự.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (password !== passwordConfirm) {
-    errorEl.textContent = t('auth_err_pass_mismatch', 'Xác nhận mật khẩu không khớp.');
+    errorEl.textContent = t('auth_err_pass_mismatch', 'Mật khẩu xác nhận không khớp.');
     errorEl.style.display = 'block';
     return;
   }
 
   if (!supabaseClient) {
-    errorEl.textContent = t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng tải lại trang.');
+    errorEl.textContent = t('auth_err_supabase', 'Lỗi kết nối máy chủ. Vui lòng thử lại.');
     errorEl.style.display = 'block';
     return;
   }
@@ -1400,20 +1431,14 @@ export const handleRegisterSubmit = async (e) => {
     });
 
     if (error) {
-      let msg = error.message;
-      if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-        msg = t('auth_err_user_exists', 'Tên tài khoản hoặc email này đã được sử dụng. Vui lòng chọn tên khác.');
-      } else {
-        msg = `${t('auth_reg_fail_prefix', 'Đăng ký thất bại: ')}${msg}`;
-      }
-      errorEl.textContent = msg;
+      errorEl.textContent = translateAuthError(error);
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
     if (!data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
-      errorEl.textContent = t('auth_err_user_exists', 'Tên tài khoản hoặc email này đã được sử dụng. Vui lòng chọn tên khác.');
+      errorEl.textContent = t('auth_err_user_exists', 'Tên tài khoản đã tồn tại.');
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
@@ -1580,7 +1605,7 @@ export const handleDeleteAccount = async () => {
 
 export const handleGoogleSignIn = async () => {
   if (!supabaseClient) {
-    showToast(t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.'));
+    showToast(t('auth_err_supabase', 'Lỗi kết nối máy chủ. Vui lòng thử lại.'));
     return;
   }
   triggerHaptic('medium');
@@ -1593,10 +1618,10 @@ export const handleGoogleSignIn = async () => {
       }
     });
     if (error) {
-      showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message}`);
+      showToast(translateAuthError(error));
     }
   } catch (err) {
-    showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);
+    showToast(translateAuthError(err));
   }
 };
 
@@ -1608,7 +1633,7 @@ export const handleForgotPasswordSubmit = async (e) => {
   const submitBtn = document.getElementById('btnSubmitForgot');
 
   if (!emailInput || !emailInput.includes('@')) {
-    errorEl.textContent = t('auth_err_email_invalid', 'Vui lòng nhập đúng định dạng email hợp lệ.');
+    errorEl.textContent = t('auth_err_email_invalid', 'Email không hợp lệ.');
     errorEl.style.display = 'block';
     if (successEl) successEl.style.display = 'none';
     return;
@@ -1619,7 +1644,7 @@ export const handleForgotPasswordSubmit = async (e) => {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Chưa kết nối được với Supabase.'));
+    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Lỗi kết nối máy chủ.'));
     const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
       redirectTo: window.location.origin + window.location.pathname
     });
@@ -1627,13 +1652,13 @@ export const handleForgotPasswordSubmit = async (e) => {
     if (error) throw error;
 
     if (successEl) {
-      successEl.textContent = t('auth_forgot_sent', 'Đã gửi liên kết khôi phục về email của bạn! Vui lòng kiểm tra hộp thư.');
+      successEl.textContent = t('auth_forgot_sent', 'Đã gửi link khôi phục vào email.');
       successEl.style.display = 'block';
     }
     document.getElementById('formForgotPassword')?.reset();
   } catch (err) {
     if (errorEl) {
-      errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
+      errorEl.textContent = translateAuthError(err);
       errorEl.style.display = 'block';
     }
   } finally {
@@ -1650,7 +1675,7 @@ export const handleResetPasswordSubmit = async (e) => {
 
   if (!newPass || newPass.length < 6) {
     if (errorEl) {
-      errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+      errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu tối thiểu 6 ký tự.');
       errorEl.style.display = 'block';
     }
     return;
@@ -1668,13 +1693,13 @@ export const handleResetPasswordSubmit = async (e) => {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Chưa kết nối tới cơ sở dữ liệu đám mây.'));
+    if (!supabaseClient) throw new Error(t('auth_err_supabase', 'Lỗi kết nối máy chủ.'));
     const { data, error } = await supabaseClient.auth.updateUser({
       password: newPass
     });
     if (error) throw error;
 
-    showToast(t('auth_reset_success', 'Đã đặt lại mật khẩu thành công!'), 'success');
+    showToast(t('auth_reset_success', 'Đặt lại mật khẩu thành công.'), 'success');
     const modal = document.getElementById('resetPasswordModal');
     if (modal) modal.style.display = 'none';
     window.history.replaceState(null, document.title, window.location.pathname);
@@ -1683,7 +1708,7 @@ export const handleResetPasswordSubmit = async (e) => {
     triggerAppRender();
   } catch (err) {
     if (errorEl) {
-      errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
+      errorEl.textContent = translateAuthError(err);
       errorEl.style.display = 'block';
     }
     if (submitBtn) submitBtn.disabled = false;
@@ -1692,7 +1717,7 @@ export const handleResetPasswordSubmit = async (e) => {
 
 export const handleLinkGoogleAccount = async () => {
   if (!supabaseClient) {
-    showToast(t('auth_err_supabase', 'Chưa kết nối được với Supabase.'));
+    showToast(t('auth_err_supabase', 'Lỗi kết nối máy chủ.'));
     return;
   }
   triggerHaptic('medium');
@@ -1704,15 +1729,10 @@ export const handleLinkGoogleAccount = async () => {
       }
     });
     if (error) {
-      const msg = (error.message || '').toLowerCase();
-      if (msg.includes('manual linking is disabled')) {
-        showToast(t('auth_manual_linking_hint', 'Vui lòng bật "Allow manual linking" trong cấu hình Supabase Auth Settings.'));
-      } else {
-        showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${error.message || ''}`);
-      }
+      showToast(translateAuthError(error));
     }
   } catch (err) {
-    showToast(`${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`);
+    showToast(translateAuthError(err));
   }
 };
 
@@ -1724,7 +1744,7 @@ export const handleChangePasswordSubmit = async (e) => {
   const submitBtn = document.getElementById('btnSubmitChangePassword');
 
   if (!newPassword || newPassword.length < 6) {
-    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+    errorEl.textContent = t('auth_err_min_pass', 'Mật khẩu tối thiểu 6 ký tự.');
     errorEl.style.display = 'block';
     return;
   }
@@ -1752,7 +1772,7 @@ export const handleChangePasswordSubmit = async (e) => {
 
   try {
     if (!supabaseClient) {
-      throw new Error(t('auth_err_supabase', 'Chưa kết nối tới cơ sở dữ liệu đám mây.'));
+      throw new Error(t('auth_err_supabase', 'Lỗi kết nối máy chủ.'));
     }
 
     const { data, error } = await supabaseClient.auth.updateUser({
@@ -1785,7 +1805,7 @@ export const handleChangePasswordSubmit = async (e) => {
     const chevron = document.getElementById('iconChangePwdChevron');
     if (chevron) chevron.style.transform = 'rotate(0deg)';
   } catch (err) {
-    errorEl.textContent = `${t('auth_err_conn_prefix', 'Lỗi: ')}${err.message || ''}`;
+    errorEl.textContent = translateAuthError(err);
     errorEl.style.display = 'block';
   } finally {
     if (submitBtn) {

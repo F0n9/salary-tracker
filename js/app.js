@@ -50,9 +50,9 @@ const renderDateDisplay = () => {
 };
 
 const goToAdjacentWeek = (direction) => {
-  if (!state.weeks || !state.weeks.length) return;
+  if (!state.weeks || !state.weeks.length) return false;
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
-  if (currentIndex === -1) return;
+  if (currentIndex === -1) return false;
   const targetIndex = currentIndex + direction;
   if (targetIndex >= 0 && targetIndex < state.weeks.length) {
     triggerHaptic('light');
@@ -69,7 +69,9 @@ const goToAdjacentWeek = (direction) => {
     renderShiftsList();
     scrollWheelToActive('smooth');
     updateWeekNavButtons();
+    return true;
   }
+  return false;
 };
 
 const updateWeekNavButtons = () => {
@@ -679,21 +681,7 @@ const bindEvents = () => {
     });
   }
 
-  const dockPrevWeek = document.getElementById('dockPrevWeek');
-  if (dockPrevWeek) {
-    dockPrevWeek.addEventListener('click', () => {
-      triggerHaptic('light');
-      navigateWeek(-1);
-    });
-  }
 
-  const dockNextWeek = document.getElementById('dockNextWeek');
-  if (dockNextWeek) {
-    dockNextWeek.addEventListener('click', () => {
-      triggerHaptic('light');
-      navigateWeek(1);
-    });
-  }
 
   const dockAddShift = document.getElementById('dockAddShift');
   if (dockAddShift) {
@@ -849,21 +837,61 @@ const bindEvents = () => {
     });
   }
 
-  const btnPrevWeek = document.getElementById('btnPrevWeek');
-  if (btnPrevWeek) {
-    btnPrevWeek.addEventListener('click', (e) => {
+  const setupNavHold = (btn, direction) => {
+    if (!btn) return;
+    let holdTimer = null;
+    let stepInterval = null;
+    let didHold = false;
+
+    const stopHold = () => {
+      clearTimeout(holdTimer);
+      clearInterval(stepInterval);
+      holdTimer = null;
+      stepInterval = null;
+    };
+
+    const startHold = (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      didHold = false;
+      const ok = goToAdjacentWeek(direction);
+      if (!ok) return;
+
+      holdTimer = setTimeout(() => {
+        didHold = true;
+        stepInterval = setInterval(() => {
+          const canContinue = goToAdjacentWeek(direction);
+          if (!canContinue) {
+            stopHold();
+          }
+        }, 130);
+      }, 300);
+    };
+
+    btn.addEventListener('pointerdown', startHold);
+    btn.addEventListener('pointerup', stopHold);
+    btn.addEventListener('pointerleave', stopHold);
+    btn.addEventListener('pointercancel', stopHold);
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    btn.addEventListener('click', (e) => {
       e.preventDefault();
-      goToAdjacentWeek(-1);
+      if (didHold) {
+        didHold = false;
+        return;
+      }
     });
-  }
+  };
+
+  const btnPrevWeek = document.getElementById('btnPrevWeek');
+  if (btnPrevWeek) setupNavHold(btnPrevWeek, -1);
 
   const btnNextWeek = document.getElementById('btnNextWeek');
-  if (btnNextWeek) {
-    btnNextWeek.addEventListener('click', (e) => {
-      e.preventDefault();
-      goToAdjacentWeek(1);
-    });
-  }
+  if (btnNextWeek) setupNavHold(btnNextWeek, 1);
+
+  const dockPrevWeek = document.getElementById('dockPrevWeek');
+  if (dockPrevWeek) setupNavHold(dockPrevWeek, -1);
+
+  const dockNextWeek = document.getElementById('dockNextWeek');
+  if (dockNextWeek) setupNavHold(dockNextWeek, 1);
 
   const weekWheelTrack = document.getElementById('weekPillsList');
   if (weekWheelTrack) {
