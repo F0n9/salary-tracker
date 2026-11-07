@@ -1328,7 +1328,11 @@ export const openUserProfileModal = () => {
   const pwdBox = document.querySelector('.profile-change-pwd-box');
   const isGoogle = state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app');
   if (pwdBox) {
-    pwdBox.style.display = isGoogle ? 'none' : 'block';
+    pwdBox.style.display = 'block';
+  }
+  const pwdTitle = document.getElementById('profileChangePwdTitle');
+  if (pwdTitle) {
+    pwdTitle.textContent = isGoogle ? t('profile_set_pwd', 'Tạo / Đổi mật khẩu tài khoản') : t('profile_change_pw', 'Đổi mật khẩu');
   }
 
   const btnLinkGoogle = document.getElementById('btnLinkGoogleAccount');

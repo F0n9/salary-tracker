@@ -85,6 +85,27 @@ end;
 $$;
 
 grant execute on function public.delete_user() to authenticated;
+
+create or replace function public.get_login_email(p_username text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_email text;
+begin
+  select u.email into v_email
+  from auth.users u
+  left join public.user_salary_data s on s.user_id = u.id
+  where lower(s.username) = lower(p_username)
+     or lower(u.raw_user_meta_data->>'username') = lower(p_username)
+  limit 1;
+  return v_email;
+end;
+$$;
+
+grant execute on function public.get_login_email(text) to anon, authenticated;
 ```
 
 Set your credentials in `js/config.js` and enable **"Allow manual linking"** in Supabase Auth Settings.

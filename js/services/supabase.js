@@ -1235,21 +1235,39 @@ export const handleLoginSubmit = async (e) => {
 
   try {
     const isEmail = rawInput.includes('@');
-    const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
+    let email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
+    let res = await supabaseClient.auth.signInWithPassword({
       email,
       password
     });
 
-    if (error) {
-      errorEl.textContent = error.message === 'Invalid login credentials'
+    if (res.error && !isEmail && typeof supabaseClient.rpc === 'function') {
+      try {
+        const { data: foundEmail, error: rpcErr } = await supabaseClient.rpc('get_login_email', {
+          p_username: rawInput
+        });
+        if (!rpcErr && foundEmail && typeof foundEmail === 'string' && foundEmail.includes('@')) {
+          const retryRes = await supabaseClient.auth.signInWithPassword({
+            email: foundEmail.toLowerCase(),
+            password
+          });
+          if (!retryRes.error) {
+            res = retryRes;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (res.error) {
+      errorEl.textContent = res.error.message === 'Invalid login credentials'
         ? t('auth_err_invalid_creds', 'Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại.')
-        : `${t('auth_err_login_prefix', 'Lỗi đăng nhập: ')}${error.message}`;
+        : `${t('auth_err_login_prefix', 'Lỗi đăng nhập: ')}${res.error.message}`;
       errorEl.style.display = 'block';
       if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
+    const data = res.data;
     const u = data.user;
     const username = u.user_metadata?.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'user');
     state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };

@@ -269,6 +269,7 @@ const I18N_VI = {
     profile_total_shifts: 'Tổng ca',
     profile_total_hours: 'Tổng giờ',
     profile_change_pw: 'Đổi mật khẩu',
+    profile_set_pwd: 'Tạo / Đổi mật khẩu tài khoản',
     profile_new_pw: 'Mật khẩu mới',
     ph_new_pw: 'Mật khẩu mới',
     profile_confirm_pw: 'Xác nhận mật khẩu mới',
