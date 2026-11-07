@@ -844,6 +844,10 @@ export const loadState = async () => {
             clearPendingSync();
           }
           if (data.settings) loadedSettings = data.settings;
+          if (data.username && typeof data.username === 'string' && state.currentUser) {
+            const clean = data.username.trim().replace(/\s+/g, '').toLowerCase();
+            if (clean) state.currentUser.username = clean;
+          }
         }
       }
 
@@ -1028,13 +1032,28 @@ export const saveSettings = () => {
   }
 };
 
+export const getCleanUsername = (user) => {
+  if (!user) return 'user';
+  if (user.user_metadata?.username && typeof user.user_metadata.username === 'string' && user.user_metadata.username.trim()) {
+    return user.user_metadata.username.trim().replace(/\s+/g, '').toLowerCase();
+  }
+  if (user.email && typeof user.email === 'string') {
+    return user.email.split('@')[0].trim().replace(/\s+/g, '').toLowerCase();
+  }
+  return 'user';
+};
+
 export const restoreCachedUserSync = () => {
   try {
     const raw = localStorage.getItem('salary_tracker_cached_user');
     if (raw) {
       const u = JSON.parse(raw);
       if (u && u.id) {
-        state.currentUser = { id: u.id, email: u.email, username: u.username, avatar: u.avatar };
+        let username = u.username;
+        if (!username || username.includes(' ') || !username.match(/^[a-zA-Z0-9_.-]+$/)) {
+          username = u.email ? u.email.split('@')[0].trim().replace(/\s+/g, '').toLowerCase() : 'user';
+        }
+        state.currentUser = { id: u.id, email: u.email, username, avatar: u.avatar };
         if (u.avatar && u.avatar !== 'default') {
           if (!state.settings) state.settings = {};
           if (!state.settings.avatar || state.settings.avatar === 'default') {
@@ -1052,7 +1071,7 @@ export const restoreCachedUserSync = () => {
           const parsed = JSON.parse(rawToken);
           const user = parsed?.user;
           if (user && user.id) {
-            const username = user.user_metadata?.username || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'user');
+            const username = getCleanUsername(user);
             const avatar = user.user_metadata?.avatar || 'dicebear_ninja';
             state.currentUser = { id: user.id, email: user.email, username, avatar };
             if (!state.settings) state.settings = {};
@@ -1142,7 +1161,7 @@ export const initAuth = async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session && session.user) {
         const u = session.user;
-        const username = u.user_metadata?.username || u.user_metadata?.full_name || u.user_metadata?.name || (u.email ? u.email.split('@')[0] : 'user');
+        const username = getCleanUsername(u);
         if (!state.settings) state.settings = {};
         if (u.user_metadata?.avatar && u.user_metadata.avatar !== 'default') {
           if (!state.settings.avatar || state.settings.avatar === 'default') {
@@ -1269,7 +1288,7 @@ export const handleLoginSubmit = async (e) => {
 
     const data = res.data;
     const u = data.user;
-    const username = u.user_metadata?.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'user');
+    const username = getCleanUsername(u);
     state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
     try {
       localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
@@ -1347,7 +1366,7 @@ export const handleRegisterSubmit = async (e) => {
 
   try {
     const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
-    const username = isEmail ? rawInput.split('@')[0] : rawInput;
+    const username = (isEmail ? rawInput.split('@')[0] : rawInput).trim().replace(/\s+/g, '').toLowerCase();
     const randomAvatar = getRandomAvatar();
     const { data, error } = await supabaseClient.auth.signUp({
       email,

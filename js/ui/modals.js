@@ -1219,7 +1219,13 @@ export const openUserProfileModal = () => {
   const modal = document.getElementById('userProfileModal');
   if (!modal) return;
 
-  const username = state.currentUser.username || 'user';
+  let username = state.currentUser.username || 'user';
+  if (username.includes(' ') || !username.match(/^[a-zA-Z0-9_.-]+$/)) {
+    if (state.currentUser?.email) {
+      username = state.currentUser.email.split('@')[0].trim().replace(/\s+/g, '').toLowerCase();
+      state.currentUser.username = username;
+    }
+  }
   const currentAvatarId = state.settings?.avatar || state.currentUser?.avatar || AVATARS[0].id;
 
   const avatarContent = document.getElementById('profileAvatarContent');
@@ -1279,8 +1285,9 @@ export const openUserProfileModal = () => {
       triggerHaptic('light');
       const currentName = state.currentUser?.username || '';
       const newName = window.prompt(t('prompt_change_username', 'Nhập tên tài khoản mới:'), currentName);
-      if (!newName || !newName.trim() || newName.trim() === currentName) return;
-      const cleanName = newName.trim();
+      if (!newName || !newName.trim()) return;
+      const cleanName = newName.trim().replace(/\s+/g, '').toLowerCase();
+      if (!cleanName || cleanName === currentName) return;
       try {
         if (state.currentUser) state.currentUser.username = cleanName;
         document.getElementById('profileUsername').textContent = `@${cleanName}`;
