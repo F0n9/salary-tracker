@@ -9,7 +9,12 @@ export const setAllWeeksModalOpener = (fn) => {
 const triggerOpenAllWeeksModal = (tab) => {
   if (typeof allWeeksModalOpener === 'function') allWeeksModalOpener(tab);
 };
-export const drawDashboardWeekChart = (week) => {
+
+let chartAnimId = null;
+let currentRenderedValues = null;
+let currentRenderedMax = 100000;
+
+const renderWeekChartCanvas = (values, maxVal, startValues, targetValues, ease) => {
   const canvas = document.getElementById('dashboardWeekCanvas');
   if (!canvas) return;
 
@@ -18,30 +23,21 @@ export const drawDashboardWeekChart = (week) => {
   const width = parent.clientWidth || 600;
   const height = 72;
 
-  canvas.width = Math.floor(width * dpr);
-  canvas.height = Math.floor(height * dpr);
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
+  const targetW = Math.floor(width * dpr);
+  const targetH = Math.floor(height * dpr);
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW;
+    canvas.height = targetH;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
 
   const ctx = canvas.getContext('2d');
+  ctx.save();
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, width, height);
 
   const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  const dayEarnings = { T2: 0, T3: 0, T4: 0, T5: 0, T6: 0, T7: 0, CN: 0 };
-
-  if (week && Array.isArray(week.shifts)) {
-    week.shifts.forEach((s) => {
-      const d = (s.day || '').toUpperCase().trim();
-      if (dayEarnings[d] !== undefined) {
-        dayEarnings[d] += getShiftEarnings(s, week);
-      }
-    });
-  }
-
-  const values = days.map(d => dayEarnings[d]);
-  const maxVal = Math.max(...values, 100000);
-
   const padLeft = 24;
   const padRight = 24;
   const padTop = 14;
@@ -64,11 +60,20 @@ export const drawDashboardWeekChart = (week) => {
   ctx.lineTo(width - padRight, padTop + chartH / 2);
   ctx.stroke();
 
+  const safeMax = Math.max(maxVal, 100000);
   const points = days.map((d, i) => {
     const x = padLeft + (i / (days.length - 1)) * chartW;
-    const norm = values[i] / maxVal;
+    const v = Math.max(0, values[i] || 0);
+    const norm = v / safeMax;
     const y = padTop + chartH - (norm * (chartH - 4));
-    return { x, y, val: values[i], day: d };
+    return {
+      x,
+      y,
+      val: v,
+      day: d,
+      startVal: startValues ? (startValues[i] || 0) : v,
+      targetVal: targetValues ? (targetValues[i] || 0) : v
+    };
   });
 
   if (points.length > 0) {
@@ -116,16 +121,28 @@ export const drawDashboardWeekChart = (week) => {
     ctx.stroke();
 
     points.forEach((pt) => {
+      const isActiveDay = ease >= 0.5 ? (pt.targetVal > 0) : (pt.startVal > 0);
       ctx.fillStyle = isDark
-        ? (pt.val > 0 ? '#60a5fa' : '#94a3b8')
-        : (pt.val > 0 ? '#1d4ed8' : '#64748b');
+        ? (isActiveDay ? '#60a5fa' : '#94a3b8')
+        : (isActiveDay ? '#1d4ed8' : '#64748b');
       ctx.font = '600 11px Inter, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(pt.day, pt.x, height - 3);
 
-      if (pt.val > 0) {
+      let dotRadius = 0;
+      if (pt.startVal > 0 && pt.targetVal > 0) {
+        dotRadius = 3.5;
+      } else if (pt.startVal === 0 && pt.targetVal > 0) {
+        dotRadius = 3.5 * ease;
+      } else if (pt.startVal > 0 && pt.targetVal === 0) {
+        dotRadius = 3.5 * (1 - ease);
+      } else if (pt.val > 0) {
+        dotRadius = 3.5;
+      }
+
+      if (dotRadius > 0.25) {
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, dotRadius, 0, Math.PI * 2);
         ctx.fillStyle = '#10b981';
         ctx.fill();
         ctx.lineWidth = 1.5;
@@ -134,6 +151,81 @@ export const drawDashboardWeekChart = (week) => {
       }
     });
   }
+
+  ctx.restore();
+};
+
+export const drawDashboardWeekChart = (week, animate = true) => {
+  const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const dayEarnings = { T2: 0, T3: 0, T4: 0, T5: 0, T6: 0, T7: 0, CN: 0 };
+
+  if (week && Array.isArray(week.shifts)) {
+    week.shifts.forEach((s) => {
+      const d = (s.day || '').toUpperCase().trim();
+      if (dayEarnings[d] !== undefined) {
+        dayEarnings[d] += getShiftEarnings(s, week);
+      }
+    });
+  }
+
+  const targetValues = days.map(d => dayEarnings[d]);
+  const targetMax = Math.max(...targetValues, 100000);
+
+  const prefersReduced = typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (chartAnimId) {
+    cancelAnimationFrame(chartAnimId);
+    chartAnimId = null;
+  }
+
+  if (!currentRenderedValues || !animate || prefersReduced) {
+    currentRenderedValues = [...targetValues];
+    currentRenderedMax = targetMax;
+    renderWeekChartCanvas(targetValues, targetMax, targetValues, targetValues, 1);
+    return;
+  }
+
+  const startValues = [...currentRenderedValues];
+  const startMax = currentRenderedMax;
+
+  const isIdentical = startValues.every((v, i) => Math.abs(v - targetValues[i]) < 0.01) &&
+    Math.abs(startMax - targetMax) < 0.01;
+
+  if (isIdentical) {
+    currentRenderedValues = [...targetValues];
+    currentRenderedMax = targetMax;
+    renderWeekChartCanvas(targetValues, targetMax, targetValues, targetValues, 1);
+    return;
+  }
+
+  const duration = 280;
+  const startTime = performance.now();
+
+  const tick = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, Math.max(0, elapsed / duration));
+    const ease = 1 - Math.pow(1 - progress, 3);
+
+    const displayValues = targetValues.map((tv, i) => startValues[i] + (tv - startValues[i]) * ease);
+    const displayMax = startMax + (targetMax - startMax) * ease;
+    currentRenderedValues = displayValues;
+    currentRenderedMax = displayMax;
+
+    renderWeekChartCanvas(displayValues, displayMax, startValues, targetValues, ease);
+
+    if (progress < 1) {
+      chartAnimId = requestAnimationFrame(tick);
+    } else {
+      chartAnimId = null;
+      currentRenderedValues = [...targetValues];
+      currentRenderedMax = targetMax;
+      renderWeekChartCanvas(targetValues, targetMax, startValues, targetValues, 1);
+    }
+  };
+
+  chartAnimId = requestAnimationFrame(tick);
 };
 
 export let analyticsState = {

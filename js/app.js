@@ -865,7 +865,7 @@ const bindEvents = () => {
     scrollWheelToActive('auto');
     const curWeek = getCurrentWeek();
     if (curWeek) {
-      drawDashboardWeekChart(curWeek);
+      drawDashboardWeekChart(curWeek, false);
     }
     const modal = document.getElementById('allWeeksModal');
     const pane = document.getElementById('summaryTabPaneAnalytics');

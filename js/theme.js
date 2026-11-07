@@ -1,6 +1,6 @@
-import { state, getSettingsStorageKey } from './state.js';
+import { state, getSettingsStorageKey, getCurrentWeek } from './state.js';
 import { t } from './i18n.js';
-import { renderAnalyticsDashboard } from './ui/chart.js';
+import { renderAnalyticsDashboard, drawDashboardWeekChart } from './ui/chart.js';
 import { defineMorphIcon } from './vendor/morphicons/element.js';
 import { triggerHaptic } from './ui/haptic.js';
 
@@ -44,6 +44,11 @@ export const applyTheme = (theme, save = true, clickEvent = null) => {
     const allWeeksModal = document.getElementById('allWeeksModal');
     if (allWeeksModal && allWeeksModal.style.display === 'flex') {
       renderAnalyticsDashboard();
+    }
+
+    const curWeek = getCurrentWeek();
+    if (curWeek) {
+      drawDashboardWeekChart(curWeek, false);
     }
   };
 
