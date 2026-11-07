@@ -1616,7 +1616,7 @@ body.dark-mode .btn-logout-action {
     flex-shrink: 0;
   }
 
-  .header-nav #btnUserAuth.btn-morphic {
+  .header-nav #btnUserAuth.btn-morphic.is-logged-in {
     width: 38px !important;
     height: 38px !important;
     min-width: 38px !important;

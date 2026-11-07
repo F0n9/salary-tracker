@@ -1149,7 +1149,7 @@ export const clearAuthErrors = () => {
 export const renderAvatarPickerGrid = () => {
   const grid = document.getElementById('avatarPickerGrid');
   if (!grid) return;
-  const currentAvatarId = state.settings?.avatar || AVATARS[0].id;
+  const currentAvatarId = state.currentUser?.avatar || state.settings?.avatar || 'default';
   grid.innerHTML = '';
 
   AVATARS.forEach((item, index) => {
@@ -1157,8 +1157,8 @@ export const renderAvatarPickerGrid = () => {
     btn.type = 'button';
     btn.className = `avatar-choice-btn${item.id === currentAvatarId ? ' is-active' : ''}`;
     btn.setAttribute('data-avatar-id', item.id);
-    btn.setAttribute('title', 'Avatar ' + (index + 1));
-    btn.setAttribute('aria-label', 'Avatar ' + (index + 1));
+    btn.setAttribute('title', item.name || ('Avatar ' + (index + 1)));
+    btn.setAttribute('aria-label', item.name || ('Avatar ' + (index + 1)));
     btn.innerHTML = item.svg;
 
     btn.addEventListener('click', (e) => {
@@ -1248,7 +1248,7 @@ export const openUserProfileModal = () => {
       state.currentUser.username = username;
     }
   }
-  const currentAvatarId = state.settings?.avatar || state.currentUser?.avatar || AVATARS[0].id;
+  const currentAvatarId = state.currentUser?.avatar || state.settings?.avatar || 'default';
 
   const avatarContent = document.getElementById('profileAvatarContent');
   if (avatarContent) {

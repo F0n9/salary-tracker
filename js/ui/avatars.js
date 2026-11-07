@@ -1,4 +1,11 @@
+export const DEFAULT_AVATAR = {
+  id: 'default',
+  name: 'Mặc định',
+  svg: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="db_def" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#64748b"/><stop offset="1" stop-color="#334155"/></linearGradient></defs><rect width="40" height="40" fill="url(#db_def)"/><circle cx="20" cy="15" r="6" fill="#f1f5f9"/><path d="M10 34c0-5.5 4.5-9 10-9s10 3.5 10 9" fill="#f1f5f9"/></svg>`
+};
+
 export const AVATARS = [
+  DEFAULT_AVATAR,
   {
     id: 'dicebear_knight',
     name: 'Hiệp Sĩ',
@@ -32,14 +39,14 @@ export const AVATARS = [
 ];
 
 export const getAvatarById = (id) => {
-  if (id === 'ninja') return AVATARS.find(a => a.id === 'dicebear_ninja') || AVATARS[5];
-  if (id === 'nerd' || id === 'hacker') return AVATARS.find(a => a.id === 'dicebear_bot') || AVATARS[4];
-  if (id === 'luffy' || id === 'naruto' || id === 'goku') return AVATARS.find(a => a.id === 'dicebear_knight') || AVATARS[0];
-  if (id === 'zoro' || id === 'levi') return AVATARS.find(a => a.id === 'dicebear_samurai') || AVATARS[2];
-  if (id === 'kakashi' || id === 'gojo') return AVATARS.find(a => a.id === 'dicebear_mage') || AVATARS[1];
-  if (id === 'nezuko' || id === 'anya' || id === 'shinobu') return AVATARS.find(a => a.id === 'dicebear_sakura') || AVATARS[3];
-  if (!id || id === 'default') return AVATARS[0];
-  return AVATARS.find(a => a.id === id) || AVATARS[0];
+  if (id === 'ninja') return AVATARS.find(a => a.id === 'dicebear_ninja') || AVATARS[6];
+  if (id === 'nerd' || id === 'hacker') return AVATARS.find(a => a.id === 'dicebear_bot') || AVATARS[5];
+  if (id === 'luffy' || id === 'naruto' || id === 'goku') return AVATARS.find(a => a.id === 'dicebear_knight') || AVATARS[1];
+  if (id === 'zoro' || id === 'levi') return AVATARS.find(a => a.id === 'dicebear_samurai') || AVATARS[3];
+  if (id === 'kakashi' || id === 'gojo') return AVATARS.find(a => a.id === 'dicebear_mage') || AVATARS[2];
+  if (id === 'nezuko' || id === 'anya' || id === 'shinobu') return AVATARS.find(a => a.id === 'dicebear_sakura') || AVATARS[4];
+  if (!id || id === 'default') return DEFAULT_AVATAR;
+  return AVATARS.find(a => a.id === id) || DEFAULT_AVATAR;
 };
 
 export const getAvatarSvg = (id) => {

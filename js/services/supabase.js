@@ -727,7 +727,7 @@ export const VERIFIED_USER_SETTINGS = {
   workplaceRates: { 'Cơm Chin Chin': 40000 },
   workplaceColors: { 'Cơm Chin Chin': '#6366f1' },
   defaultRate: 40000,
-  avatar: 'dicebear_ninja'
+  avatar: 'default'
 };
 
 export const reconcileWeeksWithVerified = (weeks) => {
@@ -945,10 +945,15 @@ export const loadState = async () => {
     }
 
     normalizeWorkplacesAndRates();
-    if (!state.settings?.avatar || state.settings.avatar === 'default') {
+    if (state.currentUser) {
+      if (!state.settings?.avatar) {
+        if (!state.settings) state.settings = {};
+        state.settings.avatar = state.currentUser.avatar || 'default';
+        saveSettings();
+      }
+    } else {
       if (!state.settings) state.settings = {};
-      state.settings.avatar = AVATARS[0].id;
-      saveSettings();
+      state.settings.avatar = 'default';
     }
 
     state.weeks.forEach((w, idx) => {
@@ -1011,7 +1016,7 @@ export const saveSettings = () => {
     localStorage.setItem(settingsKey, JSON.stringify(state.settings));
   }
   if (state.currentUser) {
-    state.currentUser.avatar = state.settings?.avatar || AVATARS[0].id;
+    state.currentUser.avatar = state.settings?.avatar || 'default';
     try {
       const raw = localStorage.getItem('salary_tracker_cached_user');
       if (raw) {
@@ -1053,12 +1058,10 @@ export const restoreCachedUserSync = () => {
         if (!username || username.includes(' ') || !username.match(/^[a-zA-Z0-9_.-]+$/)) {
           username = u.email ? u.email.split('@')[0].trim().replace(/\s+/g, '').toLowerCase() : 'user';
         }
-        state.currentUser = { id: u.id, email: u.email, username, avatar: u.avatar };
-        if (u.avatar && u.avatar !== 'default') {
+        state.currentUser = { id: u.id, email: u.email, username, avatar: u.avatar || 'default' };
+        if (u.avatar) {
           if (!state.settings) state.settings = {};
-          if (!state.settings.avatar || state.settings.avatar === 'default') {
-            state.settings.avatar = u.avatar;
-          }
+          state.settings.avatar = u.avatar;
         }
         return;
       }
@@ -1072,12 +1075,10 @@ export const restoreCachedUserSync = () => {
           const user = parsed?.user;
           if (user && user.id) {
             const username = getCleanUsername(user);
-            const avatar = user.user_metadata?.avatar || 'dicebear_ninja';
+            const avatar = user.user_metadata?.avatar || 'default';
             state.currentUser = { id: user.id, email: user.email, username, avatar };
             if (!state.settings) state.settings = {};
-            if (!state.settings.avatar || state.settings.avatar === 'default') {
-              state.settings.avatar = avatar;
-            }
+            state.settings.avatar = avatar;
             localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
               id: user.id,
               email: user.email,
@@ -1182,12 +1183,10 @@ export const initAuth = async () => {
         const u = session.user;
         const username = getCleanUsername(u);
         if (!state.settings) state.settings = {};
-        if (u.user_metadata?.avatar && u.user_metadata.avatar !== 'default') {
-          if (!state.settings.avatar || state.settings.avatar === 'default') {
-            state.settings.avatar = u.user_metadata.avatar;
-          }
+        if (u.user_metadata?.avatar) {
+          state.settings.avatar = u.user_metadata.avatar;
         }
-        const activeAvatar = state.settings.avatar || u.user_metadata?.avatar || 'dicebear_ninja';
+        const activeAvatar = state.settings.avatar || u.user_metadata?.avatar || 'default';
         state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: activeAvatar };
         try {
           localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
@@ -1229,7 +1228,7 @@ export const updateHeaderAuthUI = () => {
 
   if (state.currentUser && state.currentUser.username) {
     btn.className = 'btn-morphic is-logged-in';
-    const avatarId = state.settings?.avatar || state.currentUser?.avatar || AVATARS[0].id;
+    const avatarId = state.currentUser?.avatar || state.settings?.avatar || 'default';
     const avatarSvg = getAvatarSvg(avatarId);
     btn.innerHTML = `<span class="user-avatar-mini">${avatarSvg}</span>`;
     btn.title = `${t('nav_account_user', 'Tài khoản')}: @${state.currentUser.username}`;
@@ -1237,7 +1236,7 @@ export const updateHeaderAuthUI = () => {
   } else {
     btn.className = 'btn-morphic';
     btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
@@ -1307,13 +1306,16 @@ export const handleLoginSubmit = async (e) => {
     const data = res.data;
     const u = data.user;
     const username = getCleanUsername(u);
-    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+    const activeAvatar = u.user_metadata?.avatar || state.settings?.avatar || 'default';
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: activeAvatar };
+    if (!state.settings) state.settings = {};
+    state.settings.avatar = activeAvatar;
     try {
       localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
         id: u.id,
         email: u.email,
         username,
-        avatar: state.settings?.avatar || 'ninja'
+        avatar: activeAvatar
       }));
     } catch (_) {}
 
@@ -1385,14 +1387,14 @@ export const handleRegisterSubmit = async (e) => {
   try {
     const email = isEmail ? rawInput.toLowerCase() : `${rawInput.toLowerCase()}@salary.app`;
     const username = (isEmail ? rawInput.split('@')[0] : rawInput).trim().replace(/\s+/g, '').toLowerCase();
-    const randomAvatar = getRandomAvatar();
+    const avatarId = 'default';
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
         data: {
           username,
-          avatar: randomAvatar.id
+          avatar: avatarId
         }
       }
     });
@@ -1418,9 +1420,9 @@ export const handleRegisterSubmit = async (e) => {
     }
 
     const u = data.user;
-    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities };
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: avatarId };
     if (!state.settings) state.settings = {};
-    state.settings.avatar = randomAvatar.id;
+    state.settings.avatar = avatarId;
 
     const copyGuest = document.getElementById('regCopyGuestData')?.checked;
     let initialWeeks = [{ id: 'week-1', name: 'Tuần 1', rate: 0, shifts: [] }];
@@ -1443,7 +1445,7 @@ export const handleRegisterSubmit = async (e) => {
         id: u.id,
         email: u.email,
         username,
-        avatar: randomAvatar.id
+        avatar: avatarId
       }));
     } catch (_) {}
     try {
@@ -1499,8 +1501,10 @@ export const handleLogout = async () => {
     state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     if (!state.settings) state.settings = {};
     state.settings.workplaces = [];
+    state.settings.avatar = 'default';
     state.currentWeekId = state.weeks[0].id;
     saveWeeks();
+    saveSettings();
     updateHeaderAuthUI();
     triggerAppRender();
     document.getElementById('userProfileModal').style.display = 'none';
@@ -1562,7 +1566,9 @@ export const handleDeleteAccount = async () => {
     state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     if (!state.settings) state.settings = {};
     state.settings.workplaces = [];
+    state.settings.avatar = 'default';
     state.currentWeekId = state.weeks[0].id;
+    saveSettings();
     updateHeaderAuthUI();
     updateSyncStatusUI();
     triggerAppRender();
