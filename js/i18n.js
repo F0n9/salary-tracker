@@ -233,7 +233,7 @@ const I18N_VI = {
     auth_username: 'Tên đăng nhập',
     auth_username_or_email: 'Tên đăng nhập hoặc Email',
     ph_username: 'Tên tài khoản',
-    ph_username_or_email: 'Tên tài khoản hoặc email',
+    ph_username_or_email: 'Tài khoản hoặc email',
     auth_password: 'Mật khẩu',
     ph_password: 'Mật khẩu',
     auth_password_confirm: 'Xác nhận mật khẩu',

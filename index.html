@@ -36,9 +36,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261107x">
-  <link rel="stylesheet" href="./css/components.css?v=20261107x">
-  <link rel="stylesheet" href="./css/modals.css?v=20261107x">
+  <link rel="stylesheet" href="./css/base.css?v=20261107y">
+  <link rel="stylesheet" href="./css/components.css?v=20261107y">
+  <link rel="stylesheet" href="./css/modals.css?v=20261107y">
 </head>
 
 <body>
@@ -300,7 +300,7 @@
               <div class="shift-add-wp-title">Thêm nơi làm mới</div>
               <div class="shift-add-wp-inputs">
                 <div class="shift-add-wp-name-wrap">
-                  <input type="text" id="shiftNewWpName" class="form-input" placeholder="Tên nơi làm (VD: Circle K, Highlands)..." autocomplete="off">
+                  <input type="text" id="shiftNewWpName" class="form-input" placeholder="Tên nơi làm" autocomplete="off">
                 </div>
                 <div class="shift-add-wp-rate-wrap">
                   <input type="text" inputmode="numeric" id="shiftNewWpRate" class="form-input font-mono" placeholder="Đơn giá" autocomplete="off">
@@ -353,12 +353,12 @@
         <div class="form-grid-2">
           <div class="form-item">
             <label class="form-label" for="shiftStart" data-i18n="modal_start">Giờ vào</label>
-            <input type="text" inputmode="numeric" id="shiftStart" class="form-input" placeholder="17:00 (VD: 17, 17h, 1730)" autocomplete="off" required value="17:00">
+            <input type="text" inputmode="numeric" id="shiftStart" class="form-input" placeholder="17:00" autocomplete="off" required value="17:00">
           </div>
 
           <div class="form-item">
             <label class="form-label" for="shiftEnd" data-i18n="modal_end">Giờ ra</label>
-            <input type="text" inputmode="numeric" id="shiftEnd" class="form-input" placeholder="20:00 (VD: 20, 20h, 2030)" autocomplete="off" required value="20:00">
+            <input type="text" inputmode="numeric" id="shiftEnd" class="form-input" placeholder="20:00" autocomplete="off" required value="20:00">
           </div>
         </div>
 
@@ -739,7 +739,7 @@
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
               <input type="text" id="loginUsername" class="form-input input-has-icon" required autocomplete="username"
-                placeholder="Tên tài khoản hoặc email" data-i18n-placeholder="ph_username_or_email">
+                placeholder="Tài khoản hoặc email" data-i18n-placeholder="ph_username_or_email">
             </div>
           </div>
           <div class="form-item">
@@ -779,7 +779,7 @@
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
               <input type="text" id="regUsername" class="form-input input-has-icon" required autocomplete="username"
-                placeholder="Tên tài khoản hoặc email" data-i18n-placeholder="ph_username_or_email">
+                placeholder="Tài khoản hoặc email" data-i18n-placeholder="ph_username_or_email">
             </div>
           </div>
           <div class="form-item">
@@ -838,7 +838,7 @@
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
               <input type="email" id="forgotEmail" class="form-input input-has-icon" required autocomplete="email"
-                placeholder="name@example.com">
+                placeholder="Nhập email">
             </div>
           </div>
           <div class="auth-error-msg" id="forgotError" style="display: none;"></div>
@@ -903,7 +903,7 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
               <input type="password" id="resetNewPassword" class="form-input input-has-icon input-has-eye" required
-                autocomplete="new-password" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" minlength="6">
+                autocomplete="new-password" placeholder="Mật khẩu mới" minlength="6">
               <button type="button" class="btn-toggle-pwd" data-target="resetNewPassword"
                 data-i18n-title="auth_toggle_pw" title="Hiện/ẩn mật khẩu" aria-label="Hiện/ẩn mật khẩu">
                 <morph-icon class="eye-morph-icon" size="16" color="currentColor" stroke-width="1.75" spring="smooth"
@@ -920,7 +920,7 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
               <input type="password" id="resetConfirmPassword" class="form-input input-has-icon input-has-eye" required
-                autocomplete="new-password" placeholder="Nhập lại mật khẩu mới" minlength="6">
+                autocomplete="new-password" placeholder="Xác nhận mật khẩu mới" minlength="6">
               <button type="button" class="btn-toggle-pwd" data-target="resetConfirmPassword"
                 data-i18n-title="auth_toggle_pw" title="Hiện/ẩn mật khẩu" aria-label="Hiện/ẩn mật khẩu">
                 <morph-icon class="eye-morph-icon" size="16" color="currentColor" stroke-width="1.75" spring="smooth"
@@ -984,7 +984,7 @@
                 <div class="profile-inline-input-group">
                   <span class="profile-inline-at font-mono">@</span>
                   <input type="text" class="profile-inline-input font-mono" id="inputEditUsername"
-                    placeholder="username" maxlength="24" autocomplete="off" spellcheck="false">
+                    placeholder="Tên tài khoản" maxlength="24" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="profile-inline-actions">
                   <button type="button" class="btn-inline-action btn-inline-save" id="btnSaveUsername"
@@ -1103,7 +1103,7 @@
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
                 <input type="password" id="changeConfirmPassword" class="form-input input-has-icon input-has-eye"
-                  required autocomplete="new-password" placeholder="Xác nhận mật khẩu"
+                  required autocomplete="new-password" placeholder="Xác nhận mật khẩu mới"
                   data-i18n-placeholder="ph_confirm_pw">
                 <button type="button" class="btn-toggle-pwd" data-target="changeConfirmPassword"
                   data-i18n-title="auth_toggle_pw" title="Hiện/ẩn mật khẩu" aria-label="Hiện/ẩn mật khẩu">
@@ -1213,7 +1213,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261107x"></script>
+  <script type="module" src="./js/app.js?v=20261107y"></script>
 </body>
 
 </html>
