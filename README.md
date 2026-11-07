@@ -72,6 +72,19 @@ create policy "Users can only manage their own salary data"
   on public.user_salary_data for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+create or replace function public.delete_user()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  delete from auth.users where id = auth.uid();
+end;
+$$;
+
+grant execute on function public.delete_user() to authenticated;
 ```
 
 Set your credentials in `js/config.js` and enable **"Allow manual linking"** in Supabase Auth Settings.

@@ -1496,9 +1496,14 @@ export const handleDeleteAccount = async () => {
       }
       try {
         if (typeof supabaseClient.rpc === 'function') {
-          await supabaseClient.rpc('delete_user');
+          const { error: rpcErr } = await supabaseClient.rpc('delete_user');
+          if (rpcErr) {
+            console.warn('RPC delete_user returned error:', rpcErr);
+          }
         }
-      } catch (_) {}
+      } catch (e) {
+        console.warn('RPC delete_user threw error:', e);
+      }
       try {
         await supabaseClient.auth.signOut();
       } catch (_) {}
