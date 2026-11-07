@@ -1830,13 +1830,12 @@ body.dark-mode .btn-logout-action {
   }
 
   .week-wheel-container {
-    width: auto;
-    height: 38px;
-    flex: 1;
-    min-width: 0;
-    max-width: 100%;
-    padding: 3px 4px;
-    gap: 2px;
+    width: fit-content;
+    height: 36px;
+    max-width: 215px;
+    padding: 3px 6px;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .week-wheel-track {
