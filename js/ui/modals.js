@@ -1,7 +1,7 @@
 import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplaceColor, normalizeWorkplacesAndRates } from '../state.js';
 import { fmtCurrency, fmtHours, parseTimeToMinutes, calculateHoursDiff, getShiftRate, getShiftEarnings, calculateSmartShiftDefaults, detectShiftType, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, escapeHtml, calculateWeekTotalSalary } from '../calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName, formatShiftType } from '../i18n.js';
-import { saveWeeks, saveSettings, updateSyncStatusUI, updateHeaderAuthUI } from '../services/supabase.js';
+import { saveWeeks, saveSettings, updateSyncStatusUI, updateHeaderAuthUI, supabaseClient } from '../services/supabase.js';
 import { showToast, showToastWithAction } from './toast.js';
 import { showConfirmDialog, showAlertDialog } from './dialog.js';
 import { triggerHaptic } from './haptic.js';
@@ -1271,6 +1271,47 @@ export const openUserProfileModal = () => {
   }
 
   document.getElementById('profileUsername').textContent = `@${username}`;
+
+  const btnEditUsername = document.getElementById('btnEditUsername');
+  if (btnEditUsername) {
+    btnEditUsername.onclick = async (e) => {
+      e.preventDefault();
+      triggerHaptic('light');
+      const currentName = state.currentUser?.username || '';
+      const newName = window.prompt(t('prompt_change_username', 'Nhập tên tài khoản mới:'), currentName);
+      if (!newName || !newName.trim() || newName.trim() === currentName) return;
+      const cleanName = newName.trim();
+      try {
+        if (state.currentUser) state.currentUser.username = cleanName;
+        document.getElementById('profileUsername').textContent = `@${cleanName}`;
+        updateHeaderAuthUI();
+        if (supabaseClient && state.currentUser?.id) {
+          try {
+            await supabaseClient.auth.updateUser({
+              data: { username: cleanName }
+            });
+          } catch (_) {}
+          try {
+            await supabaseClient.from('user_salary_data').update({
+              username: cleanName,
+              updated_at: new Date().toISOString()
+            }).eq('user_id', state.currentUser.id);
+          } catch (_) {}
+        }
+        try {
+          const cached = localStorage.getItem('salary_tracker_cached_user');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.username = cleanName;
+            localStorage.setItem('salary_tracker_cached_user', JSON.stringify(parsed));
+          }
+        } catch (_) {}
+        showToast(t('toast_username_updated', 'Đã cập nhật tên tài khoản: @{name}').replace('{name}', cleanName), 'success');
+      } catch (err) {
+        showToast(t('toast_username_error', 'Lỗi khi đổi tên tài khoản.'), 'error');
+      }
+    };
+  }
 
   const totalWeeks = state.weeks.length;
   let totalShifts = 0;

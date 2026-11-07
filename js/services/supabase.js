@@ -731,24 +731,10 @@ export const VERIFIED_USER_SETTINGS = {
 };
 
 export const reconcileWeeksWithVerified = (weeks) => {
-  if (!Array.isArray(weeks) || weeks.length === 0) {
-    return JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
-  }
-  const existingIds = new Set(weeks.map(w => w.id));
-  const missingWeeks = VERIFIED_USER_WEEKS.filter(w => !existingIds.has(w.id));
-  if (missingWeeks.length === 0) {
+  if (Array.isArray(weeks) && weeks.length > 0) {
     return weeks;
   }
-  const merged = [...weeks, ...JSON.parse(JSON.stringify(missingWeeks))];
-  merged.sort((a, b) => {
-    const da = a.startDate || '';
-    const db = b.startDate || '';
-    if (da && db) return da.localeCompare(db);
-    const numA = parseInt((a.name || '').replace(/\D+/g, '') || '0', 10);
-    const numB = parseInt((b.name || '').replace(/\D+/g, '') || '0', 10);
-    return numA - numB;
-  });
-  return merged;
+  return JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
 };
 
 export const restoreVerifiedUserData = () => {
@@ -835,7 +821,7 @@ export const loadState = async () => {
         if (cachedWeeks) {
           try {
             const parsed = JSON.parse(cachedWeeks);
-            if (hasValidShifts(parsed)) {
+            if (Array.isArray(parsed) && parsed.length > 0) {
               loadedWeeks = parsed;
             }
           } catch (_) {}
@@ -853,7 +839,7 @@ export const loadState = async () => {
           .maybeSingle();
 
         if (!error && data) {
-          if (hasValidShifts(data.weeks)) {
+          if (Array.isArray(data.weeks) && data.weeks.length > 0) {
             loadedWeeks = data.weeks;
             clearPendingSync();
           }
@@ -862,21 +848,17 @@ export const loadState = async () => {
       }
 
       if (!loadedWeeks) {
-        const fallbackKeys = [
+        const userKeys = [
           getWeeksStorageKey(),
           `salary_cloud_cache_weeks_${state.currentUser.id}`,
-          `salary_user_weeks_${state.currentUser.id}`,
-          'salary_tracker_vault_backup',
-          GUEST_WEEKS_KEY,
-          'shift_tracker_weeks',
-          'salary_user_weeks'
+          `salary_user_weeks_${state.currentUser.id}`
         ];
-        for (const k of fallbackKeys) {
+        for (const k of userKeys) {
           const raw = localStorage.getItem(k);
           if (raw) {
             try {
               const parsed = JSON.parse(raw);
-              if (hasValidShifts(parsed)) {
+              if (Array.isArray(parsed) && parsed.length > 0) {
                 loadedWeeks = parsed;
                 break;
               }
@@ -885,18 +867,15 @@ export const loadState = async () => {
         }
       }
 
-      if (!hasValidShifts(loadedWeeks)) {
-        loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
-        if (!loadedSettings || !Array.isArray(loadedSettings.workplaces) || loadedSettings.workplaces.length === 0) {
-          loadedSettings = { ...loadedSettings, ...VERIFIED_USER_SETTINGS };
-        }
+      if (!loadedWeeks || !Array.isArray(loadedWeeks) || loadedWeeks.length === 0) {
+        loadedWeeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
       }
     } else {
       const guestWeeks = localStorage.getItem(GUEST_WEEKS_KEY);
       if (guestWeeks) {
         try {
           const parsed = JSON.parse(guestWeeks);
-          if (hasValidShifts(parsed)) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             loadedWeeks = parsed;
           }
         } catch (_) {}
@@ -906,7 +885,7 @@ export const loadState = async () => {
         if (legacyGuest) {
           try {
             const parsed = JSON.parse(legacyGuest);
-            if (hasValidShifts(parsed)) {
+            if (Array.isArray(parsed) && parsed.length > 0) {
               loadedWeeks = parsed;
             }
           } catch (_) {}
@@ -917,14 +896,14 @@ export const loadState = async () => {
         if (vaultRaw) {
           try {
             const parsed = JSON.parse(vaultRaw);
-            if (hasValidShifts(parsed)) {
+            if (Array.isArray(parsed) && parsed.length > 0 && hasValidShifts(parsed)) {
               loadedWeeks = parsed;
             }
           } catch (_) {}
         }
       }
-      if (!hasValidShifts(loadedWeeks)) {
-        loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+      if (!loadedWeeks || !Array.isArray(loadedWeeks) || loadedWeeks.length === 0) {
+        loadedWeeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
       }
       const guestSettings = localStorage.getItem(GUEST_SETTINGS_KEY);
       if (guestSettings) {
@@ -937,11 +916,10 @@ export const loadState = async () => {
       }
     }
 
-    loadedWeeks = reconcileWeeksWithVerified(loadedWeeks);
     if (loadedWeeks && loadedWeeks.length > 0) {
       state.weeks = loadedWeeks;
     } else {
-      state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+      state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     }
 
     if (loadedSettings) {
@@ -985,7 +963,7 @@ export const loadState = async () => {
     updateHeaderAuthUI();
   } catch (err) {
     console.error('Error loading state:', err);
-    state.weeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     state.currentWeekId = state.weeks[state.weeks.length - 1].id;
   }
 };
@@ -993,12 +971,14 @@ export const loadState = async () => {
 let cloudSyncTimer = null;
 
 export const saveWeeks = () => {
-  if (!hasValidShifts(state.weeks)) {
+  if (!state.weeks || !Array.isArray(state.weeks)) {
     return;
   }
   const weeksKey = getWeeksStorageKey();
   localStorage.setItem(weeksKey, JSON.stringify(state.weeks));
-  localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
+  if (hasValidShifts(state.weeks)) {
+    localStorage.setItem('salary_tracker_vault_backup', JSON.stringify(state.weeks));
+  }
 
   if (state.currentUser && supabaseClient) {
     markPendingSync();
@@ -1112,25 +1092,24 @@ export const restoreCachedStateSync = () => {
     if (rawWeeks) {
       try {
         const parsed = JSON.parse(rawWeeks);
-        if (hasValidShifts(parsed)) loadedWeeks = parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) loadedWeeks = parsed;
       } catch (_) {}
     }
 
-    if (!loadedWeeks) {
+    if (!loadedWeeks && !state.currentUser) {
       const vaultRaw = localStorage.getItem('salary_tracker_vault_backup');
       if (vaultRaw) {
         try {
           const parsed = JSON.parse(vaultRaw);
-          if (hasValidShifts(parsed)) loadedWeeks = parsed;
+          if (Array.isArray(parsed) && parsed.length > 0 && hasValidShifts(parsed)) loadedWeeks = parsed;
         } catch (_) {}
       }
     }
 
-    if (!loadedWeeks) {
-      loadedWeeks = JSON.parse(JSON.stringify(VERIFIED_USER_WEEKS));
+    if (!loadedWeeks || !Array.isArray(loadedWeeks) || loadedWeeks.length === 0) {
+      loadedWeeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     }
 
-    loadedWeeks = reconcileWeeksWithVerified(loadedWeeks);
     if (loadedWeeks && loadedWeeks.length > 0) {
       state.weeks = loadedWeeks;
       const savedCurrentWeek = localStorage.getItem('salary_tracker_current_week');
@@ -1510,22 +1489,25 @@ export const handleDeleteAccount = async () => {
     }
     state.currentUser = null;
     try {
-      localStorage.removeItem('salary_tracker_cached_user');
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && (k.startsWith('salary_cloud_cache') || k.startsWith('shift_tracker_') || k.startsWith('salary_user_weeks'))) {
+        if (k && (k.startsWith('salary_') || k.startsWith('shift_tracker_'))) {
           keysToRemove.push(k);
         }
       }
       keysToRemove.forEach(k => localStorage.removeItem(k));
+      localStorage.removeItem('salary_tracker_vault_backup');
+      localStorage.removeItem('salary_tracker_cached_user');
+      localStorage.removeItem('salary_tracker_current_week');
+      localStorage.removeItem('salary_tracker_pending_sync');
+      localStorage.setItem(GUEST_WEEKS_KEY, JSON.stringify(GUEST_DEFAULT_DATA));
     } catch (_) {}
     clearPendingSync();
     state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
     if (!state.settings) state.settings = {};
     state.settings.workplaces = [];
     state.currentWeekId = state.weeks[0].id;
-    saveWeeks();
     updateHeaderAuthUI();
     updateSyncStatusUI();
     triggerAppRender();
