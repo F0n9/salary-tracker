@@ -36,9 +36,9 @@
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css?v=20261107w">
-  <link rel="stylesheet" href="./css/components.css?v=20261107w">
-  <link rel="stylesheet" href="./css/modals.css?v=20261107w">
+  <link rel="stylesheet" href="./css/base.css?v=20261107x">
+  <link rel="stylesheet" href="./css/components.css?v=20261107x">
+  <link rel="stylesheet" href="./css/modals.css?v=20261107x">
 </head>
 
 <body>
@@ -353,12 +353,12 @@
         <div class="form-grid-2">
           <div class="form-item">
             <label class="form-label" for="shiftStart" data-i18n="modal_start">Giờ vào</label>
-            <input type="time" lang="en-GB" id="shiftStart" class="form-input" required value="17:00" step="60">
+            <input type="text" inputmode="numeric" id="shiftStart" class="form-input" placeholder="17:00 (VD: 17, 17h, 1730)" autocomplete="off" required value="17:00">
           </div>
 
           <div class="form-item">
             <label class="form-label" for="shiftEnd" data-i18n="modal_end">Giờ ra</label>
-            <input type="time" lang="en-GB" id="shiftEnd" class="form-input" required value="20:00" step="60">
+            <input type="text" inputmode="numeric" id="shiftEnd" class="form-input" placeholder="20:00 (VD: 20, 20h, 2030)" autocomplete="off" required value="20:00">
           </div>
         </div>
 
@@ -1213,7 +1213,7 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./js/app.js?v=20261107w"></script>
+  <script type="module" src="./js/app.js?v=20261107x"></script>
 </body>
 
 </html>

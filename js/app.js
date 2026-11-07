@@ -1,5 +1,5 @@
 import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplaceColor } from './state.js';
-import { fmtCurrency, fmtHours, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, hoursToColonFormat, hoursToHourMinutes, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getShiftDateFull, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, formatShiftType, detectShiftType, escapeHtml, calculateSmartShiftDefaults } from './calculator.js';
+import { fmtCurrency, fmtHours, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, hoursToColonFormat, hoursToHourMinutes, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getShiftDateFull, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, formatShiftType, detectShiftType, parseSmartTime, escapeHtml, calculateSmartShiftDefaults } from './calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName } from './i18n.js';
 import { applyTheme, toggleTheme } from './theme.js';
 import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, restoreCachedUserSync, restoreCachedStateSync, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleDeleteAccount, handleGoogleSignIn, handleForgotPasswordSubmit, handleResetPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
@@ -506,10 +506,11 @@ const bindEvents = () => {
   if (btnEditWeekMeta) btnEditWeekMeta.addEventListener('click', openEditWeekModal);
 
   document.getElementById('shiftForm').addEventListener('submit', saveShiftFromModal);
-  const onShiftStartChange = () => {
-    const val = document.getElementById('shiftStart').value;
-    if (val) {
-      const detected = detectShiftType(val);
+  const onShiftStartInput = () => {
+    const raw = document.getElementById('shiftStart')?.value || '';
+    const parsed = parseSmartTime(raw);
+    if (parsed) {
+      const detected = detectShiftType(parsed);
       const sel = document.getElementById('shiftType');
       if (sel) {
         sel.value = detected;
@@ -518,9 +519,50 @@ const bindEvents = () => {
     }
     updateModalComputedPreview();
   };
-  document.getElementById('shiftStart').addEventListener('input', onShiftStartChange);
-  document.getElementById('shiftStart').addEventListener('change', onShiftStartChange);
-  document.getElementById('shiftEnd').addEventListener('input', updateModalComputedPreview);
+
+  const onShiftStartBlur = () => {
+    const input = document.getElementById('shiftStart');
+    if (!input) return;
+    const parsed = parseSmartTime(input.value);
+    if (parsed) {
+      input.value = parsed;
+      const detected = detectShiftType(parsed);
+      const sel = document.getElementById('shiftType');
+      if (sel) {
+        sel.value = detected;
+        syncCustomSelect('shiftType');
+      }
+    }
+    updateModalComputedPreview();
+  };
+
+  const onShiftEndInput = () => {
+    updateModalComputedPreview();
+  };
+
+  const onShiftEndBlur = () => {
+    const input = document.getElementById('shiftEnd');
+    if (!input) return;
+    const parsed = parseSmartTime(input.value);
+    if (parsed) {
+      input.value = parsed;
+    }
+    updateModalComputedPreview();
+  };
+
+  const shiftStartEl = document.getElementById('shiftStart');
+  if (shiftStartEl) {
+    shiftStartEl.addEventListener('input', onShiftStartInput);
+    shiftStartEl.addEventListener('change', onShiftStartInput);
+    shiftStartEl.addEventListener('blur', onShiftStartBlur);
+  }
+
+  const shiftEndEl = document.getElementById('shiftEnd');
+  if (shiftEndEl) {
+    shiftEndEl.addEventListener('input', onShiftEndInput);
+    shiftEndEl.addEventListener('change', onShiftEndInput);
+    shiftEndEl.addEventListener('blur', onShiftEndBlur);
+  }
   const shiftBreakInput = document.getElementById('shiftBreak');
   if (shiftBreakInput) shiftBreakInput.addEventListener('input', updateModalComputedPreview);
   const shiftOtRateInput = document.getElementById('shiftOtRate');

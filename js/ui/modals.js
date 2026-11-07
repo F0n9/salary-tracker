@@ -1,5 +1,5 @@
 import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplaceColor, normalizeWorkplacesAndRates } from '../state.js';
-import { fmtCurrency, fmtHours, parseTimeToMinutes, calculateHoursDiff, getShiftRate, getShiftEarnings, calculateSmartShiftDefaults, detectShiftType, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, escapeHtml, calculateWeekTotalSalary } from '../calculator.js';
+import { fmtCurrency, fmtHours, parseTimeToMinutes, parseSmartTime, calculateHoursDiff, getShiftRate, getShiftEarnings, calculateSmartShiftDefaults, detectShiftType, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, escapeHtml, calculateWeekTotalSalary } from '../calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName, formatShiftType } from '../i18n.js';
 import { saveWeeks, saveSettings, updateSyncStatusUI, updateHeaderAuthUI, supabaseClient } from '../services/supabase.js';
 import { showToast, showToastWithAction } from './toast.js';
@@ -186,14 +186,25 @@ export const openEditShiftModal = (shift) => {
 };
 
 export const updateModalComputedPreview = () => {
-  const start = document.getElementById('shiftStart').value;
-  const end = document.getElementById('shiftEnd').value;
+  const rawStart = document.getElementById('shiftStart')?.value;
+  const rawEnd = document.getElementById('shiftEnd')?.value;
   const breakMins = Number(document.getElementById('shiftBreak')?.value || 0);
   const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
   const allowance = Number(document.getElementById('shiftAllowance')?.value || 0);
   const deduction = Number(document.getElementById('shiftDeduction')?.value || 0);
   const workplace = (document.getElementById('shiftWorkplace')?.value || '').trim();
-  if (!start || !end) return;
+
+  const prevDur = document.getElementById('previewDuration');
+  const prevSal = document.getElementById('previewSalary');
+
+  const start = parseSmartTime(rawStart);
+  const end = parseSmartTime(rawEnd);
+
+  if (!start || !end) {
+    if (prevDur) prevDur.textContent = '0.00h';
+    if (prevSal) prevSal.textContent = fmtCurrency(0);
+    return;
+  }
 
   const hours = calculateHoursDiff(start, end, breakMins);
   const rate = getShiftRate({ workplace });
@@ -201,8 +212,8 @@ export const updateModalComputedPreview = () => {
 
   const breakLabel = breakMins > 0 ? ` (${t('break_tag', 'nghỉ')} ${breakMins}${t('unit_min', 'm')})` : '';
   const otLabel = otRate > 1 ? ` • x${otRate}` : '';
-  document.getElementById('previewDuration').textContent = `${hours.toFixed(2)}h${breakLabel}${otLabel}`;
-  document.getElementById('previewSalary').textContent = fmtCurrency(wage);
+  if (prevDur) prevDur.textContent = `${hours.toFixed(2)}h${breakLabel}${otLabel}`;
+  if (prevSal) prevSal.textContent = fmtCurrency(wage);
 };
 
 export const saveShiftFromModal = async (e) => {
@@ -218,8 +229,21 @@ export const saveShiftFromModal = async (e) => {
   const editId = document.getElementById('editShiftId').value;
   const day = document.getElementById('shiftDay').value;
   const type = formatShiftType(document.getElementById('shiftType').value);
-  const start = document.getElementById('shiftStart').value;
-  const end = document.getElementById('shiftEnd').value;
+  const rawStart = document.getElementById('shiftStart').value;
+  const rawEnd = document.getElementById('shiftEnd').value;
+  const start = parseSmartTime(rawStart);
+  const end = parseSmartTime(rawEnd);
+
+  if (!start || !end) {
+    showToast(t('warn_invalid_time', 'Giờ không hợp lệ (VD: 17:00, 17h, 1730)'));
+    if (!start) document.getElementById('shiftStart')?.focus();
+    else document.getElementById('shiftEnd')?.focus();
+    return;
+  }
+
+  document.getElementById('shiftStart').value = start;
+  document.getElementById('shiftEnd').value = end;
+
   const breakMinutes = Math.max(0, Number(document.getElementById('shiftBreak')?.value || 0));
   const otRate = Number(document.getElementById('shiftOtRate')?.value || 1.0);
   const allowance = Math.max(0, Number(document.getElementById('shiftAllowance')?.value || 0));

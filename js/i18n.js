@@ -198,6 +198,7 @@ const I18N_VI = {
     btn_rename_wp: 'Đổi tên nơi làm',
     warn_wp_name_empty: 'Vui lòng nhập tên nơi làm việc.',
     warn_wp_exists: 'Tên nơi làm việc này đã tồn tại.',
+    warn_invalid_time: 'Giờ không hợp lệ (VD: 17:00, 17h, 1730)',
     ph_workplace_name: 'Tên nơi làm',
     tag_default_workplace: 'Mặc định',
     btn_set_default_wp: 'Đặt làm nơi làm việc mặc định',
