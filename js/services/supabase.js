@@ -965,7 +965,7 @@ export const loadState = async () => {
     normalizeWorkplacesAndRates();
     if (!state.settings?.avatar || state.settings.avatar === 'default') {
       if (!state.settings) state.settings = {};
-      state.settings.avatar = getRandomAvatar().id;
+      state.settings.avatar = AVATARS[0].id;
       saveSettings();
     }
 

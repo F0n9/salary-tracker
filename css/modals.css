@@ -1184,8 +1184,8 @@ body.dark-mode .btn-submit-action:hover {
   height: 54px;
   border-radius: var(--radius-md);
   padding: 0;
-  border: 2px solid var(--primary);
-  background: #ffffff;
+  border: 3px solid var(--primary);
+  background: var(--primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1193,20 +1193,18 @@ body.dark-mode .btn-submit-action:hover {
   overflow: hidden;
   position: relative;
   z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: none;
+  transition: transform 0.15s ease;
 }
 
 .profile-avatar:hover {
   transform: scale(1.03);
-  border-color: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 body.dark-mode .profile-avatar {
-  background: #15161d;
-  border-color: #60a5fa;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: none;
 }
 
 .btn-avatar-edit-badge {
@@ -1578,6 +1576,10 @@ body.dark-mode .btn-logout-action {
     min-width: 38px !important;
     min-height: 38px !important;
     padding: 0 !important;
+    border: 3px solid var(--primary) !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--primary) !important;
+    box-shadow: none !important;
     overflow: hidden !important;
   }
 
@@ -1586,7 +1588,8 @@ body.dark-mode .btn-logout-action {
     height: 100% !important;
     min-width: 100% !important;
     min-height: 100% !important;
-    border-radius: inherit !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
   }
 
   .week-actions-group {
@@ -3543,8 +3546,8 @@ body.dark-mode .app-dialog-detail-card {
 }
 
 .avatar-choice-btn.is-active {
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 3px solid var(--primary);
+  box-shadow: none;
   transform: scale(1.05);
 }
 
@@ -3552,7 +3555,7 @@ body.dark-mode .app-dialog-detail-card {
   width: 100%;
   height: 100%;
   display: block;
-  border-radius: inherit;
+  border-radius: 0;
   object-fit: cover;
 }
 
@@ -3562,7 +3565,7 @@ body.dark-mode .app-dialog-detail-card {
   justify-content: center;
   width: 100%;
   height: 100%;
-  border-radius: inherit;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -3570,6 +3573,7 @@ body.dark-mode .app-dialog-detail-card {
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 0;
 }
 
 body.dark-mode .avatar-picker-shelf {
