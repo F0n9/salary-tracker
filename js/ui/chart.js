@@ -51,7 +51,7 @@ export const drawDashboardWeekChart = (week) => {
 
   const isDark = document.body.classList.contains('dark-mode');
 
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.05)';
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.05)';
   ctx.lineWidth = 1;
 
   ctx.beginPath();
@@ -116,14 +116,16 @@ export const drawDashboardWeekChart = (week) => {
     ctx.stroke();
 
     points.forEach((pt) => {
-      ctx.fillStyle = pt.val > 0 ? (isDark ? '#e2e8f0' : '#0f172a') : '#64748b';
-      ctx.font = '500 10px Inter, -apple-system, sans-serif';
+      ctx.fillStyle = isDark
+        ? (pt.val > 0 ? '#60a5fa' : '#94a3b8')
+        : (pt.val > 0 ? '#1d4ed8' : '#64748b');
+      ctx.font = '600 11px Inter, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(pt.day, pt.x, height - 3);
 
       if (pt.val > 0) {
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = '#10b981';
         ctx.fill();
         ctx.lineWidth = 1.5;
@@ -298,18 +300,18 @@ const drawTimelineChart = (data) => {
   const roundedMax = Math.ceil(maxVal / 100000) * 100000;
 
   const isDark = document.body.classList.contains('dark-mode');
-  const textColor = isDark ? '#ededef' : '#0f1115';
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)';
-  const subtextColor = isDark ? '#8b8d98' : '#64666e';
-  const emptyBarColor = isDark ? 'rgba(255, 255, 255, 0.05)' : '#e5e7eb';
+  const textColor = isDark ? '#f1f5f9' : '#0f1115';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
+  const subtextColor = isDark ? '#94a3b8' : '#64666e';
+  const emptyBarColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e5e7eb';
 
   ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 4]);
 
   const steps = 3;
-  ctx.fillStyle = subtextColor;
-  ctx.font = '500 10px "JetBrains Mono", monospace';
+  ctx.fillStyle = isDark ? '#cbd5e1' : subtextColor;
+  ctx.font = '600 10px "JetBrains Mono", monospace';
   ctx.textAlign = 'right';
 
   for (let i = 0; i <= steps; i++) {
@@ -358,15 +360,15 @@ const drawTimelineChart = (data) => {
       drawRoundedBar(ctx, barX, padTop + chartH - 3, barWidth, 3, 2);
     }
 
-    ctx.fillStyle = textColor;
-    ctx.font = '600 11px "JetBrains Mono", monospace';
+    ctx.fillStyle = isDark ? '#f8fafc' : textColor;
+    ctx.font = '700 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(p.label, cx, padTop + chartH + 13);
+    ctx.fillText(p.label, cx, padTop + chartH + 14);
 
     if (p.subLabel) {
-      ctx.fillStyle = subtextColor;
-      ctx.font = '500 9px "JetBrains Mono", monospace';
-      ctx.fillText(p.subLabel, cx, padTop + chartH + 24);
+      ctx.fillStyle = isDark ? '#94a3b8' : subtextColor;
+      ctx.font = '500 10px "JetBrains Mono", monospace';
+      ctx.fillText(p.subLabel, cx, padTop + chartH + 25);
     }
   });
 };

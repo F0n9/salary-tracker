@@ -623,6 +623,110 @@ body.dark-mode .table-week-title {
   white-space: nowrap;
 }
 
+.col-metrics-mobile {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  #summaryTabPaneTable .table-container {
+    overflow-x: hidden !important;
+    padding: 0.15rem 0;
+  }
+
+  .minimal-table {
+    min-width: 0 !important;
+    border-top: none;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .minimal-table thead {
+    display: none !important;
+  }
+
+  .minimal-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .minimal-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "week actions"
+      "income metrics";
+    align-items: center;
+    gap: 0.45rem 0.65rem;
+    padding: 0.75rem 0.85rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .minimal-table tbody tr:hover {
+    background: var(--bg-card);
+  }
+
+  .minimal-table tbody tr.is-current-week {
+    border-color: rgba(37, 99, 235, 0.45);
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.05), transparent);
+  }
+
+  body.dark-mode .minimal-table tbody tr {
+    background: #141622;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  body.dark-mode .minimal-table tbody tr.is-current-week {
+    border-color: rgba(96, 165, 250, 0.4);
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.12), transparent);
+  }
+
+  .minimal-table td {
+    padding: 0 !important;
+    border: none !important;
+    white-space: normal;
+  }
+
+  .minimal-table td.col-week {
+    grid-area: week;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .minimal-table td.col-actions {
+    grid-area: actions;
+    text-align: right;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .minimal-table td.col-income {
+    grid-area: income;
+    text-align: left !important;
+    font-size: 0.925rem;
+    font-weight: 700;
+  }
+
+  .minimal-table td.col-metrics-mobile {
+    grid-area: metrics;
+    display: block !important;
+    text-align: right !important;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .minimal-table td.col-shifts-desktop,
+  .minimal-table td.col-hours-desktop {
+    display: none !important;
+  }
+}
+
 .table-actions {
   display: inline-flex;
   align-items: center;

@@ -723,17 +723,19 @@ export const openAllWeeksModal = (initialTab = 'analytics') => {
     const isCurrent = state.currentWeekId === week.id;
     const dateRange = getWeekDateRangeDisplay(week);
     const tr = document.createElement('tr');
+    tr.className = isCurrent ? 'is-current-week' : '';
     tr.innerHTML = `
-      <td>
+      <td class="col-week">
         <div class="table-week-cell">
           <span class="table-week-title">${escapeHtml(week.name)}</span>
           ${dateRange ? `<span class="table-week-dates font-mono">${dateRange}</span>` : ''}
         </div>
       </td>
-      <td>${weekShifts} ca</td>
-      <td>${weekHours.toFixed(2)} h</td>
-      <td class="text-bold-dark text-money">${fmtCurrency(weekEarnings)}</td>
-      <td>
+      <td class="col-shifts-desktop font-mono">${weekShifts} ca</td>
+      <td class="col-hours-desktop font-mono">${weekHours.toFixed(2)} h</td>
+      <td class="col-income text-bold-dark text-money font-mono">${fmtCurrency(weekEarnings)}</td>
+      <td class="col-metrics-mobile font-mono">${weekShifts} ca • ${weekHours.toFixed(2)} h</td>
+      <td class="col-actions">
         <div class="table-actions">
           ${isCurrent ? `
             <button type="button" class="btn-table-action btn-table-current" disabled title="${t('week_currently_selected', 'Tuần đang chọn')}" aria-label="${t('week_currently_selected', 'Tuần đang chọn')}">
