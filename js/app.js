@@ -97,12 +97,57 @@ const updateWeekNavButtons = () => {
   }
 };
 
+let isProgrammaticWheelScroll = false;
+let wheelScrollEndTimer = null;
+
+const onWheelTrackScroll = () => {
+  if (isProgrammaticWheelScroll) return;
+  const container = document.getElementById('weekPillsList');
+  if (!container || !state.weeks || !state.weeks.length) return;
+
+  const trackCenter = container.scrollLeft + (container.clientWidth / 2);
+  let closestItem = null;
+  let minDiff = Infinity;
+
+  const items = container.querySelectorAll('.week-wheel-item');
+  items.forEach(item => {
+    const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+    const diff = Math.abs(itemCenter - trackCenter);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closestItem = item;
+    }
+  });
+
+  if (!closestItem) return;
+  const targetWeekId = closestItem.getAttribute('data-week-id');
+  if (targetWeekId && targetWeekId !== state.currentWeekId) {
+    triggerHaptic('light');
+    state.currentWeekId = targetWeekId;
+    localStorage.setItem('salary_tracker_current_week', targetWeekId);
+    items.forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-week-id') === targetWeekId);
+    });
+    renderWeekDetails();
+    renderShiftsList();
+    updateWeekNavButtons();
+  }
+
+  clearTimeout(wheelScrollEndTimer);
+  wheelScrollEndTimer = setTimeout(() => {
+    if (!isProgrammaticWheelScroll) {
+      scrollWheelToActive('smooth');
+    }
+  }, 160);
+};
+
 const scrollWheelToActive = (behavior = 'smooth') => {
   const container = document.getElementById('weekPillsList');
   if (!container) return;
   const activeItem = container.querySelector(`.week-wheel-item[data-week-id="${state.currentWeekId}"]`);
   if (!activeItem) return;
 
+  isProgrammaticWheelScroll = true;
   const containerWidth = container.clientWidth;
   const itemWidth = activeItem.offsetWidth || 150;
   const sidePad = Math.max(8, Math.round((containerWidth - itemWidth) / 2));
@@ -113,6 +158,9 @@ const scrollWheelToActive = (behavior = 'smooth') => {
   const targetLeft = itemOffset - sidePad;
   container.scrollTo({ left: Math.max(0, targetLeft), behavior });
   updateWeekNavButtons();
+  setTimeout(() => {
+    isProgrammaticWheelScroll = false;
+  }, behavior === 'smooth' ? 320 : 60);
 };
 
 const renderWeekPills = () => {
@@ -792,10 +840,25 @@ const bindEvents = () => {
 
   const weekWheelTrack = document.getElementById('weekPillsList');
   if (weekWheelTrack) {
+    weekWheelTrack.addEventListener('scroll', onWheelTrackScroll, { passive: true });
+    if ('onscrollend' in window) {
+      weekWheelTrack.addEventListener('scrollend', () => {
+        if (!isProgrammaticWheelScroll) {
+          scrollWheelToActive('smooth');
+        }
+      }, { passive: true });
+    }
+
+    let wheelDebounceTimer = null;
     weekWheelTrack.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0 && !e.shiftKey) {
         e.preventDefault();
-        weekWheelTrack.scrollLeft += e.deltaY;
+        const direction = e.deltaY > 0 ? 1 : -1;
+        if (wheelDebounceTimer) return;
+        wheelDebounceTimer = setTimeout(() => {
+          wheelDebounceTimer = null;
+        }, 120);
+        goToAdjacentWeek(direction);
       }
     }, { passive: false });
   }
