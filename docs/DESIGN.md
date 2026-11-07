@@ -98,8 +98,6 @@ components:
 
 # Design System
 
-<!-- impeccable:design-schema 1 -->
-
 ## Overview
 
 Salary Tracker là công cụ chấm công và quản lý thu nhập cá nhân hoạt động theo tiêu chuẩn **Mode: Operate**. Thiết kế ưu tiên tối đa tính rõ ràng, độ chính xác đến từng phút và từng đồng, thao tác ghi ca dưới 5 giây, bảo vệ mắt khi làm việc ca đêm và hoàn toàn không phụ thuộc vào kết nối mạng.

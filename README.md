@@ -45,7 +45,7 @@ salary-tracker/
 ## Quick Start
 
 ```bash
-git clone https://github.com/F0n9/salary-tracker.git
+git clone https://github.com/aoe1920/salary-tracker.git
 cd salary-tracker
 npx serve .
 # Or: python -m http.server 8080

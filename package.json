@@ -1,16 +1,20 @@
 {
   "name": "salary-tracker",
   "version": "1.0.0",
-  "description": "An offline-first shift and salary tracking platform with real-time Supabase cloud sync and PWA support.",
+  "description": "An offline-first, zero-build Progressive Web App (PWA) for personal shift and salary tracking with Supabase PostgreSQL cloud sync.",
   "type": "module",
+  "homepage": "https://aoe1920.github.io/salary-tracker/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aoe1920/salary-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aoe1920/salary-tracker/issues"
+  },
   "scripts": {
     "start": "npx serve -l 8080 .",
     "check": "node --check js/app.js",
     "test": "node --check js/app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/F0n9/salary-tracker.git"
   },
   "keywords": [
     "salary-tracker",
@@ -20,7 +24,7 @@
     "supabase",
     "offline-first"
   ],
-  "author": "F0n9",
+  "author": "Tien Dang",
   "license": "MIT",
   "dependencies": {
     "morphicons": "^2.0.2"

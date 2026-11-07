@@ -1,7 +1,5 @@
 # Product
 
-<!-- impeccable:product-schema 1 -->
-
 ## Platform
 
 web
@@ -62,8 +60,8 @@ Công cụ chấm công và tính lương cá nhân Progressive Web App (PWA) v�
 
 ## Evidence on Hand
 
-- Ứng dụng web thực tế đã được triển khai công khai trên GitHub Pages tại địa chỉ `https://f0n9.github.io/salary-tracker/`.
-- Mã nguồn nguồn mở hoàn chỉnh trên GitHub repository `F0n9/salary-tracker` với cấu trúc thư mục chuẩn `assets/icons/`, `css/`, `js/` và `package.json`.
+- Ứng dụng web thực tế đã được triển khai công khai trên GitHub Pages tại địa chỉ `https://aoe1920.github.io/salary-tracker/`.
+- Mã nguồn nguồn mở hoàn chỉnh trên GitHub repository `aoe1920/salary-tracker` với cấu trúc thư mục chuẩn `assets/icons/`, `css/`, `js/` và `package.json`.
 - Hệ thống cơ sở dữ liệu Supabase PostgreSQL hoạt động ổn định với cơ chế Row Level Security (RLS) bảo vệ quyền riêng tư tuyệt đối cho từng người dùng.
 
 ## Product Principles

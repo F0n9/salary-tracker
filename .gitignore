@@ -23,3 +23,5 @@ scratch/
 *.log
 .cache/
 .agents/
+.gemini/
+skills-lock.json
