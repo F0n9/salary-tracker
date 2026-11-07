@@ -1423,13 +1423,25 @@ export const openUserProfileModal = () => {
   document.getElementById('profileTotalHours').textContent = `${Math.round(totalHours)}h`;
 
   const pwdBox = document.querySelector('.profile-change-pwd-box');
-  const isGoogle = state.currentUser?.email && !state.currentUser.email.endsWith('@salary.app');
   if (pwdBox) {
     pwdBox.style.display = 'block';
   }
+  const hasPassword = Boolean(
+    (state.currentUser?.email && state.currentUser.email.endsWith('@salary.app')) ||
+    state.currentUser?.has_password ||
+    state.currentUser?.user_metadata?.has_password ||
+    (Array.isArray(state.currentUser?.identities) && state.currentUser.identities.some(i => i.provider === 'email')) ||
+    (Array.isArray(state.currentUser?.app_metadata?.providers) && state.currentUser.app_metadata.providers.includes('email'))
+  );
   const pwdTitle = document.getElementById('profileChangePwdTitle');
   if (pwdTitle) {
-    pwdTitle.textContent = isGoogle ? t('profile_set_pwd', 'Tạo / Đổi mật khẩu tài khoản') : t('profile_change_pw', 'Đổi mật khẩu');
+    pwdTitle.textContent = hasPassword ? t('profile_change_pw', 'Đổi mật khẩu') : t('profile_create_pw', 'Tạo mật khẩu');
+  }
+  const btnSubmitPwd = document.getElementById('btnSubmitChangePassword');
+  if (btnSubmitPwd) {
+    const lbl = hasPassword ? t('profile_change_pw', 'Đổi mật khẩu') : t('profile_create_pw', 'Tạo mật khẩu');
+    btnSubmitPwd.title = lbl;
+    btnSubmitPwd.setAttribute('aria-label', lbl);
   }
 
   const btnLinkGoogle = document.getElementById('btnLinkGoogleAccount');

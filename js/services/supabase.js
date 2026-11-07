@@ -1187,7 +1187,7 @@ export const initAuth = async () => {
           state.settings.avatar = u.user_metadata.avatar;
         }
         const activeAvatar = state.settings.avatar || u.user_metadata?.avatar || 'default';
-        state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: activeAvatar };
+        state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, app_metadata: u.app_metadata, user_metadata: u.user_metadata, avatar: activeAvatar };
         try {
           localStorage.setItem('salary_tracker_cached_user', JSON.stringify({
             id: u.id,
@@ -1307,7 +1307,7 @@ export const handleLoginSubmit = async (e) => {
     const u = data.user;
     const username = getCleanUsername(u);
     const activeAvatar = u.user_metadata?.avatar || state.settings?.avatar || 'default';
-    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: activeAvatar };
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, app_metadata: u.app_metadata, user_metadata: u.user_metadata, avatar: activeAvatar };
     if (!state.settings) state.settings = {};
     state.settings.avatar = activeAvatar;
     try {
@@ -1420,7 +1420,7 @@ export const handleRegisterSubmit = async (e) => {
     }
 
     const u = data.user;
-    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, avatar: avatarId };
+    state.currentUser = { id: u.id, email: u.email, username, identities: u.identities, app_metadata: u.app_metadata, user_metadata: u.user_metadata, avatar: avatarId };
     if (!state.settings) state.settings = {};
     state.settings.avatar = avatarId;
 
@@ -1737,6 +1737,14 @@ export const handleChangePasswordSubmit = async (e) => {
 
   errorEl.style.display = 'none';
   const originalSvg = submitBtn ? submitBtn.innerHTML : '';
+  const hadPassword = Boolean(
+    (state.currentUser?.email && state.currentUser.email.endsWith('@salary.app')) ||
+    state.currentUser?.has_password ||
+    state.currentUser?.user_metadata?.has_password ||
+    (Array.isArray(state.currentUser?.identities) && state.currentUser.identities.some(i => i.provider === 'email')) ||
+    (Array.isArray(state.currentUser?.app_metadata?.providers) && state.currentUser.app_metadata.providers.includes('email'))
+  );
+
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.style.opacity = '0.6';
@@ -1748,12 +1756,30 @@ export const handleChangePasswordSubmit = async (e) => {
     }
 
     const { data, error } = await supabaseClient.auth.updateUser({
-      password: newPassword
+      password: newPassword,
+      data: { has_password: true }
     });
 
     if (error) throw error;
 
-    showToast(t('profile_pw_updated', 'Đổi mật khẩu thành công.'));
+    if (state.currentUser) {
+      state.currentUser.has_password = true;
+      if (!state.currentUser.user_metadata) state.currentUser.user_metadata = {};
+      state.currentUser.user_metadata.has_password = true;
+      if (data?.user?.identities) state.currentUser.identities = data.user.identities;
+      if (data?.user?.app_metadata) state.currentUser.app_metadata = data.user.app_metadata;
+    }
+
+    const pwdTitle = document.getElementById('profileChangePwdTitle');
+    if (pwdTitle) pwdTitle.textContent = t('profile_change_pw', 'Đổi mật khẩu');
+    const submitBtnEl = document.getElementById('btnSubmitChangePassword');
+    if (submitBtnEl) {
+      submitBtnEl.title = t('profile_change_pw', 'Đổi mật khẩu');
+      submitBtnEl.setAttribute('aria-label', t('profile_change_pw', 'Đổi mật khẩu'));
+    }
+
+    const successMsg = hadPassword ? t('profile_pw_updated', 'Đổi mật khẩu thành công.') : t('profile_pw_created', 'Tạo mật khẩu thành công.');
+    showToast(successMsg, 'success');
     document.getElementById('formChangePassword').reset();
     document.getElementById('formChangePassword').style.display = 'none';
     const chevron = document.getElementById('iconChangePwdChevron');
