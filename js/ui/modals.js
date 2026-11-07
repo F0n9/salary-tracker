@@ -1300,44 +1300,112 @@ export const openUserProfileModal = () => {
 
   document.getElementById('profileUsername').textContent = `@${username}`;
 
+  const viewWrap = document.getElementById('profileUsernameView');
+  const editWrap = document.getElementById('profileUsernameEdit');
+  const inputEl = document.getElementById('inputEditUsername');
   const btnEditUsername = document.getElementById('btnEditUsername');
+  const btnSaveUsername = document.getElementById('btnSaveUsername');
+  const btnCancelUsername = document.getElementById('btnCancelUsername');
+
+  const setUsernameViewMode = () => {
+    if (viewWrap) viewWrap.style.display = 'inline-flex';
+    if (editWrap) editWrap.style.display = 'none';
+  };
+
+  const setUsernameEditMode = () => {
+    if (viewWrap) viewWrap.style.display = 'none';
+    if (editWrap) {
+      editWrap.style.display = 'inline-flex';
+      if (inputEl) {
+        inputEl.value = state.currentUser?.username || '';
+        requestAnimationFrame(() => {
+          inputEl.focus();
+          inputEl.select();
+        });
+      }
+    }
+  };
+
+  setUsernameViewMode();
+
+  const handleSaveUsername = async () => {
+    if (!inputEl) return;
+    const currentName = state.currentUser?.username || '';
+    const rawVal = inputEl.value;
+    if (!rawVal || !rawVal.trim()) {
+      setUsernameViewMode();
+      return;
+    }
+    const cleanName = rawVal.trim().replace(/\s+/g, '').toLowerCase();
+    if (!cleanName || cleanName === currentName) {
+      setUsernameViewMode();
+      return;
+    }
+    triggerHaptic('medium');
+    try {
+      if (state.currentUser) state.currentUser.username = cleanName;
+      document.getElementById('profileUsername').textContent = `@${cleanName}`;
+      updateHeaderAuthUI();
+      setUsernameViewMode();
+      if (supabaseClient && state.currentUser?.id) {
+        try {
+          await supabaseClient.auth.updateUser({
+            data: { username: cleanName }
+          });
+        } catch (_) {}
+        try {
+          await supabaseClient.from('user_salary_data').update({
+            username: cleanName,
+            updated_at: new Date().toISOString()
+          }).eq('user_id', state.currentUser.id);
+        } catch (_) {}
+      }
+      try {
+        const cached = localStorage.getItem('salary_tracker_cached_user');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          parsed.username = cleanName;
+          localStorage.setItem('salary_tracker_cached_user', JSON.stringify(parsed));
+        }
+      } catch (_) {}
+      showToast(t('toast_username_updated', 'Đã cập nhật tên tài khoản: @{name}').replace('{name}', cleanName), 'success');
+    } catch (err) {
+      showToast(t('toast_username_error', 'Lỗi khi đổi tên tài khoản.'), 'error');
+    }
+  };
+
   if (btnEditUsername) {
-    btnEditUsername.onclick = async (e) => {
+    btnEditUsername.onclick = (e) => {
       e.preventDefault();
       triggerHaptic('light');
-      const currentName = state.currentUser?.username || '';
-      const newName = window.prompt(t('prompt_change_username', 'Nhập tên tài khoản mới:'), currentName);
-      if (!newName || !newName.trim()) return;
-      const cleanName = newName.trim().replace(/\s+/g, '').toLowerCase();
-      if (!cleanName || cleanName === currentName) return;
-      try {
-        if (state.currentUser) state.currentUser.username = cleanName;
-        document.getElementById('profileUsername').textContent = `@${cleanName}`;
-        updateHeaderAuthUI();
-        if (supabaseClient && state.currentUser?.id) {
-          try {
-            await supabaseClient.auth.updateUser({
-              data: { username: cleanName }
-            });
-          } catch (_) {}
-          try {
-            await supabaseClient.from('user_salary_data').update({
-              username: cleanName,
-              updated_at: new Date().toISOString()
-            }).eq('user_id', state.currentUser.id);
-          } catch (_) {}
-        }
-        try {
-          const cached = localStorage.getItem('salary_tracker_cached_user');
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            parsed.username = cleanName;
-            localStorage.setItem('salary_tracker_cached_user', JSON.stringify(parsed));
-          }
-        } catch (_) {}
-        showToast(t('toast_username_updated', 'Đã cập nhật tên tài khoản: @{name}').replace('{name}', cleanName), 'success');
-      } catch (err) {
-        showToast(t('toast_username_error', 'Lỗi khi đổi tên tài khoản.'), 'error');
+      setUsernameEditMode();
+    };
+  }
+
+  if (btnSaveUsername) {
+    btnSaveUsername.onclick = (e) => {
+      e.preventDefault();
+      handleSaveUsername();
+    };
+  }
+
+  if (btnCancelUsername) {
+    btnCancelUsername.onclick = (e) => {
+      e.preventDefault();
+      triggerHaptic('light');
+      setUsernameViewMode();
+    };
+  }
+
+  if (inputEl) {
+    inputEl.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSaveUsername();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        triggerHaptic('light');
+        setUsernameViewMode();
       }
     };
   }

@@ -136,6 +136,7 @@ const I18N_VI = {
     btn_delete_account: 'Xóa tài khoản',
     confirm_delete_account: 'Bạn có chắc chắn muốn xóa tài khoản này không? Toàn bộ dữ liệu ca làm, lịch sử tuần và cài đặt sẽ bị xóa vĩnh viễn và không thể khôi phục.',
     toast_account_deleted: 'Đã xóa tài khoản và toàn bộ dữ liệu.',
+    btn_save: 'Lưu',
     btn_cancel: 'Hủy',
     btn_close: 'Đóng',
     ph_break: 'Phút nghỉ',
