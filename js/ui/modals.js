@@ -408,6 +408,15 @@ export const openEditWeekModal = () => {
   document.getElementById('editWeekStartDateInput').value = week.startDate || getMondayDate(new Date());
   const editRateInput = document.getElementById('editWeekRateInput');
   if (editRateInput) editRateInput.value = week.rate || 0;
+
+  const btnDel = document.getElementById('btnDeleteCurrentWeekInModal');
+  if (btnDel) {
+    const isOnly = !state.weeks || state.weeks.length <= 1;
+    btnDel.disabled = isOnly;
+    btnDel.classList.toggle('is-disabled', isOnly);
+    btnDel.title = isOnly ? 'Không thể xóa tuần duy nhất' : t('btn_delete_week', 'Xóa tuần');
+  }
+
   document.getElementById('editWeekModal').style.display = 'flex';
 };
 
@@ -916,15 +925,13 @@ export const renderShiftWorkplacesList = () => {
               <path d="m15 5 4 4"></path>
             </svg>
           </button>
-          ${hasMultiple ? `
-            <button type="button" class="swq-btn-icon is-danger btn-remove-workplace" data-del-wp="${idx}" title="${t('btn_delete_wp', 'Xóa nơi làm')}" aria-label="Xóa">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-              </svg>
-            </button>
-          ` : ''}
+          <button type="button" class="swq-btn-icon is-danger ${hasMultiple ? 'btn-remove-workplace' : 'is-disabled'}" ${hasMultiple ? `data-del-wp="${idx}"` : 'disabled aria-disabled="true"'} title="${hasMultiple ? t('btn_delete_wp', 'Xóa nơi làm') : 'Cần có ít nhất một nơi làm việc'}" aria-label="Xóa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+          </button>
         </div>
       </div>
       <div class="swq-card-bottom">

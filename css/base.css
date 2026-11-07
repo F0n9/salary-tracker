@@ -103,7 +103,7 @@ html {
 body {
   min-height: 100vh;
   padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.25rem);
   line-height: 1.5;
   background-color: #f8fafc;
   background: var(--bg-app);
@@ -393,5 +393,53 @@ body.dark-mode .brand-badge {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+button:disabled,
+button[disabled],
+button.is-disabled,
+button[aria-disabled="true"],
+.btn-morphic:disabled,
+.btn-morphic[disabled],
+.btn-morphic.is-disabled,
+.btn-morphic[aria-disabled="true"],
+.btn-action-primary:disabled,
+.btn-action-primary.is-disabled,
+.btn-action-danger:disabled,
+.btn-action-danger.is-disabled,
+.btn-primary-auth:disabled,
+.btn-primary-auth.is-disabled,
+.week-nav-step-btn:disabled,
+.week-nav-step-btn.is-disabled,
+.swq-btn-icon:disabled,
+.swq-btn-icon.is-disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  filter: grayscale(0.7) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.dark-mode button:disabled,
+body.dark-mode button[disabled],
+body.dark-mode button.is-disabled,
+body.dark-mode button[aria-disabled="true"],
+body.dark-mode .btn-morphic:disabled,
+body.dark-mode .btn-morphic.is-disabled,
+body.dark-mode .btn-action-primary:disabled,
+body.dark-mode .btn-action-primary.is-disabled,
+body.dark-mode .btn-action-danger:disabled,
+body.dark-mode .btn-action-danger.is-disabled,
+body.dark-mode .week-nav-step-btn:disabled,
+body.dark-mode .week-nav-step-btn.is-disabled,
+body.dark-mode .swq-btn-icon:disabled,
+body.dark-mode .swq-btn-icon.is-disabled {
+  opacity: 0.25 !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 

@@ -77,26 +77,38 @@ const goToAdjacentWeek = (direction) => {
 const updateWeekNavButtons = () => {
   const btnPrev = document.getElementById('btnPrevWeek');
   const btnNext = document.getElementById('btnNextWeek');
+  const dockPrev = document.getElementById('dockPrevWeek');
+  const dockNext = document.getElementById('dockNextWeek');
+
   if (!state.weeks || !state.weeks.length) {
-    if (btnPrev) {
-      btnPrev.disabled = true;
-      btnPrev.classList.add('is-disabled');
-    }
-    if (btnNext) {
-      btnNext.disabled = true;
-      btnNext.classList.add('is-disabled');
-    }
+    [btnPrev, btnNext, dockPrev, dockNext].forEach(btn => {
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('is-disabled');
+        btn.setAttribute('aria-disabled', 'true');
+      }
+    });
     return;
   }
   const currentIndex = state.weeks.findIndex(w => w.id === state.currentWeekId);
-  if (btnPrev) {
-    btnPrev.disabled = currentIndex <= 0;
-    btnPrev.classList.toggle('is-disabled', currentIndex <= 0);
-  }
-  if (btnNext) {
-    btnNext.disabled = currentIndex >= state.weeks.length - 1;
-    btnNext.classList.toggle('is-disabled', currentIndex >= state.weeks.length - 1);
-  }
+  const isFirst = currentIndex <= 0;
+  const isLast = currentIndex >= state.weeks.length - 1;
+
+  [btnPrev, dockPrev].forEach(btn => {
+    if (btn) {
+      btn.disabled = isFirst;
+      btn.classList.toggle('is-disabled', isFirst);
+      btn.setAttribute('aria-disabled', isFirst ? 'true' : 'false');
+    }
+  });
+
+  [btnNext, dockNext].forEach(btn => {
+    if (btn) {
+      btn.disabled = isLast;
+      btn.classList.toggle('is-disabled', isLast);
+      btn.setAttribute('aria-disabled', isLast ? 'true' : 'false');
+    }
+  });
 };
 
 let isProgrammaticWheelScroll = false;
@@ -893,6 +905,7 @@ const bindEvents = () => {
     };
 
     const startHold = (e) => {
+      if (btn.disabled || btn.classList.contains('is-disabled')) return;
       if (e.button !== undefined && e.button !== 0) return;
       didHold = false;
       const ok = goToAdjacentWeek(direction);

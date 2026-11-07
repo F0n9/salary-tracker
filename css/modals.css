@@ -1646,8 +1646,8 @@ body.dark-mode .btn-logout-action {
 }
 
 .app-footer {
-  margin-top: 0.75rem;
-  padding: 0.75rem 0 3.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0 0.5rem;
   text-align: center;
   border-top: 1px solid var(--border-subtle);
 }
@@ -3415,11 +3415,21 @@ body.dark-mode .floating-dock .btn-morphic {
   box-shadow: none;
 }
 
-body.dark-mode .floating-dock .btn-morphic:hover {
+body.dark-mode .floating-dock .btn-morphic:hover:not(:disabled):not(.is-disabled) {
   background: #22242f;
   border-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .floating-dock .btn-morphic:disabled,
+body.dark-mode .floating-dock .btn-morphic.is-disabled {
+  opacity: 0.22 !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
 }
 
 body.dark-mode .week-wheel-container {

@@ -112,10 +112,14 @@ body.dark-mode .btn-morphic:hover {
   transform: scale(0.96);
 }
 
-.btn-morphic.disabled-state {
-  opacity: 0.4;
-  pointer-events: none;
-  filter: grayscale(0.5);
+.btn-morphic.disabled-state,
+.btn-morphic:disabled,
+.btn-morphic.is-disabled {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+  filter: grayscale(0.7) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
 }
 
 body.dark-mode .btn-morphic:active,
@@ -985,8 +989,8 @@ body.dark-mode .dashboard-chart-strip {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 0 0.5rem;
-  margin-top: 1.5rem;
+  padding: 0.75rem 0 0.5rem;
+  margin-top: 1rem;
   border-top: 1px solid var(--border-subtle);
 }
 
