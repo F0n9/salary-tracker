@@ -2,7 +2,7 @@ import { state, getCurrentWeek, hasWorkplaces, getDefaultWorkplace, getWorkplace
 import { fmtCurrency, fmtHours, getShiftRate, getShiftEarnings, calculateWeekTotalSalary, hoursToColonFormat, hoursToHourMinutes, getVietnameseDayOfWeek, getMondayDate, getShiftDateObj, getShiftDateShort, getShiftDateFull, getWeekDateRangeDisplay, ensureWeekStartDate, getDayClass, formatShiftType, detectShiftType, escapeHtml, calculateSmartShiftDefaults } from './calculator.js';
 import { t, getLocalizedWeekName, getLocalizedShiftType, getLocalizedDayName } from './i18n.js';
 import { applyTheme, toggleTheme } from './theme.js';
-import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, restoreCachedUserSync, restoreCachedStateSync, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleGoogleSignIn, handleForgotPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
+import { supabaseClient, loadState, saveWeeks, syncWithSupabase, saveSettings, initAuth, restoreCachedUserSync, restoreCachedStateSync, updateHeaderAuthUI, updateSyncStatusUI, syncPendingToCloud, handleLoginSubmit, handleRegisterSubmit, handleLogout, handleDeleteAccount, handleGoogleSignIn, handleForgotPasswordSubmit, handleLinkGoogleAccount, handleChangePasswordSubmit, setupRealtimeSync, setupAutoSync, setSupabaseAppRenderer } from './services/supabase.js';
 import { triggerHaptic } from './ui/haptic.js';
 import { showToast, showToastWithAction } from './ui/toast.js';
 import { setupCustomSelect, syncCustomSelect, closeAllCustomSelects } from './ui/select.js';
@@ -574,6 +574,9 @@ const bindEvents = () => {
 
   const btnLogoutUser = document.getElementById('btnLogoutUser');
   if (btnLogoutUser) btnLogoutUser.addEventListener('click', handleLogout);
+
+  const btnDeleteAccount = document.getElementById('btnDeleteAccount');
+  if (btnDeleteAccount) btnDeleteAccount.addEventListener('click', handleDeleteAccount);
 
   const btnGoogleSignIn = document.getElementById('btnGoogleSignIn');
   if (btnGoogleSignIn) btnGoogleSignIn.addEventListener('click', handleGoogleSignIn);

@@ -1474,6 +1474,62 @@ export const handleLogout = async () => {
   }
 };
 
+export const handleDeleteAccount = async () => {
+  if (!state.currentUser) return;
+  const currentName = state.currentUser.username || (state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user');
+  const confirmed = await showConfirmDialog({
+    title: t('btn_delete_account', 'Xóa tài khoản'),
+    message: t('confirm_delete_account', 'Bạn có chắc chắn muốn xóa tài khoản này không? Toàn bộ dữ liệu ca làm, lịch sử tuần và cài đặt sẽ bị xóa vĩnh viễn và không thể khôi phục.'),
+    details: `@${currentName}`,
+    confirmText: t('btn_delete_account', 'Xóa tài khoản'),
+    cancelText: t('btn_cancel', 'Hủy'),
+    isDanger: true,
+    iconType: 'delete'
+  });
+  if (confirmed) {
+    const userId = state.currentUser.id;
+    if (supabaseClient && userId) {
+      try {
+        await supabaseClient.from('user_salary_data').delete().eq('user_id', userId);
+      } catch (err) {
+        console.warn('Delete user_salary_data failed:', err);
+      }
+      try {
+        if (typeof supabaseClient.rpc === 'function') {
+          await supabaseClient.rpc('delete_user');
+        }
+      } catch (_) {}
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (_) {}
+    }
+    state.currentUser = null;
+    try {
+      localStorage.removeItem('salary_tracker_cached_user');
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('salary_cloud_cache') || k.startsWith('shift_tracker_') || k.startsWith('salary_user_weeks'))) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    } catch (_) {}
+    clearPendingSync();
+    state.weeks = JSON.parse(JSON.stringify(GUEST_DEFAULT_DATA));
+    if (!state.settings) state.settings = {};
+    state.settings.workplaces = [];
+    state.currentWeekId = state.weeks[0].id;
+    saveWeeks();
+    updateHeaderAuthUI();
+    updateSyncStatusUI();
+    triggerAppRender();
+    const profileModal = document.getElementById('userProfileModal');
+    if (profileModal) profileModal.style.display = 'none';
+    showToast(t('toast_account_deleted', 'Đã xóa tài khoản và toàn bộ dữ liệu.'), 'success');
+  }
+};
+
 export const handleGoogleSignIn = async () => {
   if (!supabaseClient) {
     showToast(t('auth_err_supabase', 'Chưa kết nối được với Supabase. Vui lòng kiểm tra mạng hoặc tải lại trang.'));
