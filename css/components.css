@@ -504,7 +504,7 @@ body.dark-mode .hero-period-title .hero-period-year {
   gap: 4px;
   max-width: 440px;
   min-width: 0;
-  height: 38px;
+  height: 36px;
   border-radius: var(--radius-pill);
   background: var(--bg-card);
   border: 1px solid var(--border-default);
@@ -607,6 +607,7 @@ body.dark-mode .hero-period-title .hero-period-year {
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: var(--font-sans);
 }
 
 .week-wheel-item .wheel-item-sub {
@@ -618,6 +619,7 @@ body.dark-mode .hero-period-title .hero-period-year {
   background: rgba(0, 0, 0, 0.05);
   padding: 1px 6px;
   border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
 }
 
 .week-wheel-item:not(.active):hover {

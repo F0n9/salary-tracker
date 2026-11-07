@@ -124,7 +124,7 @@ const renderWeekPills = () => {
     const totalWage = calculateWeekTotalSalary(week);
 
     item.innerHTML = `
-      <span class="wheel-item-name font-mono">${getLocalizedWeekName(week.name)}</span>
+      <span class="wheel-item-name">${getLocalizedWeekName(week.name)}</span>
       <span class="wheel-item-sub font-mono">${fmtCurrency(totalWage)}</span>
     `;
 

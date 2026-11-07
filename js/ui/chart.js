@@ -478,7 +478,7 @@ export const renderAnalyticsDashboard = () => {
     pillsContainer.innerHTML = '';
     const allPill = document.createElement('button');
     allPill.type = 'button';
-    allPill.className = `filter-pill-btn font-mono ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
+    allPill.className = `filter-pill-btn ${analyticsState.workplaceFilter === 'all' ? 'active' : ''}`;
     allPill.textContent = t('filter_all', 'Tất cả');
     allPill.addEventListener('click', () => {
       analyticsState.workplaceFilter = 'all';
@@ -489,7 +489,7 @@ export const renderAnalyticsDashboard = () => {
     data.availableWorkplaces.forEach(wp => {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = `filter-pill-btn font-mono ${analyticsState.workplaceFilter === wp ? 'active' : ''}`;
+      chip.className = `filter-pill-btn ${analyticsState.workplaceFilter === wp ? 'active' : ''}`;
       const col = getWorkplaceColor(wp);
       chip.innerHTML = `<span class="wb-color-dot" style="background:${col.fill};"></span><span>${escapeHtml(wp)}</span>`;
       chip.addEventListener('click', () => {
